@@ -434,8 +434,10 @@ additionally, mommy knows a few extra options, which you can use to discover who
 | `-1`         |                               | writes output to stdout instead of stderr~                                                        |
 | `-c <file>`  | `--config=<file>`             | tells mommy that she should read your [config](#configuration) from `<file>`~                     |
 | `-d <dirs>`  | `--global-config-dirs=<dirs>` | sets [global configuration dirs](#config-file-locations) to the colon-separated list in `<dirs>`~ |
-|              | `--rename=<name>`             | changes mommy executable name                                                                     |
-|              | `--remove-rename=<name>`      | removes a previous rename and its symlinks                                                        |
+| `-r <name>`  | `--rename=<name>`             | creates a symlink to the mommy executable with a new name (requires root)~                         |
+|              | `--remove-rename=<name>`      | removes a previously created rename symlink and its metadata (requires root)~                      |
+
+for more details on `-r`/`--rename` and `--remove-rename`, see the [renaming section](#renaming-the-mommy-executable)~
 
 
 ## 🙋 configuration<a name="configuration"></a> <small><sup>[top ▲](#toc)</sup></small>
@@ -749,6 +751,29 @@ if you use any of the above integrations, you don't have to call mommy directly.
 if you don't want that, but also don't want to write `mommy`, this section explains how you can instead write, say,
 `daddy`, `marija`, or `sinterklaas`~
 
+there are two ways to rename mommy:
+
+**Method 1: Using the `--rename` command (recommended)**
+
+mommy provides a built-in command to create rename symlinks. this method is simpler and tracks renames for cleanup:
+```shell
+sudo mommy --rename=daddy
+sudo mommy --rename=marija
+# or using the short flag -r
+sudo mommy -r daddy
+sudo mommy -r marija
+```
+
+this will create symlinks named `daddy` and `marija` in the same directory as the `mommy` executable, both pointing to the original `mommy` script.
+the rename tracking allows you to later remove these renames:
+```shell
+sudo mommy --remove-rename=daddy
+sudo mommy --remove-rename=marija
+```
+
+**Method 2: Manual symlinking**
+
+if you prefer to create symlinks manually, you can still use the traditional approach.
 mommy is installed in slightly different locations on different systems, but you can easily find where mommy is
 installed with `whereis mommy`:
 ```shell
@@ -759,7 +784,7 @@ the exact output of `whereis` differs depending on your system, but in this case
 installed in `/usr/bin/mommy` (and the manual page in `/usr/share/man/man1/mommy.1.gz`).
 if `whereis mommy` doesn't work, mommy is not on your path, but you can still find her with `find / -name mommy`~
 
-anyway, after finding mommy, you can just symlink using the following commands:
+after finding mommy, you can just symlink using the following commands:
 (if `whereis` gave different paths than the ones above, then change these commands accordingly)
 ```shell
 sudo ln -fs /usr/bin/mommy /usr/bin/daddy
@@ -767,7 +792,17 @@ sudo ln -fs /usr/share/man/man1/mommy.1.gz /usr/share/man/man1/daddy.1.gz
 ```
 
 > [!IMPORTANT]
-> uninstalling mommy will not remove the manually created symlinks~
+> if you manually created symlinks, uninstalling mommy will not remove them~
+> if you used the `--rename` command, use `--remove-rename` to clean up before uninstalling~
+
+**API Reference for rename options**
+
+| option                   | short option | description                                                                                                              |
+|--------------------------|--------------|--------------------------------------------------------------------------------------------------------------------------|
+| `--rename=<name>`        | `-r <name>`  | creates a new symlink to the mommy executable with the given name. requires root privileges. stores rename metadata.    |
+| `--remove-rename=<name>` |              | removes the rename symlink and its corresponding man page symlink. requires root privileges. removes rename metadata.   |
+
+both commands automatically detect the correct installation directories for your system, including support for Unix-like systems and Windows (WSL/Git Bash)~
 </details>
 
 

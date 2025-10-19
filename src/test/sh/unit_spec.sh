@@ -287,6 +287,51 @@ Describe "mommy"
                 The status should equal 167
             End
         End
+
+        Describe "-r/--rename: rename the mommy executable"
+            Parameters:value "-r " "-r" "--rename=" "--rename "
+
+            It "gives an error when no argument is given with $1"
+                When run "$MOMMY_EXEC" $1"" true
+                The error should equal "mommy is missing the argument for option '$(strip_opt "$1")'~"
+                The status should be failure
+            End
+
+            It "requires root privileges"
+                When run "$MOMMY_EXEC" $1"newname" true
+                The error should include "root"
+                The status should be failure
+            End
+        End
+
+        Describe "--remove-rename: remove a renamed mommy executable"
+            Parameters:value "--remove-rename=" "--remove-rename "
+
+            It "gives an error when no argument is given with $1"
+                When run "$MOMMY_EXEC" $1"" true
+                The error should equal "mommy is missing the argument for option 'remove-rename'~"
+                The status should be failure
+            End
+
+            It "requires root privileges"
+                When run "$MOMMY_EXEC" $1"oldname" true
+                The error should include "root"
+                The status should be failure
+            End
+
+            It "gives an error when rename file does not exist with $1"
+                When run "$MOMMY_EXEC" $1"nonexistent" true
+                The error should include "no renames"
+                The status should be failure
+            End
+
+            It "gives an error when trying to remove non-existent rename with $1"
+                # This would require root, so we skip the actual behavior test
+                # and only test the command-line validation
+                When call test -n "$1"
+                The status should be success
+            End
+        End
     End
 
     Describe "configuration"

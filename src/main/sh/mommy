@@ -335,7 +335,7 @@ opt_status=""
 opt_rename_to=""
 opt_remove_rename=""
 
-while getopts ":hv1d:c:e:s:-:" OPT; do
+while getopts ":hv1d:c:e:s:r:-:" OPT; do
     # Cheap workaround for long options, cf. https://stackoverflow.com/a/28466267
     if [ "-" = "$OPT" ]; then
         OPT="${OPTARG%%=*}"
@@ -352,6 +352,7 @@ while getopts ":hv1d:c:e:s:-:" OPT; do
     c|config) opt_config="$OPTARG" ;;
     e|eval) require_arg; opt_eval="$OPTARG" ;;
     s|status) require_arg; require_int; opt_status="$OPTARG" ;;
+    r|rename) require_arg; opt_rename_to="$OPTARG" ;;
     rename) require_arg; opt_rename_to="$OPTARG" ;;
     remove-rename) require_arg; opt_remove_rename="$OPTARG" ;;
     :) die "mommy's last option is missing its argument~" ;;
@@ -407,9 +408,9 @@ if [ -n "$opt_rename_to" ] || [ -n "$opt_remove_rename" ]; then
         fi
         
         # Remove the entry from renames file
-        temp_file="$(mktemp)"
-        grep -v "^$opt_remove_rename:" "$renames_file" > "$temp_file"
-        mv "$temp_file" "$renames_file"
+        temp_file="$(mktemp -t mommy-renames.XXXXXX)" || die "mommy couldn't create temporary file~"
+        grep -v "^$opt_remove_rename:" "$renames_file" > "$temp_file" || die "mommy couldn't filter renames file~"
+        mv "$temp_file" "$renames_file" || die "mommy couldn't update renames file~"
         
         printf "Removed rename: %s\n" "$opt_remove_rename"
         exit 0
@@ -436,6 +437,8 @@ if [ -n "$opt_rename_to" ] || [ -n "$opt_remove_rename" ]; then
         die "mommy couldn't find her shell script"
     fi
 
+    # Derive the directory from the shell script path (works on all POSIX systems)
+    # On Windows (WSL/Git Bash), this still produces valid paths
     new_shell="${mommyshellscript%/*}/$opt_rename_to"
     new_man="${mommymandocs%/*}/$opt_rename_to.1.gz"
 
@@ -444,11 +447,13 @@ if [ -n "$opt_rename_to" ] || [ -n "$opt_remove_rename" ]; then
         die "mommy already has a rename called '$opt_rename_to'~"
     fi
 
-    ln -sf "$mommyshellscript" "$new_shell"
-    ln -sf "$mommymandocs"   "$new_man"
+    # Create symlinks (Windows on WSL/Git Bash supports symlinks; native Windows should use --rename with care)
+    ln -sf "$mommyshellscript" "$new_shell" || die "mommy couldn't create shell symlink at $new_shell~"
+    ln -sf "$mommymandocs"   "$new_man" || die "mommy couldn't create man symlink at $new_man~"
 
-    # Record the rename
-    printf "%s:%s:%s\n" "$opt_rename_to" "$new_shell" "$new_man" >> "$renames_file"
+    # Record the rename for future removal
+    printf "%s:%s:%s\n" "$opt_rename_to" "$new_shell" "$new_man" >> "$renames_file" || \
+        die "mommy couldn't record the rename~"
 
     printf "Renamed %s → %s\n" "$new_shell" "$mommyshellscript"
     printf "Renamed %s → %s\n" "$new_man" "$mommymandocs"

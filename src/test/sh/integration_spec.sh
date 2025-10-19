@@ -155,4 +155,72 @@ Describe "integration of mommy with other programs"
             The output should include "integration_spec.sh"
         End
     End
+
+    Describe "--rename and --remove-rename: renaming the executable"
+        skip_if_not_root() {
+            if [ "$(id -u)" -ne 0 ]; then
+                Skip "not running as root"
+            fi
+        }
+
+        rename_setup() {
+            # Create a temporary bin directory
+            rename_test_bin="$MOMMY_TMP_DIR/bin"
+            mkdir -p "$rename_test_bin"
+            
+            # Copy mommy script to test directory if not using system installation
+            if [ "$MOMMY_SYSTEM" = "1" ]; then
+                mommy_path="$(command -v mommy)"
+            else
+                mommy_path="$(cd "../../main/sh" && pwd)/mommy"
+            fi
+            
+            cp "$mommy_path" "$rename_test_bin/mommy"
+            chmod +x "$rename_test_bin/mommy"
+            
+            # Set up test environment
+            rename_exec="$rename_test_bin/mommy"
+            rename_test_name="testmommy"
+        }
+
+        BeforeEach "rename_setup"
+
+        It "requires root privileges for --rename"
+            When run "$rename_exec" --rename="$rename_test_name" true
+            The error should match pattern "root|Root|ROOT|permission"
+            The status should be failure
+        End
+
+        It "requires root privileges for --remove-rename"
+            When run "$rename_exec" --remove-rename="$rename_test_name" true
+            The error should match pattern "root|Root|ROOT|permission"
+            The status should be failure
+        End
+
+        It "fails when renames file doesn't exist for --remove-rename"
+            When run "$rename_exec" --remove-rename="nonexistent" true
+            The error should match pattern "no renames|doesn't have"
+            The status should be failure
+        End
+
+        It "handles missing arguments correctly for --rename"
+            When run "$rename_exec" --rename="" true
+            The error should match pattern "missing|required"
+            The status should be failure
+        End
+
+        It "handles missing arguments correctly for --remove-rename"
+            When run "$rename_exec" --remove-rename="" true
+            The error should match pattern "missing|required"
+            The status should be failure
+        End
+
+        It "preserves mommy functionality after rename check"
+            set_config "MOMMY_COMPLIMENTS='rename works'"
+            
+            When run "$rename_exec" -c "$MOMMY_CONFIG_FILE" true
+            The error should equal "rename works"
+            The status should be success
+        End
+    End
 End
