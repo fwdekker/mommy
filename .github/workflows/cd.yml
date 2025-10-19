@@ -246,6 +246,20 @@ jobs:
           prerelease: false
           discussion_category_name: announcements
 
+      - name: Checkout 'latest'
+        uses: actions/checkout@v4
+        with:
+          ref: latest
+          fetch-depth: 0
+          fetch-tags: true
+          # Required to push fast-forwarded branch back
+          token: ${{ secrets.personal_access_token }}
+      - name: Update 'latest' branch
+        if: ${{ github.event.inputs.dry_run == 'false' && github.event.inputs.release_mommy == 'true' }}
+        run: |
+          git merge --ff-only origin/main
+          git push
+
   release-apt:
     if: ${{ github.event.inputs.release_apt == 'true' }}
     needs: [ pre-flight-checks, release-mommy ]

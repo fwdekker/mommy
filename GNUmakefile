@@ -1,4 +1,4 @@
-## Locations
+## Build variables
 # Build file locations
 build_dir := build/
 dist_dir := dist/
@@ -13,10 +13,17 @@ zsh_prefix = $(prefix)/share/zsh/site-functions/
 # Build dependency locations
 shellspec_bin := shellspec
 
-# Set target-specific locations
+# Man page compression method
+man_compress_cmd := gzip -9nf
+man_compress_ext := .gz
+
+
+## Target-specific overrides
 %/deb: zsh_prefix = $(prefix)/share/zsh/vendor-completions/
 %/freebsd: prefix = /usr/local/
 %/generic: prefix = $(build_dir)/generic/mommy-$(version)/usr/
+%/gentoo: man_compress_cmd := :  # Disables compression by calling the noop `:` command instead
+%/gentoo: man_compress_ext :=  # The empty string
 %/netbsd: prefix = $(build_dir)/netbsd/usr/pkg/
 %/netbsd: man_prefix = $(prefix)/man/
 %/openbsd: prefix = $(build_dir)/openbsd/usr/local/
@@ -82,7 +89,11 @@ build:
 	@rm -f "$(build_dir)/bin/mommy.bak" "$(build_dir)/man/man1/mommy.1.bak"
 
 	@# Compress
-	@gzip -9nf "$(build_dir)/man/man1/mommy.1"
+	@$(man_compress_cmd) "$(build_dir)/man/man1/mommy.1"
+
+# Build, with target-specific overrides from the preamble
+.PHONY: build/%
+build/%: build ;
 
 
 ## Installation
@@ -94,11 +105,11 @@ install: build
 
 	@# Copy files
 	@install -m 755 "$(build_dir)/bin/mommy" "$(bin_prefix)"
-	@install -m 644 "$(build_dir)/man/man1/mommy.1.gz" "$(man_prefix)/man1/"
+	@install -m 644 "$(build_dir)/man/man1/mommy.1$(man_compress_ext)" "$(man_prefix)/man1/"
 	@install -m 644 "$(build_dir)/completions/fish/mommy.fish" "$(fish_prefix)"
 	@install -m 644 "$(build_dir)/completions/zsh/_mommy" "$(zsh_prefix)"
 
-# Install with preset overrides, as specified later
+# Install, with target-specific overrides from the preamble
 .PHONY: install/%
 install/%: install ;
 
@@ -108,11 +119,11 @@ install/%: install ;
 .PHONY: uninstall
 uninstall:
 	@rm "$(bin_prefix)/mommy"
-	@rm "$(man_prefix)/man1/mommy.1.gz"
+	@rm "$(man_prefix)/man1/mommy.1$(man_compress_ext)"
 	@rm "$(fish_prefix)/mommy.fish"
 	@rm "$(zsh_prefix)/_mommy"
 
-# Uninstall, after loading OS-specific overrides
+# Uninstall, with target-specific overrides from the preamble
 .PHONY: uninstall/%
 uninstall/%: uninstall ;
 
@@ -198,6 +209,6 @@ fpm/%: build
 		--freebsd-osversion "*" \
 		\
 		"$(build_dir)/bin/mommy=$(bin_prefix)/mommy" \
-		"$(build_dir)/man/man1/mommy.1.gz=$(man_prefix)/man1/mommy.1.gz" \
+		"$(build_dir)/man/man1/mommy.1$(man_compress_ext)=$(man_prefix)/man1/mommy.1$(man_compress_ext)" \
 		"$(build_dir)/completions/fish/mommy.fish=$(fish_prefix)/mommy.fish" \
 		"$(build_dir)/completions/zsh/_mommy=$(zsh_prefix)/_mommy"

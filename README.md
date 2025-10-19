@@ -903,9 +903,15 @@ let's go into them in more detail~
 <details>
 <summary>📯 release</summary>
 
-[`main`](https://github.com/FWDekker/mommy/tree/main) always contains the latest stable version.
-to release a new version, just use the [deploy action](https://github.com/FWDekker/mommy/actions/workflows/cd.yml),
-which can be activated using a `workflow_dispatch` event~
+[`main`](https://github.com/FWDekker/mommy/tree/main) contains the latest in-development version.
+when the version in `main` is ready to be released, just use the
+[deploy action](https://github.com/FWDekker/mommy/actions/workflows/cd.yml), which can be activated using a
+`workflow_dispatch` event~
+
+[`latest`](https://github.com/FWDekker/mommy/tree/latest) contains the most recently released version.
+this version can be considered stable.
+when a new version is deployed as described above, the `latest` branch is fast-forwarded automatically.
+you should **not** update the `latest` branch manually!
 
 <b>release checklists</b>
 
@@ -926,6 +932,7 @@ which can be activated using a `workflow_dispatch` event~
 
 * **after triggering deployment**
   * a new github release is created automatically~
+  * the [`latest`](https://github.com/FWDekker/mommy/tree/latest) branch is pointed to the new release~
   * [aur-mommy](https://github.com/FWDekker/aur-mommy/)
     * updated automatically when `mommy` updates
     * always [manually check deployment status](https://github.com/FWDekker/aur-mommy/actions?query=branch%3Amaster)~
