@@ -39,25 +39,41 @@ jobs:
 
     steps:
       - name: Print inputs
+        env:
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+          RELEASE_MOMMY: ${{ github.events.inputs.release_mommy }}
+          RELEASE_APT: ${{ github.events.inputs.release_apt }}
+          RELEASE_AUR: ${{ github.events.inputs.release_aur }}
+          RELEASE_HOMEBREW: ${{ github.events.inputs.release_homebrew }}
         run: |
-          echo "dry_run: ${{ github.event.inputs.dry_run }}"
+          printf "dry_run: '%s'\n" "$DRY_RUN"
+          printf "release_mommy: '%s'\n" "$RELEASE_MOMMY"
+          printf "release_apt: '%s'\n" "$RELEASE_APT"
+          printf "release_aur: '%s'\n" "$RELEASE_AUR"
+          printf "release_homebrew: '%s'\n" "$RELEASE_HOMEBREW"
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Extract mommy's version number
+      - name: Extract and validate mommy's version number
         id: mommy_version
         run: |
           MOMMY_VERSION="v$(head -n 1 ./version)"
-          echo "Found version '$MOMMY_VERSION'"
-          echo "MOMMY_VERSION=$MOMMY_VERSION" >> "$GITHUB_ENV"
-          echo "MOMMY_VERSION=$MOMMY_VERSION" >> "$GITHUB_OUTPUT"
-      - name: Check if corresponding section exists in changelog
+          test -n "$MOMMY_VERSION"
+          expr match "$MOMMY_VERSION" "^v[0-9a-zA-Z\-\.]*$" >/dev/null
+
+          printf "Found version '%s'\n" "$MOMMY_VERSION"
+          printf "MOMMY_VERSION=%s\n" "$MOMMY_VERSION" >> "$GITHUB_ENV"
+          printf "MOMMY_VERSION=%s\n" "$MOMMY_VERSION" >> "$GITHUB_OUTPUT"
+      - name: "Check: Version is listed in changelog"
         # yes, you really do need to compare with a string, and no, using ! does not work~
         if: ${{ github.event.inputs.dry_run == 'false' }}
-        run: grep -qF "# [${MOMMY_VERSION#v}] --" CHANGELOG.md
-      - name: Check if release already exists
+        run: grep -qF "# [${MOMMY_VERSION#v}] -- " CHANGELOG.md
+      - name: "Check: Changelog does not contain string 'TODO'"
         if: ${{ github.event.inputs.dry_run == 'false' }}
-        # using `fetch-tags` option of `actions/checkout` does not work properly~
+        run: '! grep -qF "TODO" CHANGELOG.md'
+      - name: "Check: Release does not already exist"
+        if: ${{ github.event.inputs.dry_run == 'false' }}
         run: |
+          # Using `fetch-tags` option of `actions/checkout` does not work properly
           git fetch --prune --unshallow --tags
           ! git show-ref --tags "$MOMMY_VERSION" --quiet
 
@@ -109,26 +125,26 @@ jobs:
           prepare: |
             set -e
 
-            echo "::group::Install basic packages"
+            printf "::group::Install basic packages\n"
             pkg install -y git gmake
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
             # fpm
-              echo "::group::Install fpm: Actually install fpm"
+              printf "::group::Install fpm: Actually install fpm\n"
               pkg install -y devel/ruby-gems
               gem install --no-document fpm
-              echo "::endgroup::"
+              printf "::endgroup::\n"
 
-              echo "::group::Install fpm: Install gtar (workaround for https://github.com/jordansissel/fpm/pull/1922)"
+              printf "::group::Install fpm: Install gtar (workaround for https://github.com/jordansissel/fpm/pull/1922)\n"
               pkg install -y gtar
               mv /usr/bin/tar /usr/bin/bsdtar
               mv /usr/local/bin/gtar /usr/bin/tar
-              echo "::endgroup::"
+              printf "::endgroup::\n"
             # /fpm
 
-            echo "::group::Ignore ownership issues"
+            printf "::group::Ignore ownership issues\n"
             git config --global --add safe.directory "$GITHUB_WORKSPACE"
-            echo "::endgroup::"
+            printf "::endgroup::\n"
           run: |
             set -e
 
@@ -154,17 +170,17 @@ jobs:
             set -e
             export PATH="/usr/sbin:$PATH"  # Add 'pkg_*' commands to path
 
-            echo "::group::Install basic packages"
+            printf "::group::Install basic packages\n"
             sudo pkgin -y in git gmake mozilla-rootcerts-openssl
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Ignore ownership issues"
+            printf "::group::Ignore ownership issues\n"
             git config --global --add safe.directory "$GITHUB_WORKSPACE"
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Build package"
+            printf "::group::Build package\n"
             gmake dist/netbsd
-            echo "::endgroup::"
+            printf "::endgroup::\n"
       - name: Upload built package
         uses: actions/upload-artifact@v4
         with:
@@ -184,19 +200,19 @@ jobs:
           prepare: |
             set -e
 
-            echo "::group::Install basic packages"
+            printf "::group::Install basic packages\n"
             pkg_add git gmake
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Install fpm"
+            printf "::group::Install fpm\n"
             pkg_add "$(pkg_info -Q ruby | grep "^ruby-[0-9]" | tail -n 1)"
             /usr/local/bin/gem* install --no-document fpm
-            ln -s "$(echo /usr/local/bin/fpm* | tr ' ' \\n | grep -E '[0-9]+$')" /usr/local/bin/fpm  # Symlink 'fpm' to latest version
-            echo "::endgroup::"
+            ln -s "$(printf "/usr/local/bin/fpm*\n" | tr ' ' \\n | grep -E '[0-9]+$')" /usr/local/bin/fpm  # Symlink 'fpm' to latest version
+            printf "::endgroup::\n"
 
-            echo "::group::Ignore ownership issues"
+            printf "::group::Ignore ownership issues\n"
             git config --global --add safe.directory "$GITHUB_WORKSPACE"
-            echo "::endgroup::"
+            printf "::endgroup::\n"
           run: |
             set -e
 
@@ -213,7 +229,6 @@ jobs:
     # `pre-flight-checks` is required to access `MOMMY_VERSION`
     needs: [ pre-flight-checks, build-linux, build-macos, build-freebsd, build-netbsd, build-openbsd ]
     runs-on: ubuntu-latest
-
     env:
       MOMMY_VERSION: ${{ needs.pre-flight-checks.outputs.MOMMY_VERSION }}
 
@@ -227,24 +242,22 @@ jobs:
           merge-multiple: true
           path: dist
       - name: Extract release notes
-        id: extract-release-notes
-        uses: ffurrer2/extract-release-notes@v2
-        with:
-          release_notes_file: RELEASE_NOTES.md
-      - name: Prepend release notes
         run: |
-          echo -e "mommy can also be installed using a package manager. [check the readme for more info](https://github.com/fwdekker/mommy/tree/${MOMMY_VERSION}#-installation)~\n" | cat - RELEASE_NOTES.md | tee RELEASE_NOTES.md
+          HEAD="mommy can also be installed using a package manager. [check the readme for more info](https://github.com/fwdekker/mommy/tree/%s#-installation)~"
+          BODY="$(awk "/^## \[${MOMMY_VERSION#v}\]/{flag=1;next}; /^## /{flag=0}; {if (flag==1) {print}}" CHANGELOG.md)"
+
+          printf "%s\n\n%s\n" "$HEAD" "$BODY" | tee RELEASE_NOTES.md
       - name: Publish release
-        uses: softprops/action-gh-release@v1
         if: ${{ github.event.inputs.dry_run == 'false' && github.event.inputs.release_mommy == 'true' }}
-        with:
-          target_commitish: main
-          tag_name: ${{ env.MOMMY_VERSION }}
-          body_path: RELEASE_NOTES.md
-          files: dist/mommy*
-          draft: false
-          prerelease: false
-          discussion_category_name: announcements
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          gh release create "$MOMMY_VERSION" \
+            "dist/mommy"* \
+            --title "$MOMMY_VERSION" \
+            --notes-file RELEASE_NOTES.md \
+            --target main \
+            --discussion-category announcements
 
       - name: Checkout 'latest'
         uses: actions/checkout@v4
@@ -253,7 +266,7 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
           # Required to push fast-forwarded branch back
-          token: ${{ secrets.personal_access_token }}
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       - name: Update 'latest' branch
         if: ${{ github.event.inputs.dry_run == 'false' && github.event.inputs.release_mommy == 'true' }}
         run: |
@@ -264,7 +277,6 @@ jobs:
     if: ${{ github.event.inputs.release_apt == 'true' }}
     needs: [ pre-flight-checks, release-mommy ]
     runs-on: ubuntu-latest
-
     env:
       MOMMY_VERSION: ${{ needs.pre-flight-checks.outputs.MOMMY_VERSION }}
 
@@ -281,7 +293,7 @@ jobs:
           ref: main
           fetch-depth: 0
           # Required to push '.deb' to repository
-          token: ${{ secrets.personal_access_token }}
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       - name: Download built packages
         uses: actions/download-artifact@v4
         with:
@@ -292,30 +304,32 @@ jobs:
         run: cp dist-mommy/*.deb apt-mommy/deb/
 
       - name: Import GPG key
-        run: echo "$apt_gpg_private_key" | gpg --import
         env:
-          apt_gpg_private_key: ${{ secrets.apt_gpg_private_key }}
+          APT_GPG_PRIVATE_KEY: ${{ secrets.APT_GPG_PRIVATE_KEY }}
+        run: printf "%s\n" "$APT_GPG_PRIVATE_KEY" | gpg --import
       - name: Update apt-mommy
         working-directory: apt-mommy
+        env:
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
-          echo "::group::Run update script"
+          printf "::group::Run update script\n"
           ./update.sh
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Commit changes"
+          printf "::group::Commit changes\n"
           git config --global user.name "fwdekkerbot"
           git config --global user.email "bot@fwdekker.com"
           git add --all
           git commit -m "🔖 mommy added package mommy $MOMMY_VERSION~"
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          if [ "${{ github.event.inputs.dry_run }}" = "false" ]; then
-            echo "::group::Push changes"
+          if [ "$DRY_RUN" = "false" ]; then
+            printf "::group::Push changes\n"
             git push origin
-            echo "::endgroup::"
+            printf "::endgroup::\n"
           else
-            echo "::group::Not pushing changes"
-            echo "::endgroup::"
+            printf "::group::Not pushing changes\n"
+            printf "::endgroup::\n"
           fi;
 
   release-aur:
@@ -323,25 +337,24 @@ jobs:
     needs: [ pre-flight-checks, release-mommy ]
     runs-on: ubuntu-latest
     container: archlinux:latest
-
     env:
       MOMMY_VERSION: ${{ needs.pre-flight-checks.outputs.MOMMY_VERSION }}
 
     steps:
       - name: Set up basic system
         run: |
-          echo "::group::Update system"
+          printf "::group::Update system\n"
           pacman -Syu --noconfirm
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Install basic packages"
+          printf "::group::Install basic packages\n"
           pacman -S --noconfirm --needed git base-devel
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Add non-privileged user to run makepkg"
+          printf "::group::Add non-privileged user to run makepkg\n"
           useradd -m build
-          echo "build ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
-          echo "::endgroup::"
+          printf "build ALL=(ALL:ALL) NOPASSWD: ALL\n" >> /etc/sudoers
+          printf "::endgroup::\n"
 
       - name: Checkout mommy
         uses: actions/checkout@v4
@@ -356,54 +369,55 @@ jobs:
           ref: master
           fetch-depth: 0
           # Required to trigger CI action when pushed
-          token: ${{ secrets.personal_access_token }}
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       - name: Fix aur-mommy directory ownership
         run: chown -R build:build ./aur-mommy/
       - name: Update build files
         working-directory: aur-mommy
+        env:
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
-          if [ "${{ github.event.inputs.dry_run }}" = "false" ]; then
+          if [ "$DRY_RUN" = "false" ]; then
             empty_option=""
           else
             empty_option="--allow-empty"
           fi;
 
-          echo "::group::Fast-forward main"
+          printf "::group::Fast-forward main\n"
           sudo -u build git checkout dev
           sudo -u build git checkout master
           sudo -u build git merge --commit dev
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Update build files"
+          printf "::group::Update build files\n"
           sudo -u build ./update.sh "$MOMMY_VERSION"
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Commit update"
+          printf "::group::Commit update\n"
           sudo -u build git config --global user.name "fwdekkerbot"
           sudo -u build git config --global user.email "bot@fwdekker.com"
           sudo -u build git add --all
           sudo -u build git commit -m "🔖 mommy updated the build files to mommy $MOMMY_VERSION~" $empty_option
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Fast-forward dev"
+          printf "::group::Fast-forward dev\n"
           sudo -u build git checkout dev
           sudo -u build git merge --commit master
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          if [ "${{ github.event.inputs.dry_run }}" = "false" ]; then
-            echo "::group::Push changes"
+          if [ "$DRY_RUN" = "false" ]; then
+            printf "::group::Push changes\n"
             sudo -u build git push origin master dev
-            echo "::endgroup::"
+            printf "::endgroup::\n"
           else
-            echo "::group::Not pushing changes"
-            echo "::endgroup::"
+            printf "::group::Not pushing changes\n"
+            printf "::endgroup::\n"
           fi;
 
   release-homebrew:
     if: ${{ github.event.inputs.release_homebrew == 'true' }}
     needs: [ pre-flight-checks, release-mommy ]
     runs-on: ubuntu-latest
-
     env:
       MOMMY_VERSION: ${{ needs.pre-flight-checks.outputs.MOMMY_VERSION }}
 
@@ -420,43 +434,45 @@ jobs:
           ref: main
           fetch-depth: 0
           # Required to trigger CI action when pushed
-          token: ${{ secrets.personal_access_token }}
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       - name: Update formula
         working-directory: homebrew-mommy
+        env:
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
-          if [ "${{ github.event.inputs.dry_run }}" = "false" ]; then
+          if [ "$DRY_RUN" = "false" ]; then
             empty_option=""
           else
             empty_option="--allow-empty"
           fi;
 
-          echo "::group::Fast-forward main"
+          printf "::group::Fast-forward main\n"
           git checkout dev
           git checkout main
           git merge --commit dev
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Update formula"
+          printf "::group::Update formula\n"
           ./update.sh "$MOMMY_VERSION"
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Commit update"
+          printf "::group::Commit update\n"
           git config --global user.name "fwdekkerbot"
           git config --global user.email "bot@fwdekker.com"
           git add --all
           git commit -m "🔖 mommy updated the formula to mommy $MOMMY_VERSION~" $empty_option
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Fast-forward dev"
+          printf "::group::Fast-forward dev\n"
           git checkout dev
           git merge --commit main
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          if [ "${{ github.event.inputs.dry_run }}" = "false" ]; then
-            echo "::group::Push changes"
+          if [ "$DRY_RUN" = "false" ]; then
+            printf "::group::Push changes\n"
             git push origin main dev
-            echo "::endgroup::"
+            printf "::endgroup::\n"
           else
-            echo "::group::Not pushing changes"
-            echo "::endgroup::"
+            printf "::group::Not pushing changes\n"
+            printf "::endgroup::\n"
           fi;
