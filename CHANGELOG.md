@@ -1,5 +1,8 @@
 # Changelog
 ## [9.9.9-unreleased]
+### added
+* 🫥 mommy can now be toggled on or off without changing any configuration files using the `-t` or `--toggle` option. just run `mommy -t` and you'll no longer get any output from mommy, until you run `mommy -t` again. the toggle setting is per user, but carries across shells and even reboots~ ([#46](https://github.com/fwdekker/mommy/pull/46))
+
 ### changed
 * ✍️ mommy changed the capitalisation of its maintainer's username~ ([#152](https://github.com/fwdekker/mommy/pull/152))
 * 🔧 mommy improved the security of her automated test scripts~ ([#152](https://github.com/fwdekker/mommy/pull/152))

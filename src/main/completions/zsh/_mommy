@@ -10,6 +10,7 @@ exit_codes=(
 _arguments \
     "(- *)"{-h,--help}'[Show manual]' \
     "(- *)"{-v,--version}'[Show version]' \
+    "(- *)"{-t,--toggle}'[Toggle output]' \
     -1'[Write to stdout]' \
     {-c,--config}'[Configuration file]:config:_files' \
     {-d,--global-config-dirs}'[Colon-separated global config file dirs]:global config:_dir_list' \

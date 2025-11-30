@@ -42,7 +42,7 @@ Describe "integration of mommy with other programs"
                 export MANPATH
             fi
         }
-        BeforeEach "man_before_each"
+        BeforeEach man_before_each
 
 
         Parameters:value "-h" "--help"
@@ -81,7 +81,8 @@ Describe "integration of mommy with other programs"
                 "
             fi
         }
-        BeforeEach "fish_before_each"
+        BeforeEach fish_before_each
+
 
         fish_complete() {
             "$MOMMY_FISH_EXEC" -c "$fish_preamble; complete -C '$1'"
@@ -110,7 +111,8 @@ Describe "integration of mommy with other programs"
             fi
             printf "autoload -U compinit; compinit -u\n" >> "$MOMMY_ZSH_PREAMBLE_FILE"
         }
-        BeforeEach "zsh_before_each"
+        BeforeEach zsh_before_each
+
 
         zsh_complete() {
             # Records the output generated in a terminal when completions are requested for `$1` in zsh.

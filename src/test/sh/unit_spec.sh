@@ -55,6 +55,67 @@ Describe "mommy"
             End
         End
 
+        Describe "-t/--toggle: toggling output"
+            Parameters:value "-t" "--toggle"
+
+            It "disables output after using $1 for the first time"
+                set_config "MOMMY_COMPLIMENTS='open lose'"
+
+                "$MOMMY_EXEC" -t >/dev/null
+
+                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" -s 0
+                The error should equal ""
+                The status should be success
+            End
+
+            It "disables output even when the toggle happens inside a different shell, when using $1"
+                set_config "MOMMY_COMPLIMENTS='entry sweat'"
+
+                sh -c "'$MOMMY_EXEC' -t" >/dev/null
+
+                When run sh -c "'$MOMMY_EXEC' -c '$MOMMY_CONFIG_FILE' -s 0"
+                The error should equal ""
+                The status should be success
+            End
+
+            It "enables output again after using $1 for the 2nd time"
+                set_config "MOMMY_COMPLIMENTS='watch bold'"
+
+                "$MOMMY_EXEC" -t >/dev/null
+                "$MOMMY_EXEC" -t >/dev/null
+
+                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" -s 0
+                The error should equal "watch bold"
+                The status should be success
+            End
+
+            It "shows an explanation when disabling mommy using $1"
+                When run "$MOMMY_EXEC" -t
+                The output should include "mommy has been disabled"
+            End
+
+            It "shows an explanation when enabling mommy using $1"
+                "$MOMMY_EXEC" -t >/dev/null
+
+                When run "$MOMMY_EXEC" -t
+                The output should include "mommy has been enabled"
+            End
+
+            It "creates the toggle state file if it does not exist when using $1"
+                When run "$MOMMY_EXEC" -t
+                The output should not equal ""
+                The file "$XDG_STATE_HOME/mommy/toggle" should exist
+            End
+
+            It "deletes the toggle state file if it already exists when using $1"
+                "$MOMMY_EXEC" -t >/dev/null
+
+                When run "$MOMMY_EXEC" -t
+                The output should not equal ""
+                The file "$XDG_STATE_HOME/mommy/toggle" should not exist
+            End
+        End
+
         Describe "-1: output to stdout"
             It "outputs to stderr by default"
                 set_config "MOMMY_COMPLIMENTS='desk copper'"

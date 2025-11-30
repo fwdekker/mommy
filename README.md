@@ -427,13 +427,14 @@ for reference, here's the three main ways to invoke mommy~
 additionally, mommy knows a few extra options, which you can use to discover who mommy is and to tell mommy which
 [configuration files](#configuration) she should use~
 
-| short option | long option                   | description                                                                                       |
-|--------------|-------------------------------|---------------------------------------------------------------------------------------------------|
-| `-h`         | `--help`                      | opens mommy's manual page~                                                                        |
-| `-v`         | `--version`                   | displays mommy's version information~                                                             |
-| `-1`         |                               | writes output to stdout instead of stderr~                                                        |
-| `-c <file>`  | `--config=<file>`             | tells mommy that she should read your [config](#configuration) from `<file>`~                     |
-| `-d <dirs>`  | `--global-config-dirs=<dirs>` | sets [global configuration dirs](#config-file-locations) to the colon-separated list in `<dirs>`~ |
+| short option | long option                   | description                                                                                                                                                                                                                                 |
+|--------------|-------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `-h`         | `--help`                      | opens mommy's manual page~                                                                                                                                                                                                                  |
+| `-v`         | `--version`                   | displays mommy's version information~                                                                                                                                                                                                       |
+| `-t`         | `--toggle`                    | toggles whether mommy should display output at all. applies to all sessions of all shells of the current user, until this option is toggled again. useful if you want to temporarily silence mommy without editing your shell config files~ |
+| `-1`         |                               | writes output to stdout instead of stderr~                                                                                                                                                                                                  |
+| `-c <file>`  | `--config=<file>`             | tells mommy that she should read your [config](#configuration) from `<file>`~                                                                                                                                                               |
+| `-d <dirs>`  | `--global-config-dirs=<dirs>` | sets [global configuration dirs](#config-file-locations) to the colon-separated list in `<dirs>`~                                                                                                                                           |
 
 
 ## 🙋 configuration<a name="configuration"></a> <small><sup>[top ▲](#toc)</sup></small>

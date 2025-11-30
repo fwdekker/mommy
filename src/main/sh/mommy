@@ -76,7 +76,7 @@ MOMMY_IGNORED_STATUSES="130"
 die() { printf "%s\n" "$*" >&2; exit 1; }
 
 # Dies if `$OPTARG` is an empty string.
-require_arg() { if [ "x" = "x$OPTARG" ]; then die "mommy is missing the argument for option '$OPT'~"; fi; return 0; }
+require_arg() { if [ -z "$OPTARG" ]; then die "mommy is missing the argument for option '$OPT'~"; fi; return 0; }
 
 # Dies if `$OPTARG` is not a non-negative integer.
 require_int() {
@@ -95,7 +95,7 @@ replace_all() {
     replace_all__remainder="$1"
     replace_all__out=""
 
-    while [ "x" != "x$replace_all__remainder" ]; do
+    while [ -n "$replace_all__remainder" ]; do
         replace_all__section="${replace_all__remainder%%"$2"*}"
 
         if [ "x$replace_all__section" = "x$replace_all__remainder" ]; then
@@ -126,13 +126,13 @@ split() {
 # Returns `0` if and only if `$1` consists of more than just whitespace.
 is_blank() {
     is_blank__trimmed="${1#"${1%%[![:space:]]*}"}"
-    test "x" = "x${is_blank__trimmed%"${is_blank__trimmed##*[![:space:]]}"}"
+    test -z "${is_blank__trimmed%"${is_blank__trimmed##*[![:space:]]}"}"
     return "$?"
 }
 
 # Returns `0` if and only if `$1` starts with a `#`.
 is_comment() {
-    test "x" = "x${1##\#*}"
+    test -z "${1##\#*}"
     return "$?"
 }
 
@@ -162,7 +162,7 @@ list_any_equals() {
     test "x${-#*f}" != "x$-"; list_any_equals__glob="$?"; set -f; list_any_equals__ifs="$IFS"; IFS="$n"
 
     for list_any_equals__regex in $2; do
-        if [ "x" = "x${1##*"$list_any_equals__regex"*}" ]; then return 0; fi
+        if [ -z "${1##*"$list_any_equals__regex"*}" ]; then return 0; fi
     done
 
     IFS="$list_any_equals__ifs"; if [ 0 -ne "$list_any_equals__glob" ]; then set +f; fi
@@ -172,7 +172,7 @@ list_any_equals() {
 # Returns in `$list_filter_not__out` all entries of the normalized list `$1` that do not match any of the extended
 # regexes in the normalized list `$2`.
 list_filter_not() {
-    if [ "x" = "x$2" ]; then
+    if [ -z "$2" ]; then
         list_filter_not__out="$1"
     else
         list_filter_not__out="$(printf "%s\n" "$1" | grep -E -v -e "$(printf "%b\n" "$2")")"
@@ -245,7 +245,7 @@ color_print() {
 
     if [ "lolcat" = "$1" ]; then
         printf "%s\n" "$2" | lolcat -f
-    elif [ "x" = "x$1" ] || [ "x" = "x$color_print__colors" ] || [ 8 -gt "$color_print__colors" ]; then
+    elif [ -z "$1" ] || [ -z "$color_print__colors" ] || [ 8 -gt "$color_print__colors" ]; then
         printf "%s\n" "$2"
     else
         # Work around OpenBSD bug https://www.mail-archive.com/bugs@openbsd.org/msg18443.html
@@ -327,14 +327,17 @@ fill_template() {
 ## Read options
 opt_help=""
 opt_version=""
+opt_toggle=""
 opt_target="2"
 opt_config="${opt_config:-"${XDG_CONFIG_HOME:-"$HOME/.config"}/mommy/config.sh"}"
 opt_global_config_dirs="${XDG_CONFIG_DIRS}:/etc/mommy/:/usr/local/etc/mommy/"
 opt_eval=""
 opt_status=""
 
-while getopts ":hv1d:c:e:s:-:" OPT; do
-    # Cheap workaround for long options, cf. https://stackoverflow.com/a/28466267
+# Config string for getopts describes only short options. Starts with ':', then one letter for each short option. Each
+# short option can be followed by ':' to indicate that it takes an argument.
+while getopts ":hvt1d:c:e:s:-:" OPT; do
+    # Cheap workaround for long options, see https://stackoverflow.com/a/28466267
     if [ "-" = "$OPT" ]; then
         OPT="${OPTARG%%=*}"
         OPTARG="${OPTARG#"$OPT"}"
@@ -345,6 +348,7 @@ while getopts ":hv1d:c:e:s:-:" OPT; do
     case "$OPT" in
     h|help) opt_help="1" ;;
     v|version) opt_version="1" ;;
+    t|toggle) opt_toggle="1" ;;
     1) opt_target="1" ;;
     d|global-config-dirs) require_arg; opt_global_config_dirs="$OPTARG" ;;
     c|config) opt_config="$OPTARG" ;;
@@ -378,8 +382,16 @@ done
 [ -f "$opt_config" ] && [ -r "$opt_config" ] && . "$opt_config"
 
 
+## State
+state_dir="${XDG_STATE_HOME:-"$HOME/.local/state"}/mommy/"
+
+# Toggle output. 0 = state file exists = no output. 1 = state file does not exist = regular output
+state_toggle_path="$state_dir/toggle"
+test -f "$state_toggle_path"; state_toggle="$?"
+
+
 ## Output
-if [ "x" != "x$opt_help" ]; then
+if [ -n "$opt_help" ]; then
     man mommy
 
     status="$?"
@@ -390,15 +402,30 @@ if [ "x" != "x$opt_help" ]; then
             "information~"
     fi
     exit "$status"
-elif [ "x" != "x$opt_version" ]; then
-    printf "%s\n" "mommy, v%%VERSION_NUMBER%%, %%VERSION_DATE%%"
+elif [ -n "$opt_version" ]; then
+    printf "mommy, v%s, %s\n" "%%VERSION_NUMBER%%" "%%VERSION_DATE%%"
+    exit 0
+elif [ -n "$opt_toggle" ]; then
+    if [ "0" -eq "$state_toggle" ]; then
+        rm -- "$state_toggle_path"
+        printf "mommy has been enabled for this user. mommy will once again display output. to disable mommy again, run 'mommy -t'~\n"
+    else
+        mkdir -p -- "$state_dir"
+        touch -- "$state_toggle_path"
+        printf "mommy has been disabled for this user. mommy will not print any output until she is enabled again. to enable mommy again, run 'mommy -t'~\n"
+    fi
     exit 0
 else
+    # Check if output is disabled by toggle
+    if [ "0" -eq "$state_toggle" ]; then
+        exit 0
+    fi
+
     # Run command
-    if [ "x" != "x$opt_eval" ]; then
+    if [ -n "$opt_eval" ]; then
         (eval "$opt_eval")
         command_exit_code="$?"
-    elif [ "x" != "x$opt_status" ]; then
+    elif [ -n "$opt_status" ]; then
         command_exit_code="$opt_status"
     else
         ("$@")
