@@ -708,11 +708,9 @@ MOMMY_PREFIX="%F{005}/%F{006}"
 MOMMY_SUFFIX="~%f"
 ```
 
-normally, mommy sets colors using standard ansi color codes, but zsh's support is a bit special, resulting in zsh
-miscalculating the prompt width, which looks like your prompt is misaligned or shifted.
+the reason you have to change mommy's config is that normally, mommy sets colors using standard ansi color codes, but zsh's support is a bit special, resulting in zsh miscalculating the prompt width, which looks like your prompt is misaligned or shifted.
 to fix this, you should disable mommy's color feature and manually set colors in the prefix option.
-to specify colors, use zsh's special syntax, where the numbers correspond to the
-[xterm color codes](https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg). 
+to specify colors, use zsh's special syntax, where the numbers correspond to the [xterm color codes](https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg).
 finally, the `%f` in the suffix resets the colors~
 
 <img width="450px" src=".github/img/zsh.png" alt="zsh showing the text 'never give up, my love' in the right prompt after running a command that has failed" />

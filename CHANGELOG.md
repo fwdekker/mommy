@@ -1,7 +1,8 @@
 # Changelog
 ## [9.9.9-unreleased]
 ### changed
-* ✍️ mommy changed the capitalisation of its maintainer's username~
+* ✍️ mommy changed the capitalisation of its maintainer's username~ ([#152](https://github.com/fwdekker/mommy/pull/152))
+* 🔧 mommy improved the security of her automated test scripts~ ([#152](https://github.com/fwdekker/mommy/pull/152))
 
 
 ## [1.6.0] -- 2025-03-09
