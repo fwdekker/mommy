@@ -23,7 +23,7 @@ e.g. \fBmommy\fP -s $?
 
 .SH options
 the following options are just for invoking \fBmommy\fP.
-to change mommy's output, you should change the config file.
+to change \fBmommy\fP's output, you should change the config file.
 for more info about config files, check
 \fIhttps://github.com/fwdekker/mommy/tree/v%%VERSION_NUMBER%%#configuration\fP.
 
@@ -33,6 +33,9 @@ opens \fBmommy\fP's manual page~
 .TP
 \fB-v\fP, \fB--version\fP
 displays \fBmommy\fP's version information~
+.TP
+\fB-t\fP, \fB--toggle\fP
+toggles whether \fBmommy\fP should display output at all. applies to all sessions of all shells of the current user, until this option is toggled again. useful if you want to temporarily silence \fBmommy\fP without editing your shell config files~
 .TP
 \fB-e\fP \fIcommand\fP, \fB--eval=\fP\fIcommand\fP
 runs \fIcommand\fP and responds to the output.
@@ -45,7 +48,7 @@ gives output corresponding to exit code \fIstatus\fP~
 sets global configuration dirs to the colon-separated list in \fIdirs\fP~
 .TP
 \fB-c\fP \fIfile\fP, \fB--config=\fP\fIfile\fP
-tells mommy that she should read your config from \fIfile\fP~
+tells \fBmommy\fP that she should read your config from \fIfile\fP~
 .TP
 \fB-1\fP
 writes output to \fBstdout\fP instead of \fBstderr\fP~

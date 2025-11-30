@@ -16,6 +16,10 @@ export MOMMY_EXEC
 : "${MOMMY_TMP_DIR:=/tmp/mommy-test/}"
 export MOMMY_TMP_DIR
 
+# Change state directory for test run. Only used by mommy, so it's fine
+: "${XDG_STATE_HOME:="$MOMMY_TMP_DIR/state/"}"
+export XDG_STATE_HOME
+
 
 ## Constants and helpers
 export n="
@@ -26,10 +30,14 @@ strip_opt() { printf "%s\n" "$1" | sed -E "s/(^-+|[= ])//g"; }
 
 ## Hooks
 spec_helper_configure() {
-    rm -rf "$MOMMY_TMP_DIR"
+    before_all mommy_clean_tmp
+    after_all mommy_clean_tmp
+    before_each mommy_before_each
+    after_each mommy_after_each
+}
 
-    before_each "mommy_before_each"
-    after_each "mommy_after_each"
+mommy_clean_tmp() {
+    rm -rf "$MOMMY_TMP_DIR"
 }
 
 mommy_before_each() {
@@ -37,5 +45,8 @@ mommy_before_each() {
 }
 
 mommy_after_each() {
-    rm -rf "$MOMMY_TMP_DIR"
+    find "$MOMMY_TMP_DIR" -mindepth 1 \
+        ! -path "$MOMMY_TMP_DIR/global1" \
+        ! -path "$MOMMY_TMP_DIR/global2" \
+        -exec rm -rf {} +
 }

@@ -1,4 +1,5 @@
 #!/bin/sh
+# shellcheck disable=SC2268 # x prefix required for OpenBSD
 n="
 "
 
@@ -327,14 +328,17 @@ fill_template() {
 ## Read options
 opt_help=""
 opt_version=""
+opt_toggle=""
 opt_target="2"
 opt_config="${opt_config:-"${XDG_CONFIG_HOME:-"$HOME/.config"}/mommy/config.sh"}"
 opt_global_config_dirs="${XDG_CONFIG_DIRS}:/etc/mommy/:/usr/local/etc/mommy/"
 opt_eval=""
 opt_status=""
 
-while getopts ":hv1d:c:e:s:-:" OPT; do
-    # Cheap workaround for long options, cf. https://stackoverflow.com/a/28466267
+# Config string for getopts describes only short options. Starts with ':', then one letter for each short option. Each
+# short option can be followed by ':' to indicate that it takes an argument.
+while getopts ":hvt1d:c:e:s:-:" OPT; do
+    # Cheap workaround for long options, see https://stackoverflow.com/a/28466267
     if [ "-" = "$OPT" ]; then
         OPT="${OPTARG%%=*}"
         OPTARG="${OPTARG#"$OPT"}"
@@ -345,6 +349,7 @@ while getopts ":hv1d:c:e:s:-:" OPT; do
     case "$OPT" in
     h|help) opt_help="1" ;;
     v|version) opt_version="1" ;;
+    t|toggle) opt_toggle="1" ;;
     1) opt_target="1" ;;
     d|global-config-dirs) require_arg; opt_global_config_dirs="$OPTARG" ;;
     c|config) opt_config="$OPTARG" ;;
@@ -378,6 +383,14 @@ done
 [ -f "$opt_config" ] && [ -r "$opt_config" ] && . "$opt_config"
 
 
+## State
+state_dir="${XDG_STATE_HOME:-"$HOME/.local/state"}/mommy/"
+
+# Toggle output. 0 = state file exists = no output. 1 = state file does not exist = regular output
+state_toggle_path="$state_dir/toggle"
+test -f "$state_toggle_path"; state_toggle="$?"
+
+
 ## Output
 if [ "x" != "x$opt_help" ]; then
     man mommy
@@ -391,9 +404,24 @@ if [ "x" != "x$opt_help" ]; then
     fi
     exit "$status"
 elif [ "x" != "x$opt_version" ]; then
-    printf "%s\n" "mommy, v%%VERSION_NUMBER%%, %%VERSION_DATE%%"
+    printf "mommy, v%s, %s\n" "%%VERSION_NUMBER%%" "%%VERSION_DATE%%"
+    exit 0
+elif [ "x" != "x$opt_toggle" ]; then
+    if [ "0" -eq "$state_toggle" ]; then
+        rm -- "$state_toggle_path"
+        printf "mommy has been enabled for this user. mommy will once again display output. to disable mommy again, run 'mommy -t'~\n"
+    else
+        mkdir -p -- "$state_dir"
+        touch -- "$state_toggle_path"
+        printf "mommy has been disabled for this user. mommy will not print any output until she is enabled again. to enable mommy again, run 'mommy -t'~\n"
+    fi
     exit 0
 else
+    # Check if output is disabled by toggle
+    if [ "0" -eq "$state_toggle" ]; then
+        exit 0
+    fi
+
     # Run command
     if [ "x" != "x$opt_eval" ]; then
         (eval "$opt_eval")
