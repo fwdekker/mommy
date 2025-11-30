@@ -3,16 +3,16 @@ name: 🧪 ci~
 on:
   push:
     paths-ignore:
-      - '.github/img/**'
-      - 'CONTRIBUTING.md'
-      - 'README.md'
-      - 'SECURITY.md'
+      - ".github/img/**"
+      - "CONTRIBUTING.md"
+      - "README.md"
+      - "SECURITY.md"
   pull_request:
     paths-ignore:
-      - '.github/img/**'
-      - 'CONTRIBUTING.md'
-      - 'README.md'
-      - 'SECURITY.md'
+      - ".github/img/**"
+      - "CONTRIBUTING.md"
+      - "README.md"
+      - "SECURITY.md"
 
 jobs:
   test-linux:
@@ -20,16 +20,16 @@ jobs:
     steps:
       - name: Install dependencies for mommy
         run: |
-          echo "::group::Install ShellSpec"
+          printf "::group::Install ShellSpec\n"
           git clone --depth=1 https://github.com/shellspec/shellspec.git /tmp/shellspec
           sudo make -C /tmp/shellspec/ install
           rm -rf /tmp/shellspec
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Install additional shells"
+          printf "::group::Install additional shells\n"
           sudo apt-get install fish zsh
           touch "$HOME/.zshrc"
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,21 +42,21 @@ jobs:
           sudo gem install --no-document fpm
       - name: Test fpm package
         run: |
-          echo "::group::Build"
+          printf "::group::Build\n"
           make dist/deb
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Install"
+          printf "::group::Install\n"
           sudo apt-get install -y ./dist/mommy-*.deb
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Test"
+          printf "::group::Test\n"
           MOMMY_SYSTEM=1 make test
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Uninstall"
+          printf "::group::Uninstall\n"
           sudo apt-get purge -y mommy
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
       - name: Install Homebrew
         run: |
@@ -65,7 +65,7 @@ jobs:
       - name: Checkout homebrew-mommy
         uses: actions/checkout@v4
         with:
-          repository: FWDekker/homebrew-mommy
+          repository: fwdekker/homebrew-mommy
           path: homebrew-mommy
           ref: dev
       - name: Patch homebrew-mommy
@@ -76,28 +76,28 @@ jobs:
         run: |
           # Point the formula to the commit that is being tested in this workflow
           sed -i -e "s|head \(.*\), branch: .*|head \"https://github.com/$RELEVANT_URL.git\", revision: \"$RELEVANT_SHA\"|g" mommy.rb
-          git -c user.name="ignore" -c user.email="ignore" commit -am "ignore"
+          git -c user.name=ignore -c user.email=ignore commit -am ignore
       - name: Test Homebrew package
         run: |
-          echo "::group::Enable Homebrew"
+          printf "::group::Enable Homebrew\n"
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          mkdir -p "$HOME/.config/fish/"; echo "set -p fish_complete_path $(brew --prefix)/share/fish/vendor_completions.d/" >> "$HOME/.config/fish/config.fish"
-          echo "FPATH=\"$(brew --prefix)/share/zsh/site-functions/:\$FPATH\"" >> "$HOME/.zshrc"
-          echo "::endgroup::"
+          mkdir -p "$HOME/.config/fish/"; printf "set -p fish_complete_path \"%s/share/fish/vendor_completions.d/\"\n" "$(brew --prefix)" >> "$HOME/.config/fish/config.fish"
+          printf "FPATH=\"%s/share/zsh/site-functions/:\$FPATH\"\n" "$(brew --prefix)" >> "$HOME/.zshrc"
+          printf "::endgroup::\n"
 
-          echo "::group::Install"
+          printf "::group::Install\n"
           brew tap local/mommy "$(pwd)/homebrew-mommy"
           brew install mommy --HEAD
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Test"
+          printf "::group::Test\n"
           MOMMY_SYSTEM=1 make test
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Uninstall"
+          printf "::group::Uninstall\n"
           brew uninstall mommy
           brew untap local/mommy
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
 
   test-archlinux:
@@ -106,38 +106,38 @@ jobs:
     steps:
       - name: Set up basic system
         run: |
-          echo "::group::Update system"
+          printf "::group::Update system\n"
           pacman -Syu --noconfirm
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Install basic packages"
+          printf "::group::Install basic packages\n"
           pacman -S --noconfirm --needed git base-devel
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Add non-privileged user to run makepkg"
+          printf "::group::Add non-privileged user to run makepkg\n"
           useradd -m build
-          echo "build ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
-          echo "::endgroup::"
+          printf "build ALL=(ALL:ALL) NOPASSWD: ALL\n" >> /etc/sudoers
+          printf "::endgroup::\n"
       - name: Install dependencies for mommy
         run: |
-          echo "::group::Install man-db"
+          printf "::group::Install man-db\n"
           pacman -S --noconfirm man-db
           sed -i "/NoExtract.*man/d" /etc/pacman.conf  # Extract man pages
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Install ShellSpec"
+          printf "::group::Install ShellSpec\n"
           git clone https://aur.archlinux.org/shellspec-git.git /tmp/shellspec-git
           chown -R build:build /tmp/shellspec-git
           cd /tmp/shellspec-git
           sudo -u build makepkg -si --noconfirm
           rm -rf /tmp/shellspec-git
           cd -
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Install additional shells"
+          printf "::group::Install additional shells\n"
           pacman -S --noconfirm fish zsh
           touch "$HOME/.zshrc"
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
       - name: Checkout mommy
         uses: actions/checkout@v4
@@ -157,26 +157,26 @@ jobs:
       - name: Test fpm package
         working-directory: ./mommy/
         run: |
-          echo "::group::Build"
+          printf "::group::Build\n"
           make dist/pacman
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Install"
+          printf "::group::Install\n"
           pacman -U --noconfirm ./dist/mommy*.pacman
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Test"
+          printf "::group::Test\n"
           MOMMY_SYSTEM=1 make test
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Uninstall"
+          printf "::group::Uninstall\n"
           pacman -R --noconfirm mommy
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
       - name: Checkout aur-mommy
         uses: actions/checkout@v4
         with:
-          repository: FWDekker/aur-mommy
+          repository: fwdekker/aur-mommy
           path: aur-mommy
           ref: dev
       - name: Fix aur-mommy directory ownership
@@ -186,23 +186,23 @@ jobs:
         env:
           RELEVANT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
-          echo "::group::Patch"
+          printf "::group::Patch\n"
           sudo -u build ./update.sh "$RELEVANT_SHA"
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Build and install"
+          printf "::group::Build and install\n"
           sudo -u build makepkg -si --noconfirm
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
           cd ../mommy/
 
-          echo "::group::Test"
+          printf "::group::Test\n"
           MOMMY_SYSTEM=1 make test
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Uninstall"
+          printf "::group::Uninstall\n"
           pacman -R --noconfirm mommy
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
 
   test-fedora:
@@ -211,31 +211,31 @@ jobs:
     steps:
       - name: Set up basic system
         run: |
-          echo "::group::Update system"
+          printf "::group::Update system\n"
           dnf -y update
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Install basic packages"
+          printf "::group::Install basic packages\n"
           dnf -y install git make rpm-build util-linux-script
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
       - name: Install dependencies for mommy
         run: |
-          echo "::group::Install man-db"
+          printf "::group::Install man-db\n"
           dnf -y install man-db
           sed -i "/nodocs/d" /etc/dnf/dnf.conf  # Extract man pages
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Install ShellSpec"
+          printf "::group::Install ShellSpec\n"
           git clone --depth=1 https://github.com/shellspec/shellspec.git /tmp/shellspec
           make -C /tmp/shellspec install
           rm -rf /tmp/shellspec
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Install additional shells"
+          printf "::group::Install additional shells\n"
           dnf -y install fish zsh
           touch "$HOME/.zshrc"
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
       - name: Checkout mommy
         uses: actions/checkout@v4
@@ -253,43 +253,43 @@ jobs:
       - name: Test fpm package
         working-directory: ./mommy/
         run: |
-          echo "::group::Build"
+          printf "::group::Build\n"
           make dist/rpm
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Install"
+          printf "::group::Install\n"
           dnf -y install ./dist/mommy*.rpm
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Test"
+          printf "::group::Test\n"
           MOMMY_SYSTEM=1 make test
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Uninstall"
+          printf "::group::Uninstall\n"
           dnf -y remove mommy
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
       - name: Install rpkg
         run: dnf -y install rpkg
       - name: Test SRPM package
         working-directory: ./mommy/
         run: |
-          echo "::group::Build"
+          printf "::group::Build\n"
           rpkg -p ./pkg/rpkg local  # build srpm
           rpmbuild --rebuild /tmp/rpkg/mommy-*/*.rpm
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Install"
+          printf "::group::Install\n"
           dnf -y install "$HOME"/rpmbuild/RPMS/*/*.rpm
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Test"
+          printf "::group::Test\n"
           MOMMY_SYSTEM=1 make test
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Uninstall"
+          printf "::group::Uninstall\n"
           dnf -y remove mommy
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
 
   test-macos:
@@ -297,18 +297,18 @@ jobs:
     steps:
       - name: Install dependencies for mommy
         run: |
-          echo "::group::Install ShellSpec"
+          printf "::group::Install ShellSpec\n"
           brew tap shellspec/shellspec
           brew install shellspec
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Install additional shell(s)"
+          printf "::group::Install additional shell(s)\n"
           curl -L -o /tmp/fish.pkg \
             "$(curl -s -L https://fishshell.com/ | \
                  grep -m 1 -io "https://github\.com/fish-shell/fish-shell/releases/download/[a-z0-9/\.\-]*.pkg")"
           sudo installer -pkg /tmp/fish.pkg -target /
           rm /tmp/fish.pkg
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -319,26 +319,26 @@ jobs:
         run: sudo gem install --no-document fpm
       - name: Test fpm package
         run: |
-          echo "::group::Build"
+          printf "::group::Build\n"
           make dist/osxpkg
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Install"
+          printf "::group::Install\n"
           sudo installer -pkg ./dist/mommy*+osx.pkg -target /
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Test"
+          printf "::group::Test\n"
           MOMMY_SYSTEM=1 make test
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Uninstall"
+          printf "::group::Uninstall\n"
           sudo make uninstall/osxpkg
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
       - name: Checkout homebrew-mommy
         uses: actions/checkout@v4
         with:
-          repository: FWDekker/homebrew-mommy
+          repository: fwdekker/homebrew-mommy
           path: homebrew-mommy
           ref: dev
       - name: Patch homebrew-mommy
@@ -349,27 +349,27 @@ jobs:
         run: |
           # Point the formula to the commit that is being tested in this workflow
           sed -i -e "s|head \(.*\), branch: .*|head \"https://github.com/$RELEVANT_URL.git\", revision: \"$RELEVANT_SHA\"|g" mommy.rb
-          git -c user.name="ignore" -c user.email="ignore" commit -am "ignore"
+          git -c user.name=ignore -c user.email=ignore commit -am ignore
       - name: Test Homebrew package
         run: |
-          echo "::group::Configure shell completions for Brew"
-          mkdir -p "$HOME/.config/fish/"; echo "set -p fish_complete_path $(brew --prefix)/share/fish/vendor_completions.d/" >> "$HOME/.config/fish/config.fish"
-          echo "FPATH=\"$(brew --prefix)/share/zsh/site-functions/:\$FPATH\"" >> "$HOME/.zshrc"
-          echo "::endgroup::"
+          printf "::group::Configure shell completions for Brew\n"
+          mkdir -p "$HOME/.config/fish/"; printf "set -p fish_complete_path \"%s/share/fish/vendor_completions.d/\"\n" "$(brew --prefix)" >> "$HOME/.config/fish/config.fish"
+          printf "FPATH=\"%s/share/zsh/site-functions/:\$FPATH\"\n" "$(brew --prefix)" >> "$HOME/.zshrc"
+          printf "::endgroup::\n"
 
-          echo "::group::Install"
+          printf "::group::Install\n"
           brew tap local/mommy "$(pwd)/homebrew-mommy"
           brew install mommy --HEAD
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Test"
+          printf "::group::Test\n"
           MOMMY_SYSTEM=1 make test
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Uninstall"
+          printf "::group::Uninstall\n"
           brew uninstall mommy
           brew untap local/mommy
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
 
   test-freebsd:
@@ -378,62 +378,62 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Test script and package
-        uses: cross-platform-actions/action@v0.28.0
+        uses: cross-platform-actions/action@v0.30.0
         with:
           operating_system: freebsd
-          version: "13.5"
+          version: "14.3"
           run: |
-            echo "::group::Install basic packages"
+            printf "::group::Install basic packages\n"
             sudo pkg install -y git gmake
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Install ShellSpec"
+            printf "::group::Install ShellSpec\n"
             git clone --depth=1 https://github.com/shellspec/shellspec.git /tmp/shellspec
             sudo gmake -C /tmp/shellspec install
             rm -rf /tmp/shellspec
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Install additional shells"
+            printf "::group::Install additional shells\n"
             sudo pkg install -y fish zsh
             touch "$HOME/.zshrc"
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
             # fpm
-              echo "::group::Install fpm: Actually install fpm"
+              printf "::group::Install fpm: Actually install fpm\n"
               sudo pkg install -y devel/ruby-gems
               sudo gem install --no-document fpm
-              echo "::endgroup::"
+              printf "::endgroup::\n"
 
-              echo "::group::Install fpm: Install gtar (workaround for https://github.com/jordansissel/fpm/pull/1922)"
+              printf "::group::Install fpm: Install gtar (workaround for https://github.com/jordansissel/fpm/pull/1922)\n"
               sudo pkg install -y gtar
               sudo mv /usr/bin/tar /usr/bin/bsdtar
               sudo mv /usr/local/bin/gtar /usr/bin/tar
-              echo "::endgroup::"
+              printf "::endgroup::\n"
             # /fpm
 
-            echo "::group::Ignore ownership issues"
+            printf "::group::Ignore ownership issues\n"
             git config --global --add safe.directory "$GITHUB_WORKSPACE"
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Test script"
+            printf "::group::Test script\n"
             gmake test
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Build package"
+            printf "::group::Build package\n"
             gmake dist/freebsd
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Install package"
+            printf "::group::Install package\n"
             sudo pkg add ./dist/mommy-*.freebsd
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Test package"
+            printf "::group::Test package\n"
             env MOMMY_SYSTEM=1 gmake test
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Uninstall package"
+            printf "::group::Uninstall package\n"
             sudo pkg delete -y mommy
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
 
   test-netbsd:
@@ -442,52 +442,52 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Test script and package
-        uses: cross-platform-actions/action@v0.28.0
+        uses: cross-platform-actions/action@v0.30.0
         with:
           operating_system: netbsd
           version: "10.1"
           run: |
             export PATH="/usr/sbin:$PATH"  # Add 'pkg_*' commands to path
-            export MOMMY_ZSH_SKIP=1  # 'script' does not have the '-q' option in OpenBSD
+            export MOMMY_ZSH_SKIP=1  # 'script' does not have the '-q' option in NetBSD
 
-            echo "::group::Install basic packages"
+            printf "::group::Install basic packages\n"
             sudo pkgin -y in git gmake mozilla-rootcerts-openssl
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Install ShellSpec"
+            printf "::group::Install ShellSpec\n"
             git clone --depth=1 https://github.com/shellspec/shellspec.git /tmp/shellspec/
             sudo gmake -C /tmp/shellspec/ install
             rm -rf /tmp/shellspec
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Install additional shells"
+            printf "::group::Install additional shells\n"
             sudo pkgin -y in fish zsh
             touch "$HOME/.zshrc"
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Ignore ownership issues"
+            printf "::group::Ignore ownership issues\n"
             git config --global --add safe.directory "$GITHUB_WORKSPACE"
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Test script"
+            printf "::group::Test script\n"
             gmake test
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Build package"
+            printf "::group::Build package\n"
             gmake dist/netbsd
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Install package"
+            printf "::group::Install package\n"
             sudo pkg_add ./dist/mommy-*+netbsd.tgz
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Test package"
+            printf "::group::Test package\n"
             env MOMMY_SYSTEM=1 gmake test
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Uninstall package"
+            printf "::group::Uninstall package\n"
             sudo pkg_delete mommy
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
 
   test-openbsd:
@@ -496,57 +496,57 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install dependencies for mommy && Test script && Build package && Test package
-        uses: cross-platform-actions/action@v0.28.0
+        uses: cross-platform-actions/action@v0.30.0
         with:
           operating_system: openbsd
-          version: "7.7"
+          version: "7.8"
           run: |
             export MOMMY_ZSH_SKIP=1  # 'script' does not have the '-q' option in OpenBSD
 
-            echo "::group::Install basic packages"
+            printf "::group::Install basic packages\n"
             sudo pkg_add git gmake
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Install ShellSpec"
+            printf "::group::Install ShellSpec\n"
             git clone --depth=1 https://github.com/shellspec/shellspec.git /tmp/shellspec
             sudo gmake -C /tmp/shellspec install
             rm -rf /tmp/shellspec
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Install additional shells"
+            printf "::group::Install additional shells\n"
             sudo pkg_add fish zsh
             touch "$HOME/.zshrc"
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Install fpm"
+            printf "::group::Install fpm\n"
             sudo pkg_add "$(pkg_info -Q ruby | grep "^ruby-[0-9]" | tail -n 1)"
             sudo /usr/local/bin/gem* install --no-document fpm
-            sudo ln -s "$(echo /usr/local/bin/fpm* | tr ' ' \\n | grep -E '[0-9]+$')" /usr/local/bin/fpm  # Symlink 'fpm' to latest version
-            echo "::endgroup::"
+            sudo ln -s "$(printf "%s\n" /usr/local/bin/fpm* | tr " " \\n | grep -E "[0-9]+$")" /usr/local/bin/fpm  # Symlink 'fpm' to latest version
+            printf "::endgroup::\n"
 
-            echo "::group::Ignore ownership issues"
+            printf "::group::Ignore ownership issues\n"
             git config --global --add safe.directory "$GITHUB_WORKSPACE"
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Test script"
+            printf "::group::Test script\n"
             gmake test
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Build package"
+            printf "::group::Build package\n"
             gmake dist/openbsd
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Install package"
+            printf "::group::Install package\n"
             sudo pkg_add -D unsigned ./dist/mommy-*+openbsd.tgz
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Test package"
+            printf "::group::Test package\n"
             env MOMMY_SYSTEM=1 gmake test
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Uninstall package"
+            printf "::group::Uninstall package\n"
             sudo pkg_delete mommy
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
 
   test-windows:
@@ -562,15 +562,15 @@ jobs:
       - name: Install dependencies for mommy
         shell: msys2 {0}
         run: |
-          echo "::group::Install ShellSpec"
+          printf "::group::Install ShellSpec\n"
           git clone --depth=1 https://github.com/shellspec/shellspec.git /tmp/shellspec
           make -C /tmp/shellspec install
           rm -rf /tmp/shellspec
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
-          echo "::group::Post-install additional shells"
+          printf "::group::Post-install additional shells\n"
           touch "$HOME/.zshrc"
-          echo "::endgroup::"
+          printf "::endgroup::\n"
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -598,4 +598,4 @@ jobs:
         run: |
           nix build \
             --impure \
-            --expr '(import <nixpkgs> {}).mommy.overrideAttrs (prev: { src = ./.; })'
+            --expr "(import <nixpkgs> {}).mommy.overrideAttrs (prev: { src = ./.; })"

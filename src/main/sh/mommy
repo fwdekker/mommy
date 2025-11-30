@@ -386,7 +386,7 @@ if [ "x" != "x$opt_help" ]; then
     if [ 0 -ne "$status" ]; then
         die "oops!" \
             "mommy couldn't find the help page." \
-            "but you can visit https://github.com/FWDekker/mommy/blob/%%VERSION_NUMBER%%/README.md for more" \
+            "but you can visit https://github.com/fwdekker/mommy/blob/%%VERSION_NUMBER%%/README.md for more" \
             "information~"
     fi
     exit "$status"

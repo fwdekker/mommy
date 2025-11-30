@@ -25,7 +25,7 @@ but pull requests that are half-baked or otherwise don't fit the mold are just a
   | reimplement mommy as a powershell script               | no        | hard to maintain two scripts at once. also, most windows users who want to use mommy can run mommy just fine using git bash, cygwin, or wsl~ |
   | reimplement mommy in c or in rust                      | no        | mommy is a program that you use inside a shell. if you can run a shell, you can probably run a posix shell~                                  |
   | add support for a non-posix shell                      | maybe     | if you can add support in a way that doesn't require maintaining two separate implementations of mommy, then yes please!                     |
-* if you have motivation but lack inspiration, take a look at [issues labeled `good-first-issue`](https://github.com/FWDekker/mommy/issues?q=is%3Aissue%20state%3Aopen%20label%3Agood-first-issue)~
+* if you have motivation but lack inspiration, take a look at [issues labeled `good-first-issue`](https://github.com/fwdekker/mommy/issues?q=is%3Aissue%20state%3Aopen%20label%3Agood-first-issue)~
 
 ## 🧑‍🎓 understanding the code
 if you want to know what all the different files mean, or how to compile the project, or where to add new tests, then refer to [the development section in the readme](README.md#development)~
@@ -33,7 +33,7 @@ if you want to know what all the different files mean, or how to compile the pro
 ## 💖 about acknowledgements
 as [noted in the readme](README.md#acknowledgements), all contributions are acknowledged, no matter their size!
 if you don't want this, then please explicitly say so.
-if i forgot to add you, or if you want your acknowledgement changed or removed, then [open an issue](https://github.com/FWDekker/mommy/issues/new) or
+if i forgot to add you, or if you want your acknowledgement changed or removed, then [open an issue](https://github.com/fwdekker/mommy/issues/new) or
 [contact me directly](https://fwdekker.com/about/)~
 
 if you want to contribute but don't have a github account, or don't want your github account associated with this repo, then feel free to [contact me directly](https://fwdekker.com/about/)~

@@ -1,8 +1,8 @@
 # mommy 💝
-[![github latest release](https://img.shields.io/github/v/release/FWDekker/mommy?style=for-the-badge)](https://github.com/FWDekker/mommy/releases/latest)
+[![github latest release](https://img.shields.io/github/v/release/fwdekker/mommy?style=for-the-badge)](https://github.com/fwdekker/mommy/releases/latest)
 [![mommy is on aur](https://img.shields.io/aur/version/mommy?style=for-the-badge)](https://aur.archlinux.org/packages/mommy/)
-[![github ci status](https://img.shields.io/github/actions/workflow/status/FWDekker/mommy/ci.yml?style=for-the-badge)](https://github.com/FWDekker/mommy/actions/workflows/ci.yml?query=branch%3Amain)
-[![mommy is licensed under unlicense](https://img.shields.io/github/license/FWDekker/mommy?style=for-the-badge)](https://github.com/FWDekker/mommy/blob/main/LICENSE)
+[![github ci status](https://img.shields.io/github/actions/workflow/status/fwdekker/mommy/ci.yml?style=for-the-badge)](https://github.com/fwdekker/mommy/actions/workflows/ci.yml?query=branch%3Amain)
+[![mommy is licensed under unlicense](https://img.shields.io/github/license/fwdekker/mommy?style=for-the-badge)](https://github.com/fwdekker/mommy/blob/main/LICENSE)
 
 ---
 
@@ -27,7 +27,7 @@ mommy is tested on ubuntu, debian, archlinux, fedora, nixpkgs, macos, freebsd, n
 _don't see your favourite distro or package manager listed?
 need help?
 otherwise not satisfied?
-[please open an issue](https://github.com/FWDekker/mommy/issues)~_
+[please open an issue](https://github.com/fwdekker/mommy/issues)~_
 
 ### 👩‍💼 with a package manager
 find your operating system and package manager for the right instructions~
@@ -36,7 +36,7 @@ find your operating system and package manager for the right instructions~
 <summary>alpine linux</summary>
 
 * **homebrew** (automatic updates)  
-  installs from the [mommy tap](https://github.com/FWDekker/homebrew-mommy).
+  installs from the [mommy tap](https://github.com/fwdekker/homebrew-mommy).
   (requires [brew](https://brew.sh/).)
   ```shell
   brew tap fwdekker/mommy
@@ -47,7 +47,7 @@ find your operating system and package manager for the right instructions~
 * **apk (github release)** (manual updates)
   ```shell
   # download latest package from github release
-  curl -s https://api.github.com/repos/FWDekker/mommy/releases/latest | grep "browser_download_url.*\.apk" | cut -d : -f 2,3 | tr -d \" | xargs curl -sLOJ
+  curl -s https://api.github.com/repos/fwdekker/mommy/releases/latest | grep "browser_download_url.*\.apk" | cut -d : -f 2,3 | tr -d \" | xargs curl -sLOJ
   # install package
   sudo apk add --allow-untrusted ./mommy-*.apk
   ```
@@ -69,7 +69,7 @@ find your operating system and package manager for the right instructions~
   # and so on
   ```
 * **homebrew** (automatic updates)  
-  installs from the [mommy tap](https://github.com/FWDekker/homebrew-mommy).
+  installs from the [mommy tap](https://github.com/fwdekker/homebrew-mommy).
   (requires [brew](https://brew.sh/).)
   ```shell
   brew tap fwdekker/mommy
@@ -80,7 +80,7 @@ find your operating system and package manager for the right instructions~
 * **pacman (github release)** (manual updates)
   ```shell
   # download latest package from github release
-  curl -s https://api.github.com/repos/FWDekker/mommy/releases/latest | grep "browser_download_url.*\.pacman" | cut -d : -f 2,3 | tr -d \" | xargs curl -sLOJ
+  curl -s https://api.github.com/repos/fwdekker/mommy/releases/latest | grep "browser_download_url.*\.pacman" | cut -d : -f 2,3 | tr -d \" | xargs curl -sLOJ
   # install package
   sudo pacman -U ./mommy-*.pacman
   ```
@@ -94,12 +94,12 @@ find your operating system and package manager for the right instructions~
   this method requires apt v2.2.4 or newer.
   check your version of apt with `apt -v`~
 
-  installs from the [mommy apt repository](https://github.com/FWDekker/apt-mommy).
+  installs from the [mommy apt repository](https://github.com/fwdekker/apt-mommy).
   the repository supports all architectures and suites~
 
    ```shell
    sudo curl -fsSo /etc/apt/sources.list.d/mommy.sources \
-     https://raw.githubusercontent.com/FWDekker/apt-mommy/main/deb/mommy.sources
+     https://raw.githubusercontent.com/fwdekker/apt-mommy/main/deb/mommy.sources
 
    sudo apt update
    sudo apt install mommy
@@ -107,24 +107,24 @@ find your operating system and package manager for the right instructions~
 * **apt <2.2.4** (automatic updates)  
   this method works on all versions of apt~
 
-  installs from the [mommy apt repository](https://github.com/FWDekker/apt-mommy).
+  installs from the [mommy apt repository](https://github.com/fwdekker/apt-mommy).
   the repository supports all architectures and suites~
 
   [check this page for details on what this code does](https://stackoverflow.com/a/71384057/)~
   ```shell
   sudo mkdir -m 0755 -p /etc/apt/keyrings/
 
-  curl -fsSL https://raw.githubusercontent.com/FWDekker/apt-mommy/main/deb/Release.key |
+  curl -fsSL https://raw.githubusercontent.com/fwdekker/apt-mommy/main/deb/Release.key |
     sudo gpg --dearmor -o /etc/apt/keyrings/mommy.gpg
 
-  echo "deb [signed-by=/etc/apt/keyrings/mommy.gpg] https://raw.githubusercontent.com/FWDekker/apt-mommy/main/deb/ ./" |
+  echo "deb [signed-by=/etc/apt/keyrings/mommy.gpg] https://raw.githubusercontent.com/fwdekker/apt-mommy/main/deb/ ./" |
     sudo tee /etc/apt/sources.list.d/mommy.list > /dev/null
 
   sudo apt update
   sudo apt install mommy
   ```
 * **homebrew** (automatic updates)  
-  installs from the [mommy tap](https://github.com/FWDekker/homebrew-mommy).
+  installs from the [mommy tap](https://github.com/fwdekker/homebrew-mommy).
   (requires [brew](https://brew.sh/).)
   ```shell
   brew tap fwdekker/mommy
@@ -135,7 +135,7 @@ find your operating system and package manager for the right instructions~
 * **apt (github release)** (manual updates)
   ```shell
   # download latest package from github release
-  curl -s https://api.github.com/repos/FWDekker/mommy/releases/latest | grep "browser_download_url.*\.deb" | cut -d : -f 2,3 | tr -d \" | xargs curl -sLOJ
+  curl -s https://api.github.com/repos/fwdekker/mommy/releases/latest | grep "browser_download_url.*\.deb" | cut -d : -f 2,3 | tr -d \" | xargs curl -sLOJ
   # install package
   sudo apt install ./mommy*.deb
   ```
@@ -147,7 +147,7 @@ find your operating system and package manager for the right instructions~
 * **pkg (github release)** (manual updates)
   ```shell
   # download latest package from github release
-  curl -s https://api.github.com/repos/FWDekker/mommy/releases/latest | grep "browser_download_url.*\.freebsd" | cut -d : -f 2,3 | tr -d \" | xargs curl -sLOJ
+  curl -s https://api.github.com/repos/fwdekker/mommy/releases/latest | grep "browser_download_url.*\.freebsd" | cut -d : -f 2,3 | tr -d \" | xargs curl -sLOJ
   # install package
   sudo pkg add ./mommy-*.freebsd
   ```
@@ -157,7 +157,7 @@ find your operating system and package manager for the right instructions~
 <summary>macos</summary>
 
 * **homebrew** (automatic updates)  
-  installs from the [mommy tap](https://github.com/FWDekker/homebrew-mommy).
+  installs from the [mommy tap](https://github.com/fwdekker/homebrew-mommy).
   (requires [brew](https://brew.sh/).)
   ```shell
   brew tap fwdekker/mommy
@@ -175,7 +175,7 @@ find your operating system and package manager for the right instructions~
 * **pkg (github release)** (manual updates)
   ```shell
   # download latest package from github release
-  curl -s https://api.github.com/repos/FWDekker/mommy/releases/latest | grep "browser_download_url.*osx\.pkg" | cut -d : -f 2,3 | tr -d \" | xargs curl -sLOJ
+  curl -s https://api.github.com/repos/fwdekker/mommy/releases/latest | grep "browser_download_url.*osx\.pkg" | cut -d : -f 2,3 | tr -d \" | xargs curl -sLOJ
   # install package
   sudo installer -pkg ./mommy*+osx.pkg -target /
   ```
@@ -194,7 +194,7 @@ find your operating system and package manager for the right instructions~
 * **pkg_add (github release)** (manual updates)
   ```shell
   # download latest package from github release
-  curl -s https://api.github.com/repos/FWDekker/mommy/releases/latest | grep "browser_download_url.*netbsd\.tgz" | cut -d : -f 2,3 | tr -d \" | xargs curl -sLOJ
+  curl -s https://api.github.com/repos/fwdekker/mommy/releases/latest | grep "browser_download_url.*netbsd\.tgz" | cut -d : -f 2,3 | tr -d \" | xargs curl -sLOJ
   # install package
   sudo pkg_add ./mommy-*+netbsd.tgz
   ```
@@ -255,7 +255,7 @@ find your operating system and package manager for the right instructions~
 * **pkg_add (github release)** (manual updates)
   ```shell
   # download latest package from github release
-  curl -s https://api.github.com/repos/FWDekker/mommy/releases/latest | grep "browser_download_url.*openbsd\.tgz" | cut -d : -f 2,3 | tr -d \" | xargs curl -sLOJ
+  curl -s https://api.github.com/repos/fwdekker/mommy/releases/latest | grep "browser_download_url.*openbsd\.tgz" | cut -d : -f 2,3 | tr -d \" | xargs curl -sLOJ
   # install package
   sudo pkg_add -D unsigned ./mommy-*+openbsd.tgz
   ```
@@ -274,7 +274,7 @@ find your operating system and package manager for the right instructions~
   packages are signed by `fwdekker#mommy@copr.fedorahosted.org`, check for fingerprint
   `E332 C8E6 ADAA 58E4 1974 7CE2 CE16 3CFF 9F79 DD8A`~
 * **homebrew** (automatic updates)  
-  installs from the [mommy tap](https://github.com/FWDekker/homebrew-mommy).
+  installs from the [mommy tap](https://github.com/fwdekker/homebrew-mommy).
   (requires [brew](https://brew.sh/).)
   ```shell
   brew tap fwdekker/mommy
@@ -285,7 +285,7 @@ find your operating system and package manager for the right instructions~
 * **dnf (github release)** (manual updates)
   ```shell
   # download latest package from github release
-  curl -s https://api.github.com/repos/FWDekker/mommy/releases/latest | grep "browser_download_url.*\.rpm" | cut -d : -f 2,3 | tr -d \" | xargs curl -sLOJ
+  curl -s https://api.github.com/repos/fwdekker/mommy/releases/latest | grep "browser_download_url.*\.rpm" | cut -d : -f 2,3 | tr -d \" | xargs curl -sLOJ
   # install package
   sudo dnf install ./mommy-*.rpm
   ```
@@ -316,7 +316,7 @@ if you want to customise where and how mommy installs, you can just compile her 
     * [gnu make](https://www.gnu.org/software/make/) (`gmake`)
 2. **clone repository**
    ```shell
-   git clone https://github.com/FWDekker/mommy.git
+   git clone https://github.com/fwdekker/mommy.git
    cd mommy
    ```
 3. **install**  
@@ -327,7 +327,7 @@ if you want to customise where and how mommy installs, you can just compile her 
    > if you want to install mommy only for the current user, add `prefix='~/.local/'` before `install`~
 
    > **💡 tip**  
-   > check the [makefile](https://github.com/FWDekker/mommy/blob/main/GNUmakefile) for a list of all prefix variables
+   > check the [makefile](https://github.com/fwdekker/mommy/blob/main/GNUmakefile) for a list of all prefix variables
    > you can override~
 
     * _debian/ubuntu/apt-based_
@@ -386,12 +386,12 @@ if you're here because you want to install mommy only for a specific user, the "
 is probably a better approach, though~
 
 the script below downloads the latest stable release and extracts it for you.
-if you don't want to use curl, just [check the latest release](https://github.com/FWDekker/mommy/releases/latest) in
+if you don't want to use curl, just [check the latest release](https://github.com/fwdekker/mommy/releases/latest) in
 your browser and download the file ending in `+generic.tar.gz` manually~
 
 ```shell
 # download latest archive from github release
-curl -s https://api.github.com/repos/FWDekker/mommy/releases/latest | grep "browser_download_url.*generic\.tar\.gz" | cut -d : -f 2,3 | tr -d \" | xargs curl -sLOJ
+curl -s https://api.github.com/repos/fwdekker/mommy/releases/latest | grep "browser_download_url.*generic\.tar\.gz" | cut -d : -f 2,3 | tr -d \" | xargs curl -sLOJ
 # extract archive to `mommy`
 tar -C ./ -xzf mommy-*.tar.gz
 # invoke mommy
@@ -708,11 +708,9 @@ MOMMY_PREFIX="%F{005}/%F{006}"
 MOMMY_SUFFIX="~%f"
 ```
 
-normally, mommy sets colors using standard ansi color codes, but zsh's support is a bit special, resulting in zsh
-miscalculating the prompt width, which looks like your prompt is misaligned or shifted.
+the reason you have to change mommy's config is that normally, mommy sets colors using standard ansi color codes, but zsh's support is a bit special, resulting in zsh miscalculating the prompt width, which looks like your prompt is misaligned or shifted.
 to fix this, you should disable mommy's color feature and manually set colors in the prefix option.
-to specify colors, use zsh's special syntax, where the numbers correspond to the
-[xterm color codes](https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg). 
+to specify colors, use zsh's special syntax, where the numbers correspond to the [xterm color codes](https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg).
 finally, the `%f` in the suffix resets the colors~
 
 <img width="450px" src=".github/img/zsh.png" alt="zsh showing the text 'never give up, my love' in the right prompt after running a command that has failed" />
@@ -770,7 +768,7 @@ sudo ln -fs /usr/share/man/man1/mommy.1.gz /usr/share/man/man1/daddy.1.gz
 
 
 ## ⚗️ development<a name="development"></a> <small><sup>[top ▲](#toc)</sup></small>
-this section explains some development details of the project, like its file structure and how to build mommy from source, in case you want to [help with development](https://github.com/FWDekker/mommy/blob/main/CONTRIBUTING.md), for example~
+this section explains some development details of the project, like its file structure and how to build mommy from source, in case you want to [help with development](https://github.com/fwdekker/mommy/blob/main/CONTRIBUTING.md), for example~
 
 <details>
 <summary>🧱 file structure</summary>
@@ -830,7 +828,7 @@ if that annoys you, run `make build` after each change, and use `build/bin/mommy
    ```
 4. **configuration**  
    except for `system=1`, test behaviour is configured with environment variables.
-   check the various files in [`src/test/`](https://github.com/FWDekker/mommy/tree/main/src/test) to find 'em all~
+   check the various files in [`src/test/`](https://github.com/fwdekker/mommy/tree/main/src/test) to find 'em all~
 </details>
 
 <details>
@@ -845,7 +843,7 @@ let's go into them in more detail~
 
 * **📦 binary packages**  
   the binary packages attached to the github release are built with the
-  [makefile](https://github.com/FWDekker/mommy/blob/main/GNUmakefile).
+  [makefile](https://github.com/fwdekker/mommy/blob/main/GNUmakefile).
   run `make list` to see a list of build targets;
   you're looking for the ones starting with `dist/`~
 
@@ -864,7 +862,7 @@ let's go into them in more detail~
   these directories can be changed by setting `prefix` variables, as in `make prefix=/usr/ install`.
   i recommend running `make --dry-run prefix=/usr/ install` first so you can verify that all directories are calculated
   correctly.
-  check the [makefile](https://github.com/FWDekker/mommy/blob/main/GNUmakefile) for more details~
+  check the [makefile](https://github.com/fwdekker/mommy/blob/main/GNUmakefile) for more details~
 
   all systems can build packages for themselves without additional dependencies beyond those noted above.
   if you want to compile for a different system than the one you're using, you may need additional dependencies.
@@ -883,9 +881,9 @@ let's go into them in more detail~
   users.
   how sweet~
 
-  * [apt-mommy](https://github.com/FWDekker/apt-mommy) is a github-based apt repository that hosts mommy's `.deb`
+  * [apt-mommy](https://github.com/fwdekker/apt-mommy) is a github-based apt repository that hosts mommy's `.deb`
     packages after they have been built in
-    [mommy's cd pipeline](https://github.com/FWDekker/mommy/actions/workflows/cd.yml)~
+    [mommy's cd pipeline](https://github.com/fwdekker/mommy/actions/workflows/cd.yml)~
   * [copr](https://copr.fedorainfracloud.org/coprs/fwdekker/mommy/) builds packages for fedora and epel~
 * **🌱 source builds**  
   some servers host instructions on how to build mommy, but don't do any work beyond that.
@@ -893,20 +891,20 @@ let's go into them in more detail~
 
   * for **arch linux**, the [arch user repository](https://aur.archlinux.org/) hosts the
     [mommy package](https://aur.archlinux.org/packages/mommy).
-    a development mirror is hosted on github in [aur-mommy](https://github.com/FWDekker/aur-mommy)~
-  * for **homebrew**, mommy has the [homebrew-mommy](https://github.com/FWDekker/homebrew-mommy) repository on github,
+    a development mirror is hosted on github in [aur-mommy](https://github.com/fwdekker/aur-mommy)~
+  * for **homebrew**, mommy has the [homebrew-mommy](https://github.com/fwdekker/homebrew-mommy) repository on github,
     which is resolved automatically by the brew client based on the repository's name~
 </details>
 
 <details>
 <summary>📯 release</summary>
 
-[`main`](https://github.com/FWDekker/mommy/tree/main) contains the latest in-development version.
+[`main`](https://github.com/fwdekker/mommy/tree/main) contains the latest in-development version.
 when the version in `main` is ready to be released, just use the
-[deploy action](https://github.com/FWDekker/mommy/actions/workflows/cd.yml), which can be activated using a
+[deploy action](https://github.com/fwdekker/mommy/actions/workflows/cd.yml), which can be activated using a
 `workflow_dispatch` event~
 
-[`latest`](https://github.com/FWDekker/mommy/tree/latest) contains the most recently released version.
+[`latest`](https://github.com/fwdekker/mommy/tree/latest) contains the most recently released version.
 this version can be considered stable.
 when a new version is deployed as described above, the `latest` branch is fast-forwarded automatically.
 you should **not** update the `latest` branch manually!
@@ -930,25 +928,25 @@ you should **not** update the `latest` branch manually!
 
 * **after triggering deployment**
   * a new github release is created automatically~
-  * the [`latest`](https://github.com/FWDekker/mommy/tree/latest) branch is pointed to the new release~
-  * [aur-mommy](https://github.com/FWDekker/aur-mommy/)
+  * the [`latest`](https://github.com/fwdekker/mommy/tree/latest) branch is pointed to the new release~
+  * [aur-mommy](https://github.com/fwdekker/aur-mommy/)
     * updated automatically when `mommy` updates
-    * always [manually check deployment status](https://github.com/FWDekker/aur-mommy/actions?query=branch%3Amaster)~
+    * always [manually check deployment status](https://github.com/fwdekker/aur-mommy/actions?query=branch%3Amaster)~
   * [copr](https://copr.fedorainfracloud.org/coprs/fwdekker/mommy/)
     * updated automatically when `mommy` updates
     * always [manually check deployment status](https://copr.fedorainfracloud.org/coprs/fwdekker/mommy/builds/)~
-  * [apt-mommy](https://github.com/FWDekker/apt-mommy/)
+  * [apt-mommy](https://github.com/fwdekker/apt-mommy/)
       * updated automatically when `mommy` updates
-      * always [manually check deployment status](https://github.com/FWDekker/apt-mommy/commits/main)~
-  * [homebrew-mommy](https://github.com/FWDekker/homebrew-mommy)
+      * always [manually check deployment status](https://github.com/fwdekker/apt-mommy/commits/main)~
+  * [homebrew-mommy](https://github.com/fwdekker/homebrew-mommy)
     * updated automatically when `mommy` updates
-    * always [manually check deployment status](https://github.com/FWDekker/homebrew-mommy/actions?query=branch%3Amain)~
+    * always [manually check deployment status](https://github.com/fwdekker/homebrew-mommy/actions?query=branch%3Amain)~
 </details>
 
 
 ## 💖 acknowledgements<a name="acknowledgements"></a> <small><sup>[top ▲](#toc)</sup></small>
 mommy recognises _all_ contributors, no matter the size of the contribution.
-if mommy should add, remove, or change anything here, [open an issue](https://github.com/FWDekker/mommy/issues/new) or
+if mommy should add, remove, or change anything here, [open an issue](https://github.com/fwdekker/mommy/issues/new) or
 [contact the author](https://fwdekker.com/about/)~
 
 * mommy thanks [aria beingessner](https://github.com/Gankra) for creating
@@ -957,8 +955,8 @@ if mommy should add, remove, or change anything here, [open an issue](https://gi
   [shell-mommy](https://github.com/sudofox/shell-mommy) and contributing to the mommy-sphere;
   mommy did not know about shell-mommy before embarking on her journey, but loves her very much~
 * mommy thanks [natawie](https://github.com/natawie) for
-  [suggesting publishing mommy on copr](https://github.com/FWDekker/mommy/issues/39) and
-  [writing the zsh completions](https://github.com/FWDekker/mommy/pull/48)~
+  [suggesting publishing mommy on copr](https://github.com/fwdekker/mommy/issues/39) and
+  [writing the zsh completions](https://github.com/fwdekker/mommy/pull/48)~
 * mommy thanks [amber sprenkels](https://github.com/dsprenkels) for
   [reporting a bug](https://github.com/FWDekker/mommy/issues/45),
   [sharing great ideas](https://github.com/FWDekker/mommy/issues/46), and

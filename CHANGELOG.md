@@ -1,9 +1,15 @@
 # Changelog
+## [9.9.9-unreleased]
+### changed
+* ✍️ mommy changed the capitalisation of its maintainer's username~ ([#152](https://github.com/fwdekker/mommy/pull/152))
+* 🔧 mommy improved the security of her automated test scripts~ ([#152](https://github.com/fwdekker/mommy/pull/152))
+
+
 ## [1.6.0] -- 2025-03-09
 ### added
-* 📇 mommy now supports independent possessive (`theirs`) and reflexive (`themself`) pronouns. to use these new forms inside a compliment or encouragement, write `%%THEIRS%%` or `%%THEMSELF%%`, respectively. to choose mommy's pronouns, you should now write `MOMMY_PRONOUNS="they them their theirs theirself"` in your config instead of `MOMMY_PRONOUNS="they them their"`. specifying all five pronoun forms is recommended, but only specifying three forms still works and is _not_ deprecated. for more details, see [the list of all settings](https://github.com/FWDekker/mommy/tree/v1.6.0?tab=readme-ov-file#list-of-all-settings) and [how to configure templates](https://github.com/FWDekker/mommy/tree/v1.6.0?tab=readme-ov-file#how-to-configure-templates)~
+* 📇 mommy now supports independent possessive (`theirs`) and reflexive (`themself`) pronouns. to use these new forms inside a compliment or encouragement, write `%%THEIRS%%` or `%%THEMSELF%%`, respectively. to choose mommy's pronouns, you should now write `MOMMY_PRONOUNS="they them their theirs theirself"` in your config instead of `MOMMY_PRONOUNS="they them their"`. specifying all five pronoun forms is recommended, but only specifying three forms still works and is _not_ deprecated. for more details, see [the list of all settings](https://github.com/fwdekker/mommy/tree/v1.6.0?tab=readme-ov-file#list-of-all-settings) and [how to configure templates](https://github.com/fwdekker/mommy/tree/v1.6.0?tab=readme-ov-file#how-to-configure-templates)~
 * ☄️ mommy now supports using whitespace inside pronouns using `%%_%%`~
-* 🚀 mommy now explains how to configure [starship](https://starship.rs/)~ ([#135](https://github.com/FWDekker/mommy/pull/135))
+* 🚀 mommy now explains how to configure [starship](https://starship.rs/)~ ([#135](https://github.com/fwdekker/mommy/pull/135))
 * ☕ mommy explains how to use fish completions on macos~
 
 ### fixed
@@ -15,80 +21,80 @@
 * 🤸‍♀️ mommy now supports `-d` as an alias of `--global-config-dirs`~
 
 ### changed
-* 👤 mommy now refers to the user by their username by default~ ([#131](https://github.com/FWDekker/mommy/issues/131))
+* 👤 mommy now refers to the user by their username by default~ ([#131](https://github.com/fwdekker/mommy/issues/131))
 
 
 ## [1.5.0] -- 2024-02-28
 ### added
-* 🦓 mommy now supports templates with literal slashes using `%%S%%`~ ([#107](https://github.com/FWDekker/mommy/issues/107))
-* 🐟 mommy added completions for fish and zsh for the new options introduced in v1.4.0~ ([#105](https://github.com/FWDekker/mommy/issues/105))
+* 🦓 mommy now supports templates with literal slashes using `%%S%%`~ ([#107](https://github.com/fwdekker/mommy/issues/107))
+* 🐟 mommy added completions for fish and zsh for the new options introduced in v1.4.0~ ([#105](https://github.com/fwdekker/mommy/issues/105))
 
 ### changed
-* 🙅‍♀️ mommy's `MOMMY_FORBIDDEN_WORDS` setting now interprets each word as a regex~ ([#103](https://github.com/FWDekker/mommy/issues/103))
-* 🚀 mommy is now 4 times as fast~ ([#106](https://github.com/FWDekker/mommy/issues/106))
+* 🙅‍♀️ mommy's `MOMMY_FORBIDDEN_WORDS` setting now interprets each word as a regex~ ([#103](https://github.com/fwdekker/mommy/issues/103))
+* 🚀 mommy is now 4 times as fast~ ([#106](https://github.com/fwdekker/mommy/issues/106))
 
 
 ## [1.4.0] -- 2024-02-17
 ### added
-* 🌍 mommy now supports a global config file that applies to all users, stored for example in `/usr/mommy/config.sh`~ ([#95](https://github.com/FWDekker/mommy/issues/95)) ([#96](https://github.com/FWDekker/mommy/issues/96))
+* 🌍 mommy now supports a global config file that applies to all users, stored for example in `/usr/mommy/config.sh`~ ([#95](https://github.com/fwdekker/mommy/issues/95)) ([#96](https://github.com/fwdekker/mommy/issues/96))
 * 📏 mommy accepts long command-line options for all options (like `--config=<file>` for `-c <file>`)~
 
 ### changed
 * 🕳️ mommy now interprets an empty config file path (`-c`) as you not wanting to use a config file~
 * ✅ mommy improved her input validation, giving clearer error messages when something is wrong~
 * 🏓 mommy improved the links to and from the table of contents in her readme~
-* 🏋️‍♀️ mommy made her readme easier to navigate and scroll through~ ([#97](https://github.com/FWDekker/mommy/issues/97))
+* 🏋️‍♀️ mommy made her readme easier to navigate and scroll through~ ([#97](https://github.com/fwdekker/mommy/issues/97))
 
 
 ## [1.3.0] -- 2024-01-10
 ### added
-* 🪹 mommy now supports newlines in templates using `%%N%%`~ ([#58](https://github.com/FWDekker/mommy/issues/58)) ([#82](https://github.com/FWDekker/mommy/issues/82))
-* 🛡️ mommy now has a [security policy](https://github.com/FWDekker/mommy/security)~
+* 🪹 mommy now supports newlines in templates using `%%N%%`~ ([#58](https://github.com/fwdekker/mommy/issues/58)) ([#82](https://github.com/fwdekker/mommy/issues/82))
+* 🛡️ mommy now has a [security policy](https://github.com/fwdekker/mommy/security)~
 
 ### fixed
-* 🚒 mommy fixes the description url in her manual page~ ([#81](https://github.com/FWDekker/mommy/issues/81)) ([#82](https://github.com/FWDekker/mommy/issues/82))
-* 🕰️ mommy uses the correct types of changelogs in the right places ([#83](https://github.com/FWDekker/mommy/issues/83))
-* 🏃 mommy no longer crashes when using `\` or `&` in variables~ ([#84](https://github.com/FWDekker/mommy/issues/84)) ([#87](https://github.com/FWDekker/mommy/issues/87))
+* 🚒 mommy fixes the description url in her manual page~ ([#81](https://github.com/fwdekker/mommy/issues/81)) ([#82](https://github.com/fwdekker/mommy/issues/82))
+* 🕰️ mommy uses the correct types of changelogs in the right places ([#83](https://github.com/fwdekker/mommy/issues/83))
+* 🏃 mommy no longer crashes when using `\` or `&` in variables~ ([#84](https://github.com/fwdekker/mommy/issues/84)) ([#87](https://github.com/fwdekker/mommy/issues/87))
 
 
 ## [1.2.6] -- 2023-11-29
 ### fixed
-* 🚒 mommy fixes her apt repository release script~ ([#73](https://github.com/FWDekker/mommy/issues/73))
+* 🚒 mommy fixes her apt repository release script~ ([#73](https://github.com/fwdekker/mommy/issues/73))
 
 
 ## [1.2.5] -- 2023-11-29
 ### added
-* 📈 mommy now explains how to integrate with nushell, thanks to [aemogie.](https://github.com/aemogie)~ ([#65](https://github.com/FWDekker/mommy/issues/65))
+* 📈 mommy now explains how to integrate with nushell, thanks to [aemogie.](https://github.com/aemogie)~ ([#65](https://github.com/fwdekker/mommy/issues/65))
 
 ### changed
-* 🍳 mommy uses newer github actions, thanks to [zopolis4](https://github.com/Zopolis4)~ ([#68](https://github.com/FWDekker/mommy/pull/68))
-* 💨 mommy became much faster at doing her exams~ ([#69](https://github.com/FWDekker/mommy/pull/69))
-* 📂 mommy supports specifying a custom directory during `make`~ ([#70](https://github.com/FWDekker/mommy/pull/70))
-* 👭 mommy now has an apt repository, see [mommy's readme](https://github.com/FWDekker/mommy/blob/v1.2.5/README.md#-with-a-package-manager) for installation instructions~ ([#71](https://github.com/FWDekker/mommy/pull/71))
+* 🍳 mommy uses newer github actions, thanks to [zopolis4](https://github.com/Zopolis4)~ ([#68](https://github.com/fwdekker/mommy/pull/68))
+* 💨 mommy became much faster at doing her exams~ ([#69](https://github.com/fwdekker/mommy/pull/69))
+* 📂 mommy supports specifying a custom directory during `make`~ ([#70](https://github.com/fwdekker/mommy/pull/70))
+* 👭 mommy now has an apt repository, see [mommy's readme](https://github.com/fwdekker/mommy/blob/v1.2.5/README.md#-with-a-package-manager) for installation instructions~ ([#71](https://github.com/fwdekker/mommy/pull/71))
 
 
 ## [1.2.4] -- 2023-08-28
 ### added
 * ❄️ mommy is now available on nixpkgs, thanks to [ckie](https://github.com/ckiee)~ ([NixOS/nixpkgs#250034](https://github.com/NixOS/nixpkgs/pull/250034))
-* ☝️ mommy now mentions the fingerprint of her copr signing key in the readme~ ([c8cde91](https://github.com/FWDekker/mommy/commit/c8cde91d162c9000e0133fdec8d65796ee17bfbf))
+* ☝️ mommy now mentions the fingerprint of her copr signing key in the readme~ ([c8cde91](https://github.com/fwdekker/mommy/commit/c8cde91d162c9000e0133fdec8d65796ee17bfbf))
 
 ### changed
-* 🗂️ mommy looks in `XDG_CONFIG_HOME` instead of `$HOME/.config` if the former is configured~ ([#61](https://github.com/FWDekker/mommy/pull/61))
-* 🎨 mommy cleaned up her makefile~ ([#63](https://github.com/FWDekker/mommy/pull/63))
+* 🗂️ mommy looks in `XDG_CONFIG_HOME` instead of `$HOME/.config` if the former is configured~ ([#61](https://github.com/fwdekker/mommy/pull/61))
+* 🎨 mommy cleaned up her makefile~ ([#63](https://github.com/fwdekker/mommy/pull/63))
 
 ### fixed
-* 💿 mommy fixed a small issue with tests for netbsd~ ([#62](https://github.com/FWDekker/mommy/pull/62))
+* 💿 mommy fixed a small issue with tests for netbsd~ ([#62](https://github.com/fwdekker/mommy/pull/62))
 
 
 ## [1.2.3] -- 2023-03-14
 ### added
-* 🎩 mommy is now available for fedora, red hat, and other rpm-based systems via [copr](https://copr.fedorainfracloud.org/)~ ([#39](https://github.com/FWDekker/mommy/issues/39))
-* 🪟 mommy is now tested on msys2 for windows~ ([#54](https://github.com/FWDekker/mommy/issues/54))
+* 🎩 mommy is now available for fedora, red hat, and other rpm-based systems via [copr](https://copr.fedorainfracloud.org/)~ ([#39](https://github.com/fwdekker/mommy/issues/39))
+* 🪟 mommy is now tested on msys2 for windows~ ([#54](https://github.com/fwdekker/mommy/issues/54))
 * 💥 mommy's makefile now has an `uninstall` option~
 
 ### changed
-* ✍️ mommy rewrote the installation instructions~ ([#51](https://github.com/FWDekker/mommy/issues/51))
-* 🐙 mommy links to github if `man` doesn't work~ ([#55](https://github.com/FWDekker/mommy/issues/55)) 
+* ✍️ mommy rewrote the installation instructions~ ([#51](https://github.com/fwdekker/mommy/issues/51))
+* 🐙 mommy links to github if `man` doesn't work~ ([#55](https://github.com/fwdekker/mommy/issues/55)) 
 
 ### fixed
 * ✏️ mommy fixed some minor errors in the readme~
@@ -98,12 +104,12 @@
 ## [1.2.2] -- 2023-03-09
 ### added
 * 🐟 mommy has shell completions for fish and zsh~  
-  they are enabled by default on most machines. if you installed mommy with brew, check the [brew documentation on how to enable shell completions](https://docs.brew.sh/Shell-Completion)~ ([#43](https://github.com/FWDekker/mommy/issues/43)) ([#48](https://github.com/FWDekker/mommy/pull/48))
+  they are enabled by default on most machines. if you installed mommy with brew, check the [brew documentation on how to enable shell completions](https://docs.brew.sh/Shell-Completion)~ ([#43](https://github.com/fwdekker/mommy/issues/43)) ([#48](https://github.com/fwdekker/mommy/pull/48))
 
 ### changed
-* 🤖 mommy no longer talks like a robot when unknown options are used~ ([#47](https://github.com/FWDekker/mommy/pull/47))
-* ⚗️ mommy's build system has been revamped~ ([#38](https://github.com/FWDekker/mommy/issues/38)) ([#42](https://github.com/FWDekker/mommy/issues/42))
-* ⭐ mommy has a bunch more emoji in her readme~ ([#40](https://github.com/FWDekker/mommy/issues/40))
+* 🤖 mommy no longer talks like a robot when unknown options are used~ ([#47](https://github.com/fwdekker/mommy/pull/47))
+* ⚗️ mommy's build system has been revamped~ ([#38](https://github.com/fwdekker/mommy/issues/38)) ([#42](https://github.com/fwdekker/mommy/issues/42))
+* ⭐ mommy has a bunch more emoji in her readme~ ([#40](https://github.com/fwdekker/mommy/issues/40))
 
 ### fixed
 * 📁 mommy installs herself into `/usr/bin` instead of `/usr/local/bin` on linux, to comply with the standards of various operating systems~

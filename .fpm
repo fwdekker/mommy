@@ -5,7 +5,7 @@
 --architecture all
 --no-auto-depends
 --description "mommy's here to support you~"
---url "https://github.com/FWDekker/mommy"
+--url "https://github.com/fwdekker/mommy"
 --maintainer "Florine W. Dekker"
 --deb-changelog ./pkg/fpm/deb.changelog
 --deb-upstream-changelog ./CHANGELOG.md

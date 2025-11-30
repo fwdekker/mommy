@@ -3,7 +3,7 @@ Version:       {{{ my_git_version }}}
 Release:       1
 Summary:       mommy's here to support you, in any shell~ ❤️
 License:       Unlicense
-URL:           https://github.com/FWDekker/mommy
+URL:           https://github.com/fwdekker/mommy
 VCS:           {{{ git_repo_vcs }}}
 Source:        {{{ git_repo_pack }}}
 BuildArch:     noarch
