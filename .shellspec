@@ -4,5 +4,5 @@
 --require spec_helper
 --helperdir src/test/helper/
 
-# OpenBSD: Workaround for https://github.com/shellspec/shellspec/issues/291
+# TODO[Workaround]: See https://github.com/shellspec/shellspec/issues/291. Remove after Shellspec 0.29.0
 --shell sh

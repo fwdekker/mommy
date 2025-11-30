@@ -404,7 +404,8 @@ jobs:
               sudo gem install --no-document fpm
               printf "::endgroup::\n"
 
-              printf "::group::Install fpm: Install gtar (workaround for https://github.com/jordansissel/fpm/pull/1922)\n"
+              # TODO[Workaround]: Remove after https://github.com/jordansissel/fpm/pull/1922 is merged
+              printf "::group::Install fpm: Install gtar\n"
               sudo pkg install -y gtar
               sudo mv /usr/bin/tar /usr/bin/bsdtar
               sudo mv /usr/local/bin/gtar /usr/bin/tar

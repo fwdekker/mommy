@@ -212,7 +212,8 @@ list_normalize() {
 # Outputs a random line from `$1` to `$list_choose__out`.
 if [ -x "$(command -v shuf)" ]; then
     list_choose() {
-        # shellcheck disable=SC2319 # False positive, see https://github.com/koalaman/shellcheck/issues/2937
+        # TODO[Workaround]: Enable shellcheck check after https://github.com/koalaman/shellcheck/issues/2937 is merged
+        # shellcheck disable=SC2319 # False positive
         test "x${-#*f}" != "x$-"; list_choose__glob="$?"; set -f; list_choose__ifs="$IFS"; IFS="$n"
 
         list_choose__out="$(shuf -n1 -e $1)"
