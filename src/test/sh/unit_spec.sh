@@ -1,14 +1,13 @@
 #!/bin/sh
-## Configuration
-# Temporary file to store mommy's configuration in
-: "${MOMMY_CONFIG_FILE:=$MOMMY_TMP_DIR/config.sh}"
-
-
 ## Functions
-# Writes `$1` to `$2` (the latter defaulting to `$MOMMY_CONFIG_FILE`), setting both `MOMMY_COLOR` and `MOMMY_SUFFIX` to
-# the empty string, unless overridden in `$1`.
+# Writes mommy config string `$1` to file `$2`. Creates the containing directory if it does not exist.
+#
+# * By default, configures `MOMMY_COLOR=''` and `MOMMY_SUFFIX=''`. This can be overridden in `$1`.
+# * If not specified, `$2` defaults to the default config file. Note that `$XDG_CONFIG_HOME` is set in `spec_helper.sh`.
 set_config() {
-    printf "MOMMY_COLOR='';MOMMY_SUFFIX='';%s\n" "$1" > "${2:-$MOMMY_CONFIG_FILE}"
+    set_config__file="${2:-$XDG_CONFIG_HOME/mommy/config.sh}"
+    mkdir -p -- "$(dirname -- "$set_config__file")"
+    printf "MOMMY_COLOR='';MOMMY_SUFFIX='';%s\n" "$1" > "$set_config__file"
 }
 
 
@@ -59,33 +58,29 @@ Describe "mommy"
             Parameters:value "-t" "--toggle"
 
             It "disables output after using $1 for the first time"
-                set_config "MOMMY_COMPLIMENTS='open lose'"
-
                 "$MOMMY_EXEC" -t >/dev/null
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" -s 0
-                The error should equal ""
+                When run "$MOMMY_EXEC" -s 0
+                The error should not be present
                 The status should be success
             End
 
             It "disables output even when the toggle happens inside a different shell, when using $1"
-                set_config "MOMMY_COMPLIMENTS='entry sweat'"
-
                 sh -c "'$MOMMY_EXEC' -t" >/dev/null
 
-                When run sh -c "'$MOMMY_EXEC' -c '$MOMMY_CONFIG_FILE' -s 0"
-                The error should equal ""
+                When run sh -c "'$MOMMY_EXEC' -s 0"
+                The error should not be present
                 The status should be success
             End
 
             It "enables output again after using $1 for the 2nd time"
-                set_config "MOMMY_COMPLIMENTS='watch bold'"
+                set_config "MOMMY_COMPLIMENTS='bear soup'"
 
                 "$MOMMY_EXEC" -t >/dev/null
                 "$MOMMY_EXEC" -t >/dev/null
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" -s 0
-                The error should equal "watch bold"
+                When run "$MOMMY_EXEC" -s 0
+                The error should equal "bear soup"
                 The status should be success
             End
 
@@ -103,7 +98,7 @@ Describe "mommy"
 
             It "creates the toggle state file if it does not exist when using $1"
                 When run "$MOMMY_EXEC" -t
-                The output should not equal ""
+                The output should be present
                 The file "$XDG_STATE_HOME/mommy/toggle" should be exist
             End
 
@@ -111,7 +106,7 @@ Describe "mommy"
                 "$MOMMY_EXEC" -t >/dev/null
 
                 When run "$MOMMY_EXEC" -t
-                The output should not equal ""
+                The output should be present
                 The file "$XDG_STATE_HOME/mommy/toggle" should not be exist
             End
         End
@@ -120,8 +115,8 @@ Describe "mommy"
             It "outputs to stderr by default"
                 set_config "MOMMY_COMPLIMENTS='desk copper'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
-                The output should equal ""
+                When run "$MOMMY_EXEC" true
+                The output should not be present
                 The error should equal "desk copper"
                 The status should be success
             End
@@ -129,9 +124,9 @@ Describe "mommy"
             It "outputs to stdout if -1 is given"
                 set_config "MOMMY_COMPLIMENTS='gate friendly'"
 
-                When run "$MOMMY_EXEC" -1 -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" -1 true
                 The output should equal "gate friendly"
-                The error should equal ""
+                The error should not be present
                 The status should be success
             End
         End
@@ -176,44 +171,44 @@ Describe "mommy"
 
             It "ignores an empty path given to $1"
                 When run "$MOMMY_EXEC" $1"" true
-                The error should not equal ""
+                The error should be present
                 The status should be success
             End
 
             It "ignores an invalid path given to $1"
                 When run "$MOMMY_EXEC" $1"./does_not_exist" true
-                The error should not equal ""
+                The error should be present
                 The status should be success
             End
 
             It "ignores a directory path given to $1"
                 When run "$MOMMY_EXEC" "$1""." true
-                The error should not equal ""
+                The error should be present
                 The status should be success
             End
 
             It "uses the configuration from the file given to $1"
-                set_config "MOMMY_COMPLIMENTS='apply news'"
+                set_config "MOMMY_COMPLIMENTS='apply news'" "$MOMMY_TMP_DIR/config.sh"
 
-                When run "$MOMMY_EXEC" $1"$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" $1"$MOMMY_TMP_DIR/config.sh" true
                 The error should equal "apply news"
                 The status should be success
             End
 
             It "overrides the global config file when using $1"
                 set_config "MOMMY_COMPLIMENTS='ceremony isolation'" "$MOMMY_TMP_DIR/global1/config.sh"
-                set_config "MOMMY_COMPLIMENTS='lesson literature'"
+                set_config "MOMMY_COMPLIMENTS='lesson literature'" "$MOMMY_TMP_DIR/config.sh"
 
-                When run "$MOMMY_EXEC" --global-config-dirs="$MOMMY_TMP_DIR/global1/" $1"$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" --global-config-dirs="$MOMMY_TMP_DIR/global1/" $1"$MOMMY_TMP_DIR/config.sh" true
                 The error should equal "lesson literature"
                 The status should be success
             End
 
             It "retains the non-overridden parts of the global config file when using $1"
                 set_config "MOMMY_COMPLIMENTS='theory gallon';MOMMY_PREFIX='!'" "$MOMMY_TMP_DIR/global1/config.sh"
-                set_config "MOMMY_COMPLIMENTS='player plain'"
+                set_config "MOMMY_COMPLIMENTS='player plain'" "$MOMMY_TMP_DIR/config.sh"
 
-                When run "$MOMMY_EXEC" --global-config-dirs="$MOMMY_TMP_DIR/global1/" $1"$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" --global-config-dirs="$MOMMY_TMP_DIR/global1/" $1"$MOMMY_TMP_DIR/config.sh" true
                 The error should equal "!player plain"
                 The status should be success
             End
@@ -223,7 +218,7 @@ Describe "mommy"
             It "writes a compliment to stderr if the command returns 0 status"
                 set_config "MOMMY_COMPLIMENTS='purpose wall'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" true
                 The error should equal "purpose wall"
                 The status should be success
             End
@@ -231,23 +226,32 @@ Describe "mommy"
             It "writes an encouragement to stderr if the command returns non-0 status"
                 set_config "MOMMY_ENCOURAGEMENTS='razor woolen'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" false
+                When run "$MOMMY_EXEC" false
                 The error should equal "razor woolen"
                 The status should be failure
             End
 
             It "returns the non-0 status of the command"
                 When run "$MOMMY_EXEC" exit 4
-                The error should not equal ""
+                The error should be present
                 The status should equal 4
             End
 
             It "passes all arguments to the command"
                 set_config "MOMMY_COMPLIMENTS='disagree mean'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" echo a b c
+                When run "$MOMMY_EXEC" echo a b c
                 The output should equal "a b c"
                 The error should equal "disagree mean"
+                The status should be success
+            End
+
+            It "separates arguments to mommy and arguments to the command"
+                set_config "MOMMY_COMPLIMENTS='pot bond'"
+
+                When run "$MOMMY_EXEC" -d / echo a b c
+                The output should equal "a b c"
+                The error should equal "pot bond"
                 The status should be success
             End
         End
@@ -264,7 +268,7 @@ Describe "mommy"
             It "writes a compliment to stderr if the evaluated command returns 0 status when using $1"
                 set_config "MOMMY_COMPLIMENTS='bold accord'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" $1"true"
+                When run "$MOMMY_EXEC" $1"true"
                 The error should equal "bold accord"
                 The status should be success
             End
@@ -272,21 +276,21 @@ Describe "mommy"
             It "writes an encouragement to stderr if the evaluated command returns non-0 status when using $1"
                 set_config "MOMMY_ENCOURAGEMENTS='head log'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" $1"false"
+                When run "$MOMMY_EXEC" $1"false"
                 The error should equal "head log"
                 The status should be failure
             End
 
             It "returns the non-0 status of the evaluated command when using $1"
                 When run "$MOMMY_EXEC" $1"exit 4"
-                The error should not equal ""
+                The error should be present
                 The status should equal 4
             End
 
             It "passes all arguments to the command when using $1"
                 set_config "MOMMY_COMPLIMENTS='desire bread'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" $1"echo a b c"
+                When run "$MOMMY_EXEC" $1"echo a b c"
                 The output should equal "a b c"
                 The error should equal "desire bread"
                 The status should be success
@@ -295,18 +299,26 @@ Describe "mommy"
             It "considers the command a success if all parts succeed when using $1"
                 set_config "MOMMY_COMPLIMENTS='milk literary'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" $1"echo 'a/b/c' | cut -d '/' -f 1"
+                When run "$MOMMY_EXEC" $1"echo 'a/b/c' | cut -d '/' -f 1"
                 The output should be present
                 The error should equal "milk literary"
                 The status should be success
             End
 
-            It "considers the command a failure if any part fails when using $1"
+            It "considers the command a failure if the last part fails when using $1"
                 set_config "MOMMY_ENCOURAGEMENTS='bear cupboard'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" $1"echo 'a/b/c' | cut -d '/' -f 0"
+                When run "$MOMMY_EXEC" $1"echo 'a/b/c' | cut -d '/' -f 0"
                 The error should be present
                 The status should be failure
+            End
+
+            It "considers the command a success if the second part fails when using $1"
+                set_config "MOMMY_ENCOURAGEMENTS='bear cupboard'"
+
+                When run "$MOMMY_EXEC" $1"echo 'a/b/c' | cut -d '/' -f 0 | cat"
+                The error should be present
+                The status should be success
             End
         End
 
@@ -329,7 +341,7 @@ Describe "mommy"
             It "writes a compliment to stderr if the status is 0 when using $1"
                 set_config "MOMMY_COMPLIMENTS='station top'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" $1"0"
+                When run "$MOMMY_EXEC" $1"0"
                 The error should equal "station top"
                 The status should be success
             End
@@ -337,14 +349,14 @@ Describe "mommy"
             It "writes an encouragement to stderr if the status is non-0 when using $1"
                 set_config "MOMMY_ENCOURAGEMENTS='mend journey'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" $1"1"
+                When run "$MOMMY_EXEC" $1"1"
                 The error should equal "mend journey"
                 The status should be failure
             End
 
             It "returns the given non-0 status when using $1"
                 When run "$MOMMY_EXEC" $1"167"
-                The error should not equal ""
+                The error should be present
                 The status should equal 167
             End
         End
@@ -356,7 +368,7 @@ Describe "mommy"
                 It "chooses from 'MOMMY_COMPLIMENTS'"
                     set_config "MOMMY_COMPLIMENTS='spill drown'"
 
-                    When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                    When run "$MOMMY_EXEC" true
                     The error should equal "spill drown"
                     The status should be success
                 End
@@ -364,7 +376,7 @@ Describe "mommy"
                 It "chooses from 'MOMMY_COMPLIMENTS_EXTRA'"
                     set_config "MOMMY_COMPLIMENTS='';MOMMY_COMPLIMENTS_EXTRA='bill lump'"
 
-                    When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                    When run "$MOMMY_EXEC" true
                     The error should equal "bill lump"
                     The status should be success
                 End
@@ -372,8 +384,8 @@ Describe "mommy"
                 It "outputs nothing if no compliments are set"
                     set_config "MOMMY_COMPLIMENTS='';MOMMY_COMPLIMENTS_EXTRA=''"
 
-                    When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
-                    The error should equal ""
+                    When run "$MOMMY_EXEC" true
+                    The error should not be present
                     The status should be success
                 End
             End
@@ -382,7 +394,7 @@ Describe "mommy"
                 It "inserts a separator between 'MOMMY_COMPLIMENTS' and 'MOMMY_COMPLIMENTS_EXTRA'"
                     set_config "MOMMY_COMPLIMENTS='curse';MOMMY_COMPLIMENTS_EXTRA='dear'"
 
-                    When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                    When run "$MOMMY_EXEC" true
                     The error should not equal "curse dear"
                     The status should be success
                 End
@@ -390,7 +402,7 @@ Describe "mommy"
                 It "uses / as a separator"
                     set_config "MOMMY_COMPLIMENTS='boy/only'"
 
-                    When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                    When run "$MOMMY_EXEC" true
                     The error should not equal "boy/only"
                     The status should be success
                 End
@@ -398,7 +410,7 @@ Describe "mommy"
                 It "uses a newline as a separator"
                     set_config "MOMMY_COMPLIMENTS='salt${n}staff'"
 
-                    When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                    When run "$MOMMY_EXEC" true
                     The error should not equal "salt${n}staff"
                     The status should be success
                 End
@@ -408,7 +420,7 @@ Describe "mommy"
 
                     set_config "MOMMY_COMPLIMENTS='  /  /wage rot/  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  '"
 
-                    When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                    When run "$MOMMY_EXEC" true
                     The error should equal "wage rot"
                     The status should be success
                 End
@@ -418,7 +430,7 @@ Describe "mommy"
                 It "ignores lines starting with '#'"
                     set_config "MOMMY_COMPLIMENTS='weaken${n}#egg'"
 
-                    When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                    When run "$MOMMY_EXEC" true
                     The error should equal "weaken"
                     The status should be success
                 End
@@ -426,7 +438,7 @@ Describe "mommy"
                 It "does not ignore lines starting with ' #'"
                     set_config "MOMMY_COMPLIMENTS=' #seat'"
 
-                    When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                    When run "$MOMMY_EXEC" true
                     The error should equal " #seat"
                     The status should be success
                 End
@@ -434,7 +446,7 @@ Describe "mommy"
                 It "does not ignore lines with a '#' not at the start"
                     set_config "MOMMY_COMPLIMENTS='lo#ud'"
 
-                    When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                    When run "$MOMMY_EXEC" true
                     The error should equal "lo#ud"
                     The status should be success
                 End
@@ -442,7 +454,7 @@ Describe "mommy"
                 It "ignores the '/' in a comment line"
                     set_config "MOMMY_COMPLIMENTS='figure${n}#penny/some'"
 
-                    When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                    When run "$MOMMY_EXEC" true
                     The error should equal "figure"
                     The status should be success
                 End
@@ -452,7 +464,7 @@ Describe "mommy"
                 It "retains leading whitespace in an entry"
                     set_config "MOMMY_COMPLIMENTS=' rake fix'"
 
-                    When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                    When run "$MOMMY_EXEC" true
                     The error should equal " rake fix"
                     The status should be success
                 End
@@ -460,7 +472,7 @@ Describe "mommy"
                 It "retains trailing whitespace in an entry"
                     set_config "MOMMY_COMPLIMENTS='read wealth '"
 
-                    When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                    When run "$MOMMY_EXEC" true
                     The error should equal "read wealth "
                     The status should be success
                 End
@@ -470,16 +482,16 @@ Describe "mommy"
                 It "outputs nothing if a command succeeds but compliments are disabled"
                     set_config "MOMMY_COMPLIMENTS_ENABLED='0'"
 
-                    When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
-                    The error should equal ""
+                    When run "$MOMMY_EXEC" true
+                    The error should not be present
                     The status should be success
                 End
 
                 It "outputs nothing if a command fails but encouragements are disabled"
                     set_config "MOMMY_ENCOURAGEMENTS_ENABLED='0'"
 
-                    When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" false
-                    The error should equal ""
+                    When run "$MOMMY_EXEC" false
+                    The error should not be present
                     The status should be failure
                 End
             End
@@ -489,7 +501,7 @@ Describe "mommy"
             It "escapes sed-specific characters"
                 set_config "MOMMY_COMPLIMENTS='>%%SWEETIE%%<';MOMMY_SWEETIE='&\\'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" true
                 The error should equal ">&\\<"
                 The status should be success
             End
@@ -497,7 +509,7 @@ Describe "mommy"
             It "replaces %%SWEETIE%%"
                 set_config "MOMMY_COMPLIMENTS='>%%SWEETIE%%<';MOMMY_SWEETIE='attempt'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" true
                 The error should equal ">attempt<"
                 The status should be success
             End
@@ -505,7 +517,7 @@ Describe "mommy"
             It "replaces %%CAREGIVER%%"
                 set_config "MOMMY_COMPLIMENTS='>%%CAREGIVER%%<';MOMMY_CAREGIVER='help'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" true
                 The error should equal ">help<"
                 The status should be success
             End
@@ -513,7 +525,7 @@ Describe "mommy"
             It "replaces %%N%%"
                 set_config "MOMMY_COMPLIMENTS='>bottom%%N%%stimky<'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" true
                 The error should equal ">bottom
 stimky<"
                 The status should be success
@@ -522,7 +534,7 @@ stimky<"
             It "replaces %%S%%"
                 set_config "MOMMY_COMPLIMENTS='>global%%S%%seminar<'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" true
                 The error should equal ">global/seminar<"
                 The status should be success
             End
@@ -530,7 +542,7 @@ stimky<"
             It "replaces %%_%%"
                 set_config "MOMMY_COMPLIMENTS='>model%%_%%punish<'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" true
                 The error should equal ">model punish<"
                 The status should be success
             End
@@ -538,7 +550,7 @@ stimky<"
             It "replaces %%_%% inside pronouns"
                 set_config "MOMMY_COMPLIMENTS='>%%THEY%%<';MOMMY_PRONOUNS='nor%%_%%mal tumble source land storm'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" true
                 The error should equal ">nor mal<"
                 The status should be success
             End
@@ -546,7 +558,7 @@ stimky<"
             It "prepends the prefix"
                 set_config "MOMMY_COMPLIMENTS='<';MOMMY_PREFIX='woolen'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" true
                 The error should equal "woolen<"
                 The status should be success
             End
@@ -554,7 +566,7 @@ stimky<"
             It "appends the suffix"
                 set_config "MOMMY_COMPLIMENTS='>';MOMMY_SUFFIX='respect'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" true
                 The error should equal ">respect"
                 The status should be success
             End
@@ -566,11 +578,11 @@ stimky<"
                 caregiver="a/b/c/d/e/f/g/h/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z"
                 set_config "MOMMY_COMPLIMENTS='>%%CAREGIVER%%<';MOMMY_CAREGIVER='$caregiver'"
 
-                output1=$("$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true 2>&1)
-                output2=$("$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true 2>&1)
-                output3=$("$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true 2>&1)
-                output4=$("$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true 2>&1)
-                output5=$("$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true 2>&1)
+                output1=$("$MOMMY_EXEC" true 2>&1)
+                output2=$("$MOMMY_EXEC" true 2>&1)
+                output3=$("$MOMMY_EXEC" true 2>&1)
+                output4=$("$MOMMY_EXEC" true 2>&1)
+                output5=$("$MOMMY_EXEC" true 2>&1)
 
                 [ "$output1" != "$output2" ] || [ "$output1" != "$output3" ] \
                                              || [ "$output1" != "$output4" ] \
@@ -584,7 +596,7 @@ stimky<"
             It "chooses the empty string if a variable is not set"
                 set_config "MOMMY_COMPLIMENTS='>%%SWEETIE%%|%%THEIR%%<';MOMMY_SWEETIE='';MOMMY_PRONOUNS=''"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" true
                 The error should equal ">|<"
                 The status should be success
             End
@@ -593,7 +605,7 @@ stimky<"
                 It "replaces %%THEY%%"
                     set_config "MOMMY_COMPLIMENTS='>%%THEY%%<';MOMMY_PRONOUNS='front lean weekend range great'"
 
-                    When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                    When run "$MOMMY_EXEC" true
                     The error should equal ">front<"
                     The status should be success
                 End
@@ -601,7 +613,7 @@ stimky<"
                 It "replaces %%THEM%%"
                     set_config "MOMMY_COMPLIMENTS='>%%THEM%%<';MOMMY_PRONOUNS='paint heighten well have spoil'"
 
-                    When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                    When run "$MOMMY_EXEC" true
                     The error should equal ">heighten<"
                     The status should be success
                 End
@@ -609,7 +621,7 @@ stimky<"
                 It "replaces %%THEIR%%"
                     set_config "MOMMY_COMPLIMENTS='>%%THEIR%%<';MOMMY_PRONOUNS='sink satisfy razor fox dirty'"
 
-                    When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                    When run "$MOMMY_EXEC" true
                     The error should equal ">razor<"
                     The status should be success
                 End
@@ -617,7 +629,7 @@ stimky<"
                 It "replaces %%THEIRS%%"
                     set_config "MOMMY_COMPLIMENTS='>%%THEIRS%%<';MOMMY_PRONOUNS='medal worth ride thrust poetry'"
 
-                    When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                    When run "$MOMMY_EXEC" true
                     The error should equal ">thrust<"
                     The status should be success
                 End
@@ -625,7 +637,7 @@ stimky<"
                 It "replaces %%THEMSELF%%"
                     set_config "MOMMY_COMPLIMENTS='>%%THEMSELF%%<';MOMMY_PRONOUNS='accept belong fever forge manner'"
 
-                    When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                    When run "$MOMMY_EXEC" true
                     The error should equal ">manner<"
                     The status should be success
                 End
@@ -633,7 +645,7 @@ stimky<"
                 It "replaces %%THEIRS%% with an induced default value if only three words are given"
                     set_config "MOMMY_COMPLIMENTS='>%%THEIRS%%<';MOMMY_PRONOUNS='singer medium bow'"
 
-                    When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                    When run "$MOMMY_EXEC" true
                     The error should equal ">bows<"
                     The status should be success
                 End
@@ -641,7 +653,7 @@ stimky<"
                 It "replaces %%THEMSELF%% with an induced default value if only three words are given"
                     set_config "MOMMY_COMPLIMENTS='>%%THEMSELF%%<';MOMMY_PRONOUNS='load aunt hell'"
 
-                    When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                    When run "$MOMMY_EXEC" true
                     The error should equal ">auntself<"
                     The status should be success
                 End
@@ -650,7 +662,7 @@ stimky<"
                     set_config "MOMMY_COMPLIMENTS='>%%THEY%%.%%THEM%%.%%THEIR%%.%%THEIRS%%.%%THEMSELF%%<';\
                                 MOMMY_PRONOUNS='a b c d e/f g h i j'"
 
-                    When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                    When run "$MOMMY_EXEC" true
                     The error should match pattern ">a.b.c.d.e<|>f.g.h.i.j<"
                     The status should be success
                 End
@@ -661,7 +673,7 @@ stimky<"
             It "changes the first character to lowercase if configured to 0"
                 set_config "MOMMY_COMPLIMENTS='Alive station';MOMMY_CAPITALIZE='0'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" true
                 The error should equal "alive station"
                 The status should be success
             End
@@ -669,7 +681,7 @@ stimky<"
             It "changes the first character to uppercase if configured to 1"
                 set_config "MOMMY_COMPLIMENTS='inquiry speech';MOMMY_CAPITALIZE='1'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" true
                 The error should equal "Inquiry speech"
                 The status should be success
             End
@@ -677,7 +689,7 @@ stimky<"
             It "uses the template's original capitalization if configured to the empty string"
                 set_config "MOMMY_COMPLIMENTS='Medicine frighten';MOMMY_CAPITALIZE="
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" true
                 The error should equal "Medicine frighten"
                 The status should be success
             End
@@ -685,7 +697,7 @@ stimky<"
             It "uses the template's original capitalization if configured to anything else"
                 set_config "MOMMY_COMPLIMENTS='Belong shore';MOMMY_CAPITALIZE='2'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" true
                 The error should equal "Belong shore"
                 The status should be success
             End
@@ -698,7 +710,7 @@ stimky<"
             It "removes the template that equals the forbidden word"
                 set_config "MOMMY_COMPLIMENTS='mother search/fierce along';MOMMY_FORBIDDEN_WORDS='search'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" true
                 The error should equal "fierce along"
                 The status should be success
             End
@@ -706,7 +718,7 @@ stimky<"
             It "removes the template that contains the forbidden word"
                 set_config "MOMMY_COMPLIMENTS='clear bow flow/horn origin tired';MOMMY_FORBIDDEN_WORDS='bow'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" true
                 The error should equal "horn origin tired"
                 The status should be success
             End
@@ -715,7 +727,7 @@ stimky<"
                 set_config "MOMMY_COMPLIMENTS='after boundary/failure school/instant delay';\
                             MOMMY_FORBIDDEN_WORDS='instant/boundary'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" true
                 The error should equal "failure school"
                 The status should be success
             End
@@ -723,7 +735,7 @@ stimky<"
             It "removes all templates that match the bracket expansion"
                 set_config "MOMMY_COMPLIMENTS='a/z/c';MOMMY_FORBIDDEN_WORDS='[ac]'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" true
                 The error should equal "z"
                 The status should be success
             End
@@ -731,7 +743,7 @@ stimky<"
             It "removes all templates that match the bracket expansion range"
                 set_config "MOMMY_COMPLIMENTS='a/b/c/z';MOMMY_FORBIDDEN_WORDS='[a-c]'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" true
                 The error should equal "z"
                 The status should be success
             End
@@ -739,7 +751,7 @@ stimky<"
             It "maps octal escapes to the corresponding character"
                 set_config "MOMMY_COMPLIMENTS='z/a/b';MOMMY_FORBIDDEN_WORDS='[\0141\0142]'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" true
                 The error should equal "z"
                 The status should be success
             End
@@ -747,7 +759,7 @@ stimky<"
             It "maps octal escapes to the corresponding character in a range"
                 set_config "MOMMY_COMPLIMENTS='z/a/b';MOMMY_FORBIDDEN_WORDS='[\0141\0142]'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" true
                 The error should equal "z"
                 The status should be success
             End
@@ -755,7 +767,7 @@ stimky<"
             It "supports the | in a regex"
                 set_config "MOMMY_COMPLIMENTS='dinner/rent/shot';MOMMY_FORBIDDEN_WORDS='(dinner|rent)'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
+                When run "$MOMMY_EXEC" true
                 The error should equal "shot"
                 The status should be success
             End
@@ -765,46 +777,46 @@ stimky<"
                             MOMMY_PRONOUNS='a b c d e';\
                             MOMMY_FORBIDDEN_WORDS='(ab)'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" true
-                The error should equal ""
+                When run "$MOMMY_EXEC" true
+                The error should not be present
                 The status should be success
             End
         End
 
         Describe "ignore specific exit codes"
             It "by default, outputs something"
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" exit 0
-                The error should not equal ""
+                When run "$MOMMY_EXEC" exit 0
+                The error should be present
                 The status should be success
             End
 
             It "by default, outputs nothing if the exit code is 130"
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" exit 130
-                The error should equal ""
+                When run "$MOMMY_EXEC" exit 130
+                The error should not be present
                 The status should equal 130
             End
 
             It "outputs something if no exit code is suppressed"
                 set_config "MOMMY_IGNORED_STATUSES=''"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" exit 130
-                The error should not equal ""
+                When run "$MOMMY_EXEC" exit 130
+                The error should be present
                 The status should equal 130
             End
 
             It "output nothing if the exit code is the configured value"
                 set_config "MOMMY_IGNORED_STATUSES='32'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" exit 32
-                The error should equal ""
+                When run "$MOMMY_EXEC" exit 32
+                The error should not be present
                 The status should equal 32
             End
 
             It "does not output anything if the exit code is one of the configured values"
                 set_config "MOMMY_IGNORED_STATUSES='32/84/89'"
 
-                When run "$MOMMY_EXEC" -c "$MOMMY_CONFIG_FILE" exit 84
-                The error should equal ""
+                When run "$MOMMY_EXEC" exit 84
+                The error should not be present
                 The status should equal 84
             End
         End

@@ -1,5 +1,7 @@
 #!/bin/sh
 ## Configuration
+# Variables defined below can be overridden when invoking `make test`. For example, `MOMMY_SYSTEM=1 make test`.
+
 # "0" to run against files in 'src/', "1" to run against installed files
 : "${MOMMY_SYSTEM:=0}"
 export MOMMY_SYSTEM
@@ -16,7 +18,14 @@ export MOMMY_EXEC
 : "${MOMMY_TMP_DIR:=/tmp/mommy-test/}"
 export MOMMY_TMP_DIR
 
-# Set state directory, unconditionally
+
+## Use isolated XDG directories
+XDG_CONFIG_DIRS="$MOMMY_TMP_DIR/xdg/"
+export XDG_CONFIG_DIRS
+
+XDG_CONFIG_HOME="$MOMMY_TMP_DIR/config/"
+export XDG_CONFIG_HOME
+
 XDG_STATE_HOME="$MOMMY_TMP_DIR/state/"
 export XDG_STATE_HOME
 
@@ -41,12 +50,19 @@ mommy_clean_tmp() {
 }
 
 mommy_before_each() {
-    mkdir -p "$MOMMY_TMP_DIR" "$MOMMY_TMP_DIR/global1/" "$MOMMY_TMP_DIR/global2/"
+    mkdir -p \
+        "$MOMMY_TMP_DIR" \
+        "$MOMMY_TMP_DIR/global1/" "$MOMMY_TMP_DIR/global2/" \
+        "$XDG_CONFIG_DIRS" "$XDG_CONFIG_HOME" "$XDG_STATE_HOME"
 }
 
 mommy_after_each() {
+    # Delete everything under `$MOMMY_TMP_DIR`, except directories created in `mommy_before_each`
     find "$MOMMY_TMP_DIR" -mindepth 1 \
         ! -path "$MOMMY_TMP_DIR/global1" \
         ! -path "$MOMMY_TMP_DIR/global2" \
+        ! -path "${XDG_CONFIG_DIRS%%/}" \
+        ! -path "${XDG_CONFIG_HOME%%/}" \
+        ! -path "${XDG_STATE_HOME%%/}" \
         -exec rm -rf {} +
 }

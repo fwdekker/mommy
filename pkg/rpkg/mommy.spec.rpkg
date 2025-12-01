@@ -44,5 +44,9 @@ rm -rf "%{_tmppath}/shellspec/"
 %changelog
 # This changelog is only for packages built using rpkg on copr.
 
+* Mon Dec 01 2025 Florine W. Dekker - 9.9.9-1
+- TODO: fix date and version. (ps: leading zero before "1" in "01 Dec" is correct! i checked!)
+- temporary files in tests now remain inside the configured tmppath~
+
 * Tue Mar 14 2023 Florine W. Dekker - 1.2.3-1
 - initial release with rpkg~
