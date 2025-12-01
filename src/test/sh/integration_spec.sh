@@ -1,5 +1,7 @@
 #!/bin/sh
 ## Configuration
+# Variables defined below can be overridden when invoking `make test`. For example, `MOMMY_MAKE=gmake make test`.
+
 # Make
 : "${MOMMY_MAKE:=make}"  # Path to GNU make to invoke
 

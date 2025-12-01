@@ -1,24 +1,22 @@
 #!/bin/sh
 ## Configuration
-# "1" to run against installed files, "0" to run against files in `src/`
+# Variables defined below can be overridden when invoking `make test`. For example, `MOMMY_SYSTEM=1 make test`.
+
+# "0" to run against files in 'src/', "1" to run against installed files
 : "${MOMMY_SYSTEM:=0}"
 export MOMMY_SYSTEM
 
 # Path to mommy executable to test
-if [ "$MOMMY_SYSTEM" = "1" ]; then
-    : "${MOMMY_EXEC:=mommy}"
-else
+if [ "x0" = "x$MOMMY_SYSTEM" ]; then
     : "${MOMMY_EXEC:=../../main/sh/mommy}"
+else
+    : "${MOMMY_EXEC:=mommy}"
 fi
 export MOMMY_EXEC
 
 # Path to directory for temporary files
 : "${MOMMY_TMP_DIR:=/tmp/mommy-test/}"
 export MOMMY_TMP_DIR
-
-# Change state directory for test run. Only used by mommy, so it's fine
-: "${XDG_STATE_HOME:="$MOMMY_TMP_DIR/state/"}"
-export XDG_STATE_HOME
 
 
 ## Constants and helpers
