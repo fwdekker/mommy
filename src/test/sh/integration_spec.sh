@@ -13,7 +13,7 @@
 # Zsh
 : "${MOMMY_ZSH_SKIP:=0}"  # "1" to run zsh-related tests, "0" to skip them
 : "${MOMMY_ZSH_EXEC:=zsh}"  # Path to zsh to invoke
-: "${MOMMY_ZSH_PREAMBLE_FILE:=$MOMMY_TMP_DIR/zsh_preamble.sh}"  # Path to temporary zsh preamble file
+: "${MOMMY_ZSH_PREAMBLE_FILE:="$MOMMY_TMP_DIR/zsh_preamble.sh"}"  # Path to temporary zsh preamble file
 
 
 ## Run tests

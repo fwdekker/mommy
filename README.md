@@ -878,6 +878,7 @@ you should **not** update the `latest` branch manually!
   * [copr](https://copr.fedorainfracloud.org/coprs/fwdekker/mommy/)
     * updated automatically when `mommy` updates
     * [check the relevant webhook to see if copr was correctly informed](https://github.com/fwdekker/mommy/settings/hooks)
+    * if a build fails, check [`pkg/rpkg/README.md`](https://github.com/fwdekker/mommy/blob/main/pkg/rpkg/README.md) for troubleshooting tips
     * always [manually check deployment status](https://copr.fedorainfracloud.org/coprs/fwdekker/mommy/builds/)~
   * [apt-mommy](https://github.com/fwdekker/apt-mommy/)
       * updated automatically when `mommy` updates

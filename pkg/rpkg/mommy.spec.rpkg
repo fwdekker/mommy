@@ -30,7 +30,7 @@ make build
 make prefix="%{buildroot}/%{_prefix}/" install
 
 %check
-MOMMY_EXEC="%{buildroot}/%{_prefix}/bin/mommy" make shellspec_bin="%{_tmppath}/shellspec/shellspec" test/unit
+MOMMY_EXEC="%{buildroot}/%{_prefix}/bin/mommy" MOMMY_TMP_DIR="%{_tmppath}/mommy/" make shellspec_bin="%{_tmppath}/shellspec/shellspec" test/unit
 
 %clean
 rm -rf "%{_tmppath}/shellspec/"
