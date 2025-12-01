@@ -1,4 +1,15 @@
 #!/bin/sh
+## Use isolated XDG directories
+XDG_CONFIG_DIRS="$MOMMY_TMP_DIR/xdg/"
+export XDG_CONFIG_DIRS
+
+XDG_CONFIG_HOME="$MOMMY_TMP_DIR/config/"
+export XDG_CONFIG_HOME
+
+XDG_STATE_HOME="$MOMMY_TMP_DIR/state/"
+export XDG_STATE_HOME
+
+
 ## Functions
 # Writes mommy config string `$1` to file `$2`. Creates the containing directory if it does not exist.
 #

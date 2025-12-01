@@ -19,17 +19,6 @@ export MOMMY_EXEC
 export MOMMY_TMP_DIR
 
 
-## Use isolated XDG directories
-XDG_CONFIG_DIRS="$MOMMY_TMP_DIR/xdg/"
-export XDG_CONFIG_DIRS
-
-XDG_CONFIG_HOME="$MOMMY_TMP_DIR/config/"
-export XDG_CONFIG_HOME
-
-XDG_STATE_HOME="$MOMMY_TMP_DIR/state/"
-export XDG_STATE_HOME
-
-
 ## Constants and helpers
 export n="
 "
@@ -50,19 +39,12 @@ mommy_clean_tmp() {
 }
 
 mommy_before_each() {
-    mkdir -p \
-        "$MOMMY_TMP_DIR" \
-        "$MOMMY_TMP_DIR/global1/" "$MOMMY_TMP_DIR/global2/" \
-        "$XDG_CONFIG_DIRS" "$XDG_CONFIG_HOME" "$XDG_STATE_HOME"
+    mkdir -p "$MOMMY_TMP_DIR" "$MOMMY_TMP_DIR/global1/" "$MOMMY_TMP_DIR/global2/"
 }
 
 mommy_after_each() {
-    # Delete everything under `$MOMMY_TMP_DIR`, except directories created in `mommy_before_each`
     find "$MOMMY_TMP_DIR" -mindepth 1 \
         ! -path "$MOMMY_TMP_DIR/global1" \
         ! -path "$MOMMY_TMP_DIR/global2" \
-        ! -path "${XDG_CONFIG_DIRS%%/}" \
-        ! -path "${XDG_CONFIG_HOME%%/}" \
-        ! -path "${XDG_STATE_HOME%%/}" \
         -exec rm -rf {} +
 }
