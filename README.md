@@ -27,7 +27,7 @@ need help?
 otherwise not satisfied?
 [please open an issue](https://github.com/fwdekker/mommy/issues)~_
 
-### 👩‍💼 with a package manager
+### 👩‍💼 with a package manager<a name="installation--with-a-package-manager"></a>
 find your operating system and package manager for the right instructions~
 
 <details>
@@ -287,15 +287,15 @@ find your operating system and package manager for the right instructions~
 <details>
 <summary>windows</summary>
 
-for **git bash** or **cygwin**, see [the instructions for using mommy without a package manager](#-without-a-package-manager)~
+for **git bash** or **cygwin**, see [the instructions for using mommy without a package manager](#installation--without-a-package-manager)~
 
 * **wsl** (automatic or manual updates)  
-  follow any of the mommy installation instructions for your installed linux subsystem (default is ubuntu) or [build mommy from source](#-without-a-package-manager)~
+  follow any of the mommy installation instructions for your installed linux subsystem (default is ubuntu) or [build mommy from source](#installation--without-a-package-manager)~
 * **msys2** (automatic or manual updates)  
-  follow any of the mommy installation instructions for _arch linux_ (except **do not use the arch user repository method**) or [build mommy from source](#-without-a-package-manager)~
+  follow any of the mommy installation instructions for _arch linux_ (except **do not use the arch user repository method**) or [build mommy from source](#installation--without-a-package-manager)~
 </details>
 
-### 🐐 without a package manager
+### 🐐 without a package manager<a name="installation--without-a-package-manager"></a>
 <details>
 <summary>build from source and install</summary>
 
@@ -394,7 +394,7 @@ mommy processes (the output status of) a command and compliments you if the comm
 > [!TIP]
 > the **recommended** way of long-term mommy usage is to [integrate mommy into your shell](#shell-integration), so mommy will run after every command you run~
 
-### 💃 how to run<a name="how-to-run"></a>
+### 💃 how to run<a name="usage--how-to-run"></a>
 for reference, here's the three main ways to invoke mommy~
 
 | format                | example                     | when to use                                                          |
@@ -403,7 +403,7 @@ for reference, here's the three main ways to invoke mommy~
 | `mommy -e [command]`  | `mommy -e "ls -l \| wc -l"` | if you want mommy when using `\|` or `>`, or need mommy in a script~ |
 | `mommy -s [status]`   | `mommy -s $?`               | if you already ran a command and want mommy's help afterwards~       |
 
-### 🛸 extra options<a name="extra-options"></a>
+### 🛸 extra options<a name="usage--extra-options"></a>
 additionally, mommy knows a few extra options, which you can use to discover who mommy is and to tell mommy which [configuration files](#configuration) she should use~
 
 | short option | long option                   | description                                                                                                                                                                                                                                 |
@@ -413,16 +413,16 @@ additionally, mommy knows a few extra options, which you can use to discover who
 | `-t`         | `--toggle`                    | toggles whether mommy should display output at all. applies to all sessions of all shells of the current user, until this option is toggled again. useful if you want to temporarily silence mommy without editing your shell config files~ |
 | `-1`         |                               | writes output to stdout instead of stderr~                                                                                                                                                                                                  |
 | `-c <file>`  | `--config=<file>`             | tells mommy that she should read your [config](#configuration) from `<file>`~                                                                                                                                                               |
-| `-d <dirs>`  | `--global-config-dirs=<dirs>` | sets [global configuration dirs](#config-file-locations) to the colon-separated list in `<dirs>`~                                                                                                                                           |
+| `-d <dirs>`  | `--global-config-dirs=<dirs>` | sets [global configuration dirs](#configuration--config-file-locations) to the colon-separated list in `<dirs>`~                                                                                                                            |
 
 
 ## 🙋 configuration<a name="configuration"></a> <small><sup>[top ▲](#toc)</sup></small>
 mommy's behavior can be modified using config files.
 the easiest way to do so is to add your config to the file `~/.config/mommy/config.sh`.
 you can also set up a global config file that is applied to all users, by default in `/etc/mommy/config.sh`.
-[read more about the way config files are loaded](#config-file-locations)~
+[read more about the way config files are loaded](#configuration--config-file-locations)~
 
-mommy supports [a lot of different settings](#list-of-all-settings).
+mommy supports [a lot of different settings](#configuration--list-of-all-settings).
 if you want to configure the value of `MOMMY_SWEETIE`, add the following line to your config file:
 ```shell
 MOMMY_SWEETIE="catgirl"
@@ -430,7 +430,7 @@ MOMMY_SWEETIE="catgirl"
 make sure you _do not_ put spaces around the `=`, and you _do_ put quotes (`"`) around the value~
 
 <details>
-<summary><a name="config-file-locations"></a>🔍 config file locations</summary>
+<summary><a name="configuration--config-file-locations"></a>🔍 config file locations</summary>
 
 when mommy runs, she will first load the system-wide **global** config file.
 after that, she will read the user-specific **local** config file, overriding the values from the global file~
@@ -448,29 +448,29 @@ after that, she will read the user-specific **local** config file, overriding th
 </details>
 
 <details>
-<summary><a name="list-of-all-settings"></a>👛 list of all settings</summary>
+<summary><a name="configuration--list-of-all-settings"></a>👛 list of all settings</summary>
 
-| variable                       | description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | [list](#how-to-configure-lists)? | default                    |
-|--------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------|----------------------------|
-| `MOMMY_CAREGIVER`              | what mommy calls herself                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | yes                              | `mommy`                    |
-| `MOMMY_PRONOUNS`               | mommy's pronouns for herself. should be five words separated by spaces, as in `they them their theirs themself` (subject, object, dependent possessive, independent possessive, reflexive). to use a literal whitespace inside a single pronoun, write `%%_%%`, as in `ye you%%_%%all y'all's yeers yeerselves`. in general, since the last two of the five words (`theirs` and `themself`) are relatively rare, you can also just give the first three words, and then the fourth and fifth words are auto-completed. so `they them their` is the same as `they them their theirs themself`. however, this will also result in `he him his` becoming `he him his hiss himself`, so be careful | yes                              | `she her her hers herself` |
-| `MOMMY_SWEETIE`                | what mommy calls you                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | yes                              | &lt;username>              |
-| `MOMMY_PREFIX`                 | what mommy puts at the start of each sentence                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | yes                              | &lt;empty>                 |
-| `MOMMY_SUFFIX`                 | what mommy puts at the end of each sentence                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | yes                              | `~`                        |
-| `MOMMY_CAPITALIZE`             | `0` to start sentences in lowercase, `1` for uppercase, anything else to change nothing                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | no                               | `0`                        |
-| `MOMMY_COLOR`                  | color of mommy's text. you can use any [xterm color code](https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg), or write `lolcat` to use [lolcat](https://github.com/busyloop/lolcat) (install separately). specify multiple colors separated by `/` to randomly select one. set to empty string for your terminal's default color                                                                                                                                                                                                                                                                                                                                    | yes                              | `005`                      |
-| `MOMMY_COMPLIMENTS`            | default compliment [templates](#how-to-configure-templates)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | yes                              | &lt;various>               |
-| `MOMMY_COMPLIMENTS_EXTRA`      | additional compliment templates you can specify                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | yes                              | &lt;empty>                 |
-| `MOMMY_COMPLIMENTS_ENABLED`    | `1` to enable compliments, anything else to disable                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | no                               | `1`                        |
-| `MOMMY_ENCOURAGEMENTS`         | default encouragement [templates](#how-to-configure-templates)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | yes                              | &lt;various>               |
-| `MOMMY_ENCOURAGEMENTS_EXTRA`   | additional encouragement templates you can specify                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | yes                              | &lt;empty>                 |
-| `MOMMY_ENCOURAGEMENTS_ENABLED` | `1` to enable encouragements, anything else to disable                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | no                               | `1`                        |
-| `MOMMY_FORBIDDEN_WORDS`        | mommy will never give outputs that match forbidden strings. each entry is expressed as an [extended regex](https://pubs.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap09.html#tag_09_04) (see also `man grep`). to enforce this, mommy will filter out all templates that match at least one regex. as a failsafe, mommy will also check her final output after choosing and [filling in the template](#how-to-configure-templates), and will output nothing if she finds a forbidden string. also, if you want, you can replace literal characters with their octal (_not hex!_) escape sequences; for example, you can write `\0155\0157\0155` instead of `mom`                        | yes                              | &lt;empty>                 |
-| `MOMMY_IGNORED_STATUSES`       | exit codes that mommy should never reply to. set to empty string to ignore nothing                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | yes                              | `130`                      |
+| variable                       | description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | [list](#configuration--how-to-configure-lists)? | default                    |
+|--------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|----------------------------|
+| `MOMMY_CAREGIVER`              | what mommy calls herself                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | yes                                             | `mommy`                    |
+| `MOMMY_PRONOUNS`               | mommy's pronouns for herself. should be five words separated by spaces, as in `they them their theirs themself` (subject, object, dependent possessive, independent possessive, reflexive). to use a literal whitespace inside a single pronoun, write `%%_%%`, as in `ye you%%_%%all y'all's yeers yeerselves`. in general, since the last two of the five words (`theirs` and `themself`) are relatively rare, you can also just give the first three words, and then the fourth and fifth words are auto-completed. so `they them their` is the same as `they them their theirs themself`. however, this will also result in `he him his` becoming `he him his hiss himself`, so be careful | yes                                             | `she her her hers herself` |
+| `MOMMY_SWEETIE`                | what mommy calls you                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | yes                                             | &lt;username>              |
+| `MOMMY_PREFIX`                 | what mommy puts at the start of each sentence                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | yes                                             | &lt;empty>                 |
+| `MOMMY_SUFFIX`                 | what mommy puts at the end of each sentence                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | yes                                             | `~`                        |
+| `MOMMY_CAPITALIZE`             | `0` to start sentences in lowercase, `1` for uppercase, anything else to change nothing                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | no                                              | `0`                        |
+| `MOMMY_COLOR`                  | color of mommy's text. you can use any [xterm color code](https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg), or write `lolcat` to use [lolcat](https://github.com/busyloop/lolcat) (install separately). specify multiple colors separated by `/` to randomly select one. set to empty string for your terminal's default color                                                                                                                                                                                                                                                                                                                                    | yes                                             | `005`                      |
+| `MOMMY_COMPLIMENTS`            | default compliment [templates](#configuration--how-to-configure-templates)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | yes                                             | &lt;various>               |
+| `MOMMY_COMPLIMENTS_EXTRA`      | additional compliment templates you can specify                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | yes                                             | &lt;empty>                 |
+| `MOMMY_COMPLIMENTS_ENABLED`    | `1` to enable compliments, anything else to disable                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | no                                              | `1`                        |
+| `MOMMY_ENCOURAGEMENTS`         | default encouragement [templates](#configuration--how-to-configure-templates)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | yes                                             | &lt;various>               |
+| `MOMMY_ENCOURAGEMENTS_EXTRA`   | additional encouragement templates you can specify                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | yes                                             | &lt;empty>                 |
+| `MOMMY_ENCOURAGEMENTS_ENABLED` | `1` to enable encouragements, anything else to disable                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | no                                              | `1`                        |
+| `MOMMY_FORBIDDEN_WORDS`        | mommy will never give outputs that match forbidden strings. each entry is expressed as an [extended regex](https://pubs.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap09.html#tag_09_04) (see also `man grep`). to enforce this, mommy will filter out all templates that match at least one regex. as a failsafe, mommy will also check her final output after choosing and [filling in the template](#configuration--how-to-configure-templates), and will output nothing if she finds a forbidden string. also, if you want, you can replace literal characters with their octal (_not hex!_) escape sequences; for example, you can write `\0155\0157\0155` instead of `mom`         | yes                                             | &lt;empty>                 |
+| `MOMMY_IGNORED_STATUSES`       | exit codes that mommy should never reply to. set to empty string to ignore nothing                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | yes                                             | `130`                      |
 </details>
 
 <details>
-<summary><a name="how-to-configure-lists"></a>🪣 how to configure lists</summary>
+<summary><a name="configuration--how-to-configure-lists"></a>🪣 how to configure lists</summary>
 
 some of these settings support lists.
 mommy chooses a random element from each list each time she is called by you.
@@ -503,9 +503,9 @@ elements that contain whitespace only, and elements that start with a `#` are ig
 </details>
 
 <details>
-<summary><a name="how-to-configure-templates"></a>🧬 how to configure templates</summary>
+<summary><a name="configuration--how-to-configure-templates"></a>🧬 how to configure templates</summary>
 
-you can add a [list](#how-to-configure-lists) of your own compliments to either `MOMMY_COMPLIMENTS` or `MOMMY_COMPLIMENTS_EXTRA`.
+you can add a [list](#configuration--how-to-configure-lists) of your own compliments to either `MOMMY_COMPLIMENTS` or `MOMMY_COMPLIMENTS_EXTRA`.
 there is a slight difference between the two lists:
 
 * if you want both the default _and_ your own compliments, add your own compliments to `MOMMY_COMPLIMENTS_EXTRA`~
@@ -538,7 +538,7 @@ _this is just a small list of possibilities.
 if you know of another way to integrate mommy, feel free to contribute them by opening a pull request!_
 
 <details>
-<summary>🪅 bash</summary>
+<summary><a name="shell-integration--bash"></a>🪅 bash</summary>
 
 in [bash](https://www.gnu.org/software/bash/) you can set [`PROMPT_COMMAND`](https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#index-PROMPT_005fCOMMAND) to run mommy after each command.
 just add the following line to `~/.bashrc`:
@@ -551,7 +551,7 @@ PROMPT_COMMAND="mommy -1 -s \$?; $PROMPT_COMMAND"
 </details>
 
 <details>
-<summary>🐟 fish</summary>
+<summary><a name="shell-integration--fish"></a>🐟 fish</summary>
 
 in [fish](https://fishshell.com/) you can have mommy output a message on the right side of your prompt by creating `~/.config/fish/functions/fish_right_prompt.fish` with the following contents:
 ```shell
@@ -567,7 +567,7 @@ if not, you can either overwrite it with the above code, or copy-paste the theme
 </details>
 
 <details>
-<summary>📈 nushell</summary>
+<summary><a name="shell-integration--nushell"></a>📈 nushell</summary>
 
 in [nushell](https://www.nushell.sh/) you can have mommy output a message on the right side of your prompt by adding the following line to your `~/.config/nushell/config.nu` file:
 ```shell
@@ -579,7 +579,7 @@ $env.PROMPT_COMMAND_RIGHT = {|| mommy -1 -s $env.LAST_EXIT_CODE }
 </details>
 
 <details>
-<summary>🪟 powershell</summary>
+<summary><a name="shell-integration--powershell"></a>🪟 powershell</summary>
 
 complete each of the following steps to get mommy working in [powershell](https://en.wikipedia.org/wiki/PowerShell).
 some steps vary depending on [how and where you installed mommy](#installation)~
@@ -631,7 +631,7 @@ some steps vary depending on [how and where you installed mommy](#installation)~
 </details>
 
 <details>
-<summary>🚀 starship</summary>
+<summary><a name="shell-integration--starship"></a>🚀 starship</summary>
 
 [starship](https://starship.rs/) is a cross-shell prompt. 
 unfortunately, [starship doesn't support mommy](https://github.com/fwdekker/mommy/issues/156#issuecomment-3596187052). 
@@ -641,7 +641,7 @@ if that feature is ever added, then you can integrate starship with mommy~
 </details>
 
 <details>
-<summary>💤 zsh</summary>
+<summary><a name="shell-integration--zsh"></a>💤 zsh</summary>
 
 instructions for the [z shell](https://en.wikipedia.org/wiki/Z_shell) ("zsh") depend on where you want mommy's output.
 you can either get the output above your prompt, or aligned to the right~
@@ -676,7 +676,7 @@ you can either get the output above your prompt, or aligned to the right~
 </details>
 
 <details>
-<summary>🐌 other shells</summary>
+<summary><a name="shell-integration--other-shells"></a>🐌 other shells</summary>
 
 as a generic method, in any posix shell (including `sh`, `ash`, `dash`, `bash`) you can change the prompt itself to contain a message from mommy by setting the `$PS1` variable:
 ```shell
@@ -696,7 +696,7 @@ log out and back in, and mommy will appear in your shell~
 </details>
 
 <details>
-<summary><a name="renaming-the-mommy-executable"></a>✍️ renaming the mommy executable</summary>
+<summary><a name="shell-integration--renaming-the-mommy-executable"></a>✍️ renaming the mommy executable</summary>
 
 if you use any of the above integrations, you don't have to call mommy directly.
 if you don't want that, but also don't want to write `mommy`, this section explains how you can instead write, say, `daddy`, `marija`, or `sinterklaas`~

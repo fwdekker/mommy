@@ -241,7 +241,7 @@ jobs:
           path: dist
       - name: Extract release notes
         run: |
-          HEAD="$(printf "mommy can also be installed using a package manager. [check the readme for more info](https://github.com/fwdekker/mommy/tree/%s#-installation)~" "$MOMMY_VERSION")"
+          HEAD="$(printf "mommy can also be installed using a package manager. [check the readme for more info](https://github.com/fwdekker/mommy/tree/%s#installation)~" "$MOMMY_VERSION")"
           BODY="$(awk "/^## \[${MOMMY_VERSION#v}\]/{flag=1;next}; /^## /{flag=0}; {if (flag==1) {print}}" CHANGELOG.md)"
 
           printf "%s\n\n%s\n" "$HEAD" "$BODY" | tee RELEASE_NOTES.md

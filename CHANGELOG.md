@@ -73,7 +73,7 @@
 * 🍳 mommy uses newer github actions, thanks to [zopolis4](https://github.com/Zopolis4)~ ([#68](https://github.com/fwdekker/mommy/pull/68))
 * 💨 mommy became much faster at doing her exams~ ([#69](https://github.com/fwdekker/mommy/pull/69))
 * 📂 mommy supports specifying a custom directory during `make`~ ([#70](https://github.com/fwdekker/mommy/pull/70))
-* 👭 mommy now has an apt repository, see [mommy's readme](https://github.com/fwdekker/mommy/blob/v1.2.5/README.md#-with-a-package-manager) for installation instructions~ ([#71](https://github.com/fwdekker/mommy/pull/71))
+* 👭 mommy now has an apt repository, see [mommy's readme](https://github.com/fwdekker/mommy/blob/v1.2.5/README.md#%E2%80%8D-with-a-package-manager) for installation instructions~ ([#71](https://github.com/fwdekker/mommy/pull/71))
 
 
 ## [1.2.4] -- 2023-08-28
