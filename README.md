@@ -568,11 +568,10 @@ if you know of another way to integrate mommy, feel free to contribute them by o
 <details>
 <summary>🪅 bash</summary>
 
-in bash you can set
-[`PROMPT_COMMAND`](https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#index-PROMPT_005fCOMMAND) to run
-mommy after each command.
+in [bash](https://www.gnu.org/software/bash/) you can set [`PROMPT_COMMAND`](https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#index-PROMPT_005fCOMMAND) to run mommy after each command.
 just add the following line to `~/.bashrc`:
 ```shell
+# ~/.bashrc
 PROMPT_COMMAND="mommy -1 -s \$?; $PROMPT_COMMAND"
 ```
 
@@ -582,9 +581,10 @@ PROMPT_COMMAND="mommy -1 -s \$?; $PROMPT_COMMAND"
 <details>
 <summary>🐟 fish</summary>
 
-in fish you can have mommy output a message on the right side of your prompt by creating
+in [fish](https://fishshell.com/) you can have mommy output a message on the right side of your prompt by creating
 `~/.config/fish/functions/fish_right_prompt.fish` with the following contents:
 ```shell
+# ~/.config/fish/functions/fish_right_prompt.fish
 function fish_right_prompt
     mommy -1 -s $status
 end
@@ -600,9 +600,10 @@ then add mommy yourself~
 <details>
 <summary>📈 nushell</summary>
 
-in nushell you can have mommy output a message on the right side of your prompt by adding the following line to your
+in [nushell](https://www.nushell.sh/) you can have mommy output a message on the right side of your prompt by adding the following line to your
 `~/.config/nushell/config.nu` file:
 ```shell
+# ~/.config/nushell/config.nu
 $env.PROMPT_COMMAND_RIGHT = {|| mommy -1 -s $env.LAST_EXIT_CODE }
 ```
 
@@ -612,7 +613,8 @@ $env.PROMPT_COMMAND_RIGHT = {|| mommy -1 -s $env.LAST_EXIT_CODE }
 <details>
 <summary>🪟 powershell</summary>
 
-the exact instructions depend on [how and where you installed mommy](#installation)~
+complete each of the following steps to get mommy working in [powershell](https://en.wikipedia.org/wiki/PowerShell).
+some steps vary depending on [how and where you installed mommy](#installation)~
 
 1. **disable mommy's color output**  
    mommy's colors don't really work well in powershell, so you'll have to disable them~
@@ -646,17 +648,13 @@ the exact instructions depend on [how and where you installed mommy](#installati
      ```
 3. **save prompt**  
    now let's make this prompt persistent.
-   in powershell, run `notepad $profile` to open your powershell settings, and add the `function prompt [...]` line from
-   above~
+   in powershell, run `notepad $profile` to open your powershell settings, and add the `function prompt [...]` line from above~
 
    > **ℹ️ note**  
-   > if you get an error that this file does not exist, run `new-item -itemtype file -path $profile -force` to create
-   > it~
+   > if you get an error that this file does not exist, run `new-item -itemtype file -path $profile -force` to create it~
 
    > **ℹ️ note**  
-   > if you get an error that you cannot run local scripts, run 
-   > `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine` as admin, or 
-   > [sign the script](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_signing?view=powershell-7.3#methods-of-signing-scripts)~
+   > if you get an error that you cannot run local scripts, run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine` as admin, or [sign the script](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_signing?view=powershell-7.3#methods-of-signing-scripts)~
 4. **improve prompt**  
    the instructions above show the basics of using mommy in powershell.
    you can make it way cooler using a theme engine like [oh-my-posh](https://ohmyposh.dev/).
@@ -667,71 +665,58 @@ the exact instructions depend on [how and where you installed mommy](#installati
 <details>
 <summary>🚀 starship</summary>
 
-to configure `oh-my-posh`-like prompts (like `bash`, `fish`, and `zsh`), first create a custom `mommy` module in your `.config/starship.toml` file:
-```toml
-[custom.mommy]
-command = "mommy -1 -s $status"
-when = "true"
-```
-you can place this anywhere in your starship arrangements.
-the above code is the mommy command from fish, but you can replace it with any of the mommy commands listed for another shell~
+[starship](https://starship.rs/) is a cross-shell prompt. unfortunately, [starship doesn't support mommy](https://github.com/fwdekker/mommy/issues/156#issuecomment-3596187052). starship doesn't have any way of passing the previous command's exit code to another program. if that feature is ever added, then you can integrate starship with mommy~
 
-for example, add the following to your starship config to have mommy appear on your right prompt at all times~
-```toml
-right_format = "$custom"
-```
-
-<img width="450px" src=".github/img/starship.png" alt="starship with a left prompt with modules, and a right prompt with the custom mommy module, saying things like '*pets your head*' with empty commands." />
 </details>
 
 <details>
 <summary>💤 zsh</summary>
 
-depending on where you want mommy's output, the instructions are a bit different.
+instructions for the [z shell](https://en.wikipedia.org/wiki/Z_shell) ("zsh") depend on where you want mommy's output.
 you can either get the output above your prompt, or aligned to the right~
 
-**above the prompt**  
-to get mommy's output on a separate line above your prompt, add the following line to `~/.zshrc`:
-```shell
-precmd() { mommy -1 -s $? }
-```
+* **show mommy above the prompt**  
+  to get mommy's output on a separate line above your prompt, add the following line to `~/.zshrc`:
+  ```shell
+  # ~/.zshrc
+  precmd() { mommy -1 -s $? }
+  ```
+* **show mommy to the right of each command**  
+  to get mommy's output on the same line as your prompt, aligned to the right, add the following to `~/.zshrc`:
+  ```shell
+  # ~/.zshrc
+  set -o PROMPT_SUBST
+  RPS1='$(mommy -1 -s $?)'  # using single quotes here is required!
+  ```
+  and add the following to your mommy config:
+  ```shell
+  # ~/.config/mommy/config.sh
+  MOMMY_COLOR=""
+  MOMMY_PREFIX="%F{005}/%F{006}"
+  MOMMY_SUFFIX="~%f"
+  ```
 
-**to the right of each command**  
-to get mommy's output on the same line as your prompt, aligned to the right, add the following to `~/.zshrc`:
-```shell
-set -o PROMPT_SUBST
-RPS1='$(mommy -1 -s $?)'  # using single quotes here is required!
-```
-and add the following to your mommy config:
-```shell
-MOMMY_COLOR=""
-MOMMY_PREFIX="%F{005}/%F{006}"
-MOMMY_SUFFIX="~%f"
-```
+  the reason you have to change mommy's config is that normally, mommy sets colors using standard ansi color codes, but zsh's support is a bit special, resulting in zsh miscalculating the prompt width, which looks like your prompt is misaligned or shifted.
+  to fix this, you should disable mommy's color feature and manually set colors in the prefix option.
+  to specify colors, use zsh's special syntax, where the numbers correspond to the [xterm color codes](https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg).
+  finally, the `%f` in the suffix resets the colors~
 
-the reason you have to change mommy's config is that normally, mommy sets colors using standard ansi color codes, but zsh's support is a bit special, resulting in zsh miscalculating the prompt width, which looks like your prompt is misaligned or shifted.
-to fix this, you should disable mommy's color feature and manually set colors in the prefix option.
-to specify colors, use zsh's special syntax, where the numbers correspond to the [xterm color codes](https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg).
-finally, the `%f` in the suffix resets the colors~
-
-<img width="450px" src=".github/img/zsh.png" alt="zsh showing the text 'never give up, my love' in the right prompt after running a command that has failed" />
+  <img width="450px" src=".github/img/zsh.png" alt="zsh showing the text 'never give up, my love' in the right prompt after running a command that has failed" />
 </details>
 
 <details>
 <summary>🐌 other shells</summary>
 
-as a generic method, in any posix shell (including `sh`, `ash`, `dash`, `bash`) you can change the prompt itself to
-contain a message from mommy by setting the `$PS1` variable:
+as a generic method, in any posix shell (including `sh`, `ash`, `dash`, `bash`) you can change the prompt itself to contain a message from mommy by setting the `$PS1` variable:
 ```shell
 PS1="\$(mommy -1 -s \$?)$PS1"
 ```
 to improve the spacing, set `MOMMY_SUFFIX="~ "` in mommy's config file.
 
-add the above line to the config file for your shell (e.g. `.bashrc` for `bash`) to apply it each time you open the
-shell.
-some shells (`dash`, `pdksh`) do not have a config file like `.bashrc`, but you can enable one by adding the following
-line to `~/.profile`:
+add the above line to the config file for your shell (e.g. `.bashrc` for `bash`) to apply it each time you open the shell.
+some shells (`dash`, `pdksh`) do not have a config file like `.bashrc`, but you can enable one by adding the following line to `~/.profile`:
 ```shell
+# ~/.profile
 export ENV="$HOME/.shrc"
 ```
 note that this will apply to all (non-login) posix shells that you open.
