@@ -1,4 +1,6 @@
 #!/bin/sh
+# shellcheck disable=SC2317 # False positive when using `return` inside `Mock`
+
 ## Use isolated XDG directories
 XDG_CONFIG_DIRS="$MOMMY_TMP_DIR/xdg/"
 export XDG_CONFIG_DIRS
@@ -122,34 +124,36 @@ Describe "mommy"
                     The file "$XDG_STATE_HOME/mommy/toggle" should not be exist
                 End
 
-                It "$1: fails to disable if the state directory is actually a file"
-                    mkdir -p -- "$XDG_STATE_HOME"
-                    touch -- "$XDG_STATE_HOME/mommy"
+                It "$1: fails to disable if the state directory cannot be created"
+                    Mock mkdir
+                        return 1
+                    End
 
                     When run "$MOMMY_EXEC" -t
                     The error should include "mommy could not create the state directory~"
                     The status should be failure
                 End
 
-                It "$1: fails to disable if this user cannot modify the state directory"
-                    mkdir -p -- "$XDG_STATE_HOME/mommy"
-                    chmod -w -- "$XDG_STATE_HOME/mommy"
+                It "$1: fails to disable if the state file cannot be created"
+                    Mock touch
+                        return 1
+                    End
 
                     When run "$MOMMY_EXEC" -t
                     The error should include "mommy could not create the state file~"
                     The status should be failure
                 End
 
-                It "$1: fails to enable if this user cannot modify the state directory"
-                    mkdir -p -- "$XDG_STATE_HOME/mommy"
-                    touch -- "$XDG_STATE_HOME/mommy/toggle"
-                    chmod -w -- "$XDG_STATE_HOME/mommy"
+                It "$1: fails to enable if the state file cannot be removed"
+                    Mock rm
+                        return 1
+                    End
+
+                    "$MOMMY_EXEC" -t >/dev/null
 
                     When run "$MOMMY_EXEC" -t
                     The error should include "mommy could not delete the state file~"
                     The status should be failure
-
-                    chmod +w -- "$XDG_STATE_HOME/mommy"
                 End
             End
         End
