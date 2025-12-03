@@ -1,5 +1,5 @@
 #!/bin/sh
-# shellcheck disable=SC2317 # False positive when using `return` inside `Mock`
+# shellcheck disable=SC2317 # False positive when using `return` or `exit` inside `Mock`
 
 ## Use isolated XDG directories
 XDG_CONFIG_DIRS="$MOMMY_TMP_DIR/xdg/"
@@ -126,7 +126,7 @@ Describe "mommy"
 
                 It "$1: fails to disable if the state directory cannot be created"
                     Mock mkdir
-                        return 1
+                        exit 1  # TODO[Workaround]: See https://github.com/shellspec/shellspec/issues/355
                     End
 
                     When run "$MOMMY_EXEC" -t
@@ -136,7 +136,7 @@ Describe "mommy"
 
                 It "$1: fails to disable if the state file cannot be created"
                     Mock touch
-                        return 1
+                        exit 1  # TODO[Workaround]: See https://github.com/shellspec/shellspec/issues/355
                     End
 
                     When run "$MOMMY_EXEC" -t
@@ -146,7 +146,7 @@ Describe "mommy"
 
                 It "$1: fails to enable if the state file cannot be removed"
                     Mock rm
-                        return 1
+                        exit 1  # TODO[Workaround]: See https://github.com/shellspec/shellspec/issues/355
                     End
 
                     "$MOMMY_EXEC" -t >/dev/null
