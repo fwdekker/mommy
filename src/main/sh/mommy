@@ -409,11 +409,11 @@ elif [ "x" != "x$opt_version" ]; then
     exit 0
 elif [ "x" != "x$opt_toggle" ]; then
     if [ "0" -eq "$state_toggle" ]; then
-        rm -- "$state_toggle_path"
+        if ! rm -- "$state_toggle_path"; then die "mommy could not delete the state file~"; fi
         printf "mommy has been enabled for this user. mommy will once again display output. to disable mommy again, run 'mommy -t'~\n"
     else
-        mkdir -p -- "$state_dir"
-        touch -- "$state_toggle_path"
+        if ! mkdir -p -- "$state_dir"; then die "mommy could not create the state directory~"; fi
+        if ! touch -- "$state_toggle_path"; then die "mommy could not create the state file~"; fi
         printf "mommy has been disabled for this user. mommy will not print any output until she is enabled again. to enable mommy again, run 'mommy -t'~\n"
     fi
     exit 0

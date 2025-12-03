@@ -1,4 +1,6 @@
 #!/bin/sh
+# shellcheck disable=SC2317 # False positive when using `return` or `exit` inside `Mock`
+
 ## Use isolated XDG directories
 XDG_CONFIG_DIRS="$MOMMY_TMP_DIR/xdg/"
 export XDG_CONFIG_DIRS
@@ -65,10 +67,10 @@ Describe "mommy"
             End
         End
 
-        Describe "-t/--toggle: toggling output"
+        Describe "-t/--toggle: toggling output:"
             Parameters:value "-t" "--toggle"
 
-            It "disables output after using $1 for the first time"
+            It "$1: disables output when used the first time"
                 "$MOMMY_EXEC" -t >/dev/null
 
                 When run "$MOMMY_EXEC" -s 0
@@ -76,7 +78,7 @@ Describe "mommy"
                 The status should be success
             End
 
-            It "disables output even when the toggle happens inside a different shell, when using $1"
+            It "$1: disables output when used the first time even when the toggle happens inside a different shell"
                 sh -c "'$MOMMY_EXEC' -t" >/dev/null
 
                 When run sh -c "'$MOMMY_EXEC' -s 0"
@@ -84,7 +86,7 @@ Describe "mommy"
                 The status should be success
             End
 
-            It "enables output again after using $1 for the 2nd time"
+            It "$1: enables output again when used the second time"
                 set_config "MOMMY_COMPLIMENTS='bear soup'"
 
                 "$MOMMY_EXEC" -t >/dev/null
@@ -95,30 +97,64 @@ Describe "mommy"
                 The status should be success
             End
 
-            It "shows an explanation when disabling mommy using $1"
+            It "$1: shows an explanation when disabling mommy"
                 When run "$MOMMY_EXEC" -t
                 The output should include "mommy has been disabled"
             End
 
-            It "shows an explanation when enabling mommy using $1"
+            It "$1: shows an explanation when enabling mommy"
                 "$MOMMY_EXEC" -t >/dev/null
 
                 When run "$MOMMY_EXEC" -t
                 The output should include "mommy has been enabled"
             End
 
-            It "creates the toggle state file if it does not exist when using $1"
-                When run "$MOMMY_EXEC" -t
-                The output should be present
-                The file "$XDG_STATE_HOME/mommy/toggle" should be exist
-            End
+            Describe "file management:"
+                It "$1: creates the toggle state file if it does not exist"
+                    When run "$MOMMY_EXEC" -t
+                    The output should be present
+                    The file "$XDG_STATE_HOME/mommy/toggle" should be exist
+                End
 
-            It "deletes the toggle state file if it already exists when using $1"
-                "$MOMMY_EXEC" -t >/dev/null
+                It "$1: deletes the toggle state file if it already exists"
+                    "$MOMMY_EXEC" -t >/dev/null
 
-                When run "$MOMMY_EXEC" -t
-                The output should be present
-                The file "$XDG_STATE_HOME/mommy/toggle" should not be exist
+                    When run "$MOMMY_EXEC" -t
+                    The output should be present
+                    The file "$XDG_STATE_HOME/mommy/toggle" should not be exist
+                End
+
+                It "$1: fails to disable if the state directory cannot be created"
+                    Mock mkdir
+                        exit 1  # TODO[Workaround]: See https://github.com/shellspec/shellspec/issues/355
+                    End
+
+                    When run "$MOMMY_EXEC" -t
+                    The error should include "mommy could not create the state directory~"
+                    The status should be failure
+                End
+
+                It "$1: fails to disable if the state file cannot be created"
+                    Mock touch
+                        exit 1  # TODO[Workaround]: See https://github.com/shellspec/shellspec/issues/355
+                    End
+
+                    When run "$MOMMY_EXEC" -t
+                    The error should include "mommy could not create the state file~"
+                    The status should be failure
+                End
+
+                It "$1: fails to enable if the state file cannot be removed"
+                    Mock rm
+                        exit 1  # TODO[Workaround]: See https://github.com/shellspec/shellspec/issues/355
+                    End
+
+                    "$MOMMY_EXEC" -t >/dev/null
+
+                    When run "$MOMMY_EXEC" -t
+                    The error should include "mommy could not delete the state file~"
+                    The status should be failure
+                End
             End
         End
 
