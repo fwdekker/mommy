@@ -603,3 +603,51 @@ jobs:
           nix build \
             --impure \
             --expr "(import <nixpkgs> {}).mommy.overrideAttrs (prev: { src = ./.; })"
+
+  test-haiku:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Test script and package
+        uses: cross-platform-actions/action@v0.30.0
+        with:
+          operating_system: haiku
+          version: "r1beta5"
+          run: |
+            export MOMMY_ZSH_SKIP=1  # Haiku does not have the 'script' command
+
+            printf "::group::Install ShellSpec\n"
+            git clone --depth=1 https://github.com/shellspec/shellspec.git /tmp/shellspec
+            PREFIX="$HOME/config/non-packaged" make -C /tmp/shellspec install
+            rm -rf /tmp/shellspec
+            printf "::endgroup::\n"
+
+            printf "::group::Install additional shells\n"
+            pkgman install -y fish zsh
+            touch "$HOME/.zshrc"
+            printf "::endgroup::\n"
+
+            printf "::group::Ignore ownership issues\n"
+            git config --global --add safe.directory "$GITHUB_WORKSPACE"
+            printf "::endgroup::\n"
+
+            printf "::group::Test script\n"
+            make test
+            printf "::endgroup::\n"
+
+            printf "::group::Build package\n"
+            make dist/haiku
+            printf "::endgroup::\n"
+
+            printf "::group::Install package\n"
+            pkgman install -y ./dist/mommy-*.hpkg
+            printf "::endgroup::\n"
+
+            printf "::group::Test package\n"
+            env MOMMY_SYSTEM=1 make test
+            printf "::endgroup::\n"
+
+            printf "::group::Uninstall package\n"
+            pkgman uninstall -y mommy
+            printf "::endgroup::\n"

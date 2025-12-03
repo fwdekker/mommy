@@ -2,10 +2,11 @@
 ## [9.9.9-unreleased] -- 9999-12-31
 ### added
 * 🪈 mommy now enables [pipefail](https://stackoverflow.com/q/68465355/) for you when you use `-e`/`--eval` if you also pass the `-p`/`--pipefail` option. if your shell at `/bin/sh` does not support pipefail, you'll receive an error if you do this~ ([#160](https://github.com/fwdekker/mommy/pull/160)) ([#165](https://github.com/fwdekker/mommy/pull/165))
+* ✍️ mommy added a package for the haiku operating system~ ([#TODO](https://github.com/fwdekker/mommy/pull/TODO))
 
 ### changed
-* 🦈 mommy updated fish completions for fish v4~ ([#TODO](https://github.com/fwdekker/mommy/pull/TODO))
-* 📒 mommy improved her manual page~ ([#TODO](https://github.com/fwdekker/mommy/pull/TODO))
+* 🦈 mommy updated fish completions for fish v4~ ([#166](https://github.com/fwdekker/mommy/pull/166))
+* 📒 mommy improved her manual page~ ([#166](https://github.com/fwdekker/mommy/pull/166))
 
 ### fixed
 * 🌿 mommy fixed builds on opensuse tumbleweed~ ([#162](https://github.com/fwdekker/mommy/pull/162))

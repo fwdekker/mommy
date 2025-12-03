@@ -221,6 +221,31 @@ jobs:
           name: dist-openbsd
           path: dist/mommy*
 
+  build-haiku:
+    needs: [ pre-flight-checks ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install fpm && Build package
+        uses: cross-platform-actions/action@v0.30.0
+        with:
+          operating_system: haiku
+          version: "r1beta5"
+          run: |
+            printf "::group::Ignore ownership issues\n"
+            git config --global --add safe.directory "$GITHUB_WORKSPACE"
+            printf "::endgroup::\n"
+
+            printf "::group::Build package\n"
+            make dist/haiku
+            printf "::endgroup::\n"
+      - name: Upload built package
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-haiku
+          path: dist/mommy*
+
 
   release-mommy:
     if: ${{ github.event.inputs.release_mommy == 'true' }}
