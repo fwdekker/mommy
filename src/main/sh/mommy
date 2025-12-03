@@ -334,11 +334,12 @@ opt_target="2"
 opt_config="${XDG_CONFIG_HOME:-"$HOME/.config"}/mommy/config.sh"
 opt_global_config_dirs="${XDG_CONFIG_DIRS}:/etc/mommy/:/usr/local/etc/mommy/"
 opt_eval=""
+opt_pipefail=""
 opt_status=""
 
 # Config string for getopts describes only short options. Starts with ':', then one letter for each short option. Each
 # short option can be followed by ':' to indicate that it takes an argument.
-while getopts ":hvt1d:c:e:s:-:" OPT; do
+while getopts ":hvt1d:c:pe:s:-:" OPT; do
     # Cheap workaround for long options, see https://stackoverflow.com/a/28466267
     if [ "-" = "$OPT" ]; then
         OPT="${OPTARG%%=*}"
@@ -355,6 +356,7 @@ while getopts ":hvt1d:c:e:s:-:" OPT; do
     d|global-config-dirs) require_arg; opt_global_config_dirs="$OPTARG" ;;
     c|config) opt_config="$OPTARG" ;;
     e|eval) require_arg; opt_eval="$OPTARG" ;;
+    p|pipefail) opt_pipefail="1" ;;
     s|status) require_arg; require_int; opt_status="$OPTARG" ;;
     :) die "mommy's last option is missing its argument~" ;;
     ?) die "mommy doesn't know option -$OPTARG~" ;;
@@ -392,7 +394,7 @@ state_toggle_path="$state_dir/toggle"
 test -f "$state_toggle_path"; state_toggle="$?"
 
 
-## Output
+## Output (primary)
 if [ "x" != "x$opt_help" ]; then
     man mommy
 
@@ -407,7 +409,17 @@ if [ "x" != "x$opt_help" ]; then
 elif [ "x" != "x$opt_version" ]; then
     printf "mommy, v%s, %s\n" "%%VERSION_NUMBER%%" "%%VERSION_DATE%%"
     exit 0
-elif [ "x" != "x$opt_toggle" ]; then
+fi
+
+
+## Validate inputs
+if [ "x" != "x$opt_pipefail" ] && [ "x" = "x$opt_eval" ]; then
+    die "mommy supports option '-p' or '--pipefail' only when using '-e' or '--eval'~"
+fi
+
+
+## Output
+if [ "x" != "x$opt_toggle" ]; then
     if [ "0" -eq "$state_toggle" ]; then
         if ! rm -- "$state_toggle_path"; then die "mommy could not delete the state file~"; fi
         printf "mommy has been enabled for this user. mommy will once again display output. to disable mommy again, run 'mommy -t'~\n"
@@ -425,6 +437,10 @@ else
 
     # Run command
     if [ "x" != "x$opt_eval" ]; then
+        if [ "x" != "x$opt_pipefail" ]; then
+            opt_eval="set -o pipefail; $opt_eval"
+        fi
+
         (eval "$opt_eval")
         command_exit_code="$?"
     elif [ "x" != "x$opt_status" ]; then

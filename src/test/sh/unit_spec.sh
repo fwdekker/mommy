@@ -130,7 +130,7 @@ Describe "mommy"
                     End
 
                     When run "$MOMMY_EXEC" -t
-                    The error should include "mommy could not create the state directory~"
+                    The error should equal "mommy could not create the state directory~"
                     The status should be failure
                 End
 
@@ -140,7 +140,7 @@ Describe "mommy"
                     End
 
                     When run "$MOMMY_EXEC" -t
-                    The error should include "mommy could not create the state file~"
+                    The error should equal "mommy could not create the state file~"
                     The status should be failure
                 End
 
@@ -152,7 +152,7 @@ Describe "mommy"
                     "$MOMMY_EXEC" -t >/dev/null
 
                     When run "$MOMMY_EXEC" -t
-                    The error should include "mommy could not delete the state file~"
+                    The error should equal "mommy could not delete the state file~"
                     The status should be failure
                 End
             End
@@ -303,7 +303,7 @@ Describe "mommy"
             End
         End
 
-        Describe "-e/--eval: eval"
+        Describe "-e/--eval: eval without pipes"
             Parameters:value "-e " "--eval="
 
             It "gives an error when no argument is given with $1"
@@ -342,30 +342,86 @@ Describe "mommy"
                 The error should equal "desire bread"
                 The status should be success
             End
+        End
 
-            It "considers the command a success if all parts succeed when using $1"
-                set_config "MOMMY_COMPLIMENTS='milk literary'"
+        Describe "eval and pipefail:"
+            Describe "pipefail without eval:"
+                It "does not fail if '--help' is used with '--pipefail'"
+                    When run "$MOMMY_EXEC" -p -h
+                    The output should be present
+                    The error should not be present
+                    The status should be success
+                End
 
-                When run "$MOMMY_EXEC" $1"echo 'a/b/c' | cut -d '/' -f 1"
-                The output should be present
-                The error should equal "milk literary"
-                The status should be success
+                It "does not fail if '--version' is used with '--pipefail'"
+                    When run "$MOMMY_EXEC" -p -v
+                    The output should be present
+                    The error should not be present
+                    The status should be success
+                End
+
+                It "fails if '--status' is used with '--pipefail'"
+                    When run "$MOMMY_EXEC" -p -s 0
+                    The output should not be present
+                    The error should include "mommy supports option '-p' or '--pipefail' only"
+                    The status should be failure
+                End
             End
 
-            It "considers the command a failure if the last part fails when using $1"
-                set_config "MOMMY_ENCOURAGEMENTS='bear cupboard'"
+            Describe "without pipefail option:"
+                Parameters:value "-e " "--eval="
 
-                When run "$MOMMY_EXEC" $1"echo 'a/b/c' | cut -d '/' -f 0"
-                The error should be present
-                The status should be failure
+                It "considers the command a success if all parts succeed [$1]"
+                    set_config "MOMMY_COMPLIMENTS='milk literary'"
+
+                    When run "$MOMMY_EXEC" $1"echo 'faith cap' | grep -q 'faith'"
+                    The error should equal "milk literary"
+                    The status should be success
+                End
+
+                It "considers the command a failure if the last part fails [$1]"
+                    set_config "MOMMY_ENCOURAGEMENTS='bear cupboard'"
+
+                    When run "$MOMMY_EXEC" $1"echo 'try thick' | grep -q 'sail'"
+                    The error should equal "bear cupboard"
+                    The status should be failure
+                End
+
+                It "considers the command a success even if only a non-last part fails [$1]"
+                    set_config "MOMMY_COMPLIMENTS='pony skin'"
+
+                    When run "$MOMMY_EXEC" $1"echo 'dozen pluck' | grep -q 'prize' | cat"
+                    The error should equal "pony skin"
+                    The status should be success
+                End
             End
 
-            It "considers the command a success if the second part fails when using $1"
-                set_config "MOMMY_ENCOURAGEMENTS='bear cupboard'"
+            Describe "with pipefail option:"
+                Parameters:value "-p -e " "-p --eval=" "-pe " "--pipefail -e " "--pipefail --eval="
 
-                When run "$MOMMY_EXEC" $1"echo 'a/b/c' | cut -d '/' -f 0 | cat"
-                The error should be present
-                The status should be success
+                It "considers the command a success if all parts succeed [$1]"
+                    set_config "MOMMY_COMPLIMENTS='rung jam'"
+
+                    When run "$MOMMY_EXEC" $1"echo 'shy fairy' | grep -q 'shy' | cat"
+                    The error should equal "rung jam"
+                    The status should be success
+                End
+
+                It "considers the command a failure if the last part fails [$1]"
+                    set_config "MOMMY_ENCOURAGEMENTS='tasty gate'"
+
+                    When run "$MOMMY_EXEC" $1"echo 'video node' | grep -q 'grand'"
+                    The error should equal "tasty gate"
+                    The status should be failure
+                End
+
+                It "considers the command a failure even if only a non-last part fails [$1]"
+                    set_config "MOMMY_ENCOURAGEMENTS='old week'"
+
+                    When run "$MOMMY_EXEC" $1"echo 'seed high' | grep -q 'clue' | cat"
+                    The error should equal "old week"
+                    The status should be failure
+                End
             End
         End
 

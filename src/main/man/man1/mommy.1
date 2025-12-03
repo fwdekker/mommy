@@ -41,6 +41,9 @@ toggles whether \fBmommy\fP should display output at all. applies to all session
 runs \fIcommand\fP and responds to the output.
 note that \fIcommand\fP should be given as a single argument~
 .TP
+\fB-p\fP, \fB--pipefail\fP
+when using \fB-e\fP or \fB--eval\fP, this option enables pipefail in the evaluated command. works only if \fB/bin/sh\fP on your system supports pipefail~
+.TP
 \fB-s\fP \fIstatus\fP, \fB--status=\fP\fIstatus\fP
 gives output corresponding to exit code \fIstatus\fP~
 .TP
