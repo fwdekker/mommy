@@ -397,11 +397,11 @@ mommy processes (the output status of) a command and compliments you if the comm
 ### 💃 how to run<a name="usage--how-to-run"></a>
 for reference, here's the three main ways to invoke mommy~
 
-| format                | example                     | when to use                                                          |
-|-----------------------|-----------------------------|----------------------------------------------------------------------|
-| `mommy [command] ...` | `mommy npm test`            | if you want mommy to respond to a single command~                    |
-| `mommy -e [command]`  | `mommy -e "ls -l \| wc -l"` | if you want mommy when using `\|` or `>`, or need mommy in a script~ |
-| `mommy -s [status]`   | `mommy -s $?`               | if you already ran a command and want mommy's help afterwards~       |
+| format                | example                     | when to use                                                                                                                                        |
+|-----------------------|-----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| `mommy [command] ...` | `mommy npm test`            | if you want mommy to respond to a single command~                                                                                                  |
+| `mommy -e [command]`  | `mommy -e "ls -l \| wc -l"` | if you want mommy when using `\|` or `>`, or need mommy in a script. tip: use `-pe` if you need [pipefail](https://stackoverflow.com/q/68465355/)~ |
+| `mommy -s [status]`   | `mommy -s $?`               | if you already ran a command and want mommy's help afterwards~                                                                                     |
 
 ### 🛸 extra options<a name="usage--extra-options"></a>
 additionally, mommy knows a few extra options, which you can use to discover who mommy is and to tell mommy which [configuration files](#configuration) she should use~
@@ -411,6 +411,7 @@ additionally, mommy knows a few extra options, which you can use to discover who
 | `-h`         | `--help`                      | opens mommy's manual page~                                                                                                                                                                                                                  |
 | `-v`         | `--version`                   | displays mommy's version information~                                                                                                                                                                                                       |
 | `-t`         | `--toggle`                    | toggles whether mommy should display output at all. applies to all sessions of all shells of the current user, until this option is toggled again. useful if you want to temporarily silence mommy without editing your shell config files~ |
+| `-p`         | `--pipefail`                  | when using `-e` or `--eval`, this option enables [pipefail](https://stackoverflow.com/q/68465355/) in the evaluated command. works only if `/bin/sh` on your system supports pipefail~                                                      |
 | `-1`         |                               | writes output to stdout instead of stderr~                                                                                                                                                                                                  |
 | `-c <file>`  | `--config=<file>`             | tells mommy that she should read your [config](#configuration) from `<file>`~                                                                                                                                                               |
 | `-d <dirs>`  | `--global-config-dirs=<dirs>` | sets [global configuration dirs](#configuration--config-file-locations) to the colon-separated list in `<dirs>`~                                                                                                                            |

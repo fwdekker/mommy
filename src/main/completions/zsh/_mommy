@@ -15,6 +15,7 @@ _arguments \
     {-c,--config}'[Configuration file]:config:_files' \
     {-d,--global-config-dirs}'[Colon-separated global config file dirs]:global config:_dir_list' \
     {-e,--eval}'[Evaluate string]:string' \
+    {-p,--pipefail}'[Enable pipefail for evaluated commands]' \
     {-s,--status}'[Exit code]:code:->status' \
     '*::command:'
 

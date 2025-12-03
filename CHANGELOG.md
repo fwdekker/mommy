@@ -1,8 +1,9 @@
 # Changelog
 ## [9.9.9-unreleased] -- 9999-12-31
 ### fixed
-* 🪙 mommy fixed builds on opensuse tumbleweed~ ([#TODO](https://github.com/fwdekker/mommy/pull/TODO))
-* 👩‍🔬 mommy now keeps config files in unit tests completely separate from real config files~ ([#TODO](https://github.com/fwdekker/mommy/pull/TODO))
+* 🌿 mommy fixed builds on opensuse tumbleweed~ ([#162](https://github.com/fwdekker/mommy/pull/162))
+* 🚧 mommy now detects when the new toggle feature (`-t`/`--toggle`) from v1.7.0 fails to (de)activate~ ([#161](https://github.com/fwdekker/mommy/pull/161)) ([#163](https://github.com/fwdekker/mommy/pull/163))
+* 👩‍🔬 mommy now keeps config files in unit tests completely separate from real config files~ ([#162](https://github.com/fwdekker/mommy/pull/162))
 
 
 ## [1.7.0] -- 2025-12-01
