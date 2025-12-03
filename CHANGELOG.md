@@ -1,5 +1,12 @@
 # Changelog
 ## [9.9.9-unreleased] -- 9999-12-31
+### added
+* 🪈 mommy now enables [pipefail](https://stackoverflow.com/q/68465355/) for you when you use `-e`/`--eval` if you also pass the `-p`/`--pipefail` option. if your shell at `/bin/sh` does not support pipefail, you'll receive an error if you do this~ ([#160](https://github.com/fwdekker/mommy/pull/160)) ([#165](https://github.com/fwdekker/mommy/pull/165))
+
+### changed
+* 🦈 mommy updated fish completions for fish v4~ ([#TODO](https://github.com/fwdekker/mommy/pull/TODO))
+* 📒 mommy improved her manual page~ ([#TODO](https://github.com/fwdekker/mommy/pull/TODO))
+
 ### fixed
 * 🌿 mommy fixed builds on opensuse tumbleweed~ ([#162](https://github.com/fwdekker/mommy/pull/162))
 * 🚧 mommy now detects when the new toggle feature (`-t`/`--toggle`) from v1.7.0 fails to (de)activate~ ([#161](https://github.com/fwdekker/mommy/pull/161)) ([#163](https://github.com/fwdekker/mommy/pull/163))

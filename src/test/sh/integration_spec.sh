@@ -19,8 +19,8 @@
 
 
 ## Run tests
-Describe "integration of mommy with other programs"
-    Describe "uninstalling"
+Describe "integration of mommy with other programs:"
+    Describe "uninstalling:"
         is_empty() {
             test "$(find "$1/" -type f | wc -l)" -eq 0
         }
@@ -33,7 +33,7 @@ Describe "integration of mommy with other programs"
         End
     End
 
-    Describe "-h/--help: help information"
+    Describe "output help information:"
         man_is_skipped_or_not_installed() { test "$MOMMY_MAN_SKIP" = "1" || ! test -x "$(command -v man)"; }
         Skip if "man is skipped or not installed" man_is_skipped_or_not_installed
 
@@ -49,19 +49,19 @@ Describe "integration of mommy with other programs"
 
         Parameters:value "-h" "--help"
 
-        It "outputs help information using $1"
+        It "outputs help information [$1]"
             When run "$MOMMY_EXEC" "$1"
             The word 1 of output should equal "mommy(1)"
             The status should be success
         End
 
-        It "outputs help information even when $1 is not the first option"
+        It "outputs help information even if not given as first argument [$1]"
             When run "$MOMMY_EXEC" -s 432 "$1"
             The word 1 of output should equal "mommy(1)"
             The status should be success
         End
 
-        It "outputs a link to github if the manual page could not be found when using $1"
+        It "outputs a link to github if the manual page could not be found [$1]"
             export MANPATH="/invalid-path"
 
             When run "$MOMMY_EXEC" "$1"
@@ -71,7 +71,7 @@ Describe "integration of mommy with other programs"
         End
     End
 
-    Describe "fish shell autocompletion"
+    Describe "fish shell autocompletion:"
         fish_is_skipped_or_not_installed() { test "$MOMMY_FISH_SKIP" = "1" || ! test -x "$(command -v "$MOMMY_FISH_EXEC")"; }
         Skip if "fish is skipped or not installed" fish_is_skipped_or_not_installed
 
@@ -102,7 +102,7 @@ Describe "integration of mommy with other programs"
         End
     End
 
-    Describe "zsh shell autocompletion"
+    Describe "zsh shell autocompletion:"
         zsh_is_skipped_or_not_installed() { test "$MOMMY_ZSH_SKIP" = "1" || ! test -x "$(command -v "$MOMMY_ZSH_EXEC")"; }
         Skip if "zsh is skipped or not installed" zsh_is_skipped_or_not_installed
 

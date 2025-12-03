@@ -8,6 +8,7 @@ the best pull requests do all of the following.
 but pull requests that are half-baked or otherwise don't fit the mold are just as welcome, so don't fret!
 
 * add relevant documentation and tests~
+  * tip: for guidance on how to write files in `src/main/man/`, check [groff_man_style](https://www.mankier.com/7/groff_man_style)~
 * begin every commit message with a relevant emoji, followed by one space~
 * ensure that the tests pass (on your machine, at least)~
 * describe your changes in `CHANGELOG.md`~

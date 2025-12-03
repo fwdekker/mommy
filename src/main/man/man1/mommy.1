@@ -2,7 +2,7 @@
 
 
 .SH name
-mommy - here to support you~
+mommy - here to support you\(ti
 
 
 .SH synopsis
@@ -18,44 +18,63 @@ e.g. \fBmommy\fP -s $?
 
 
 .SH description
-\fIhttps://github.com/fwdekker/mommy/tree/v%%VERSION_NUMBER%%#readme\fP
+.UR https://github.com/fwdekker/mommy/tree/v%%VERSION_NUMBER%%#readme
+.UE
 
 
 .SH options
 the following options are just for invoking \fBmommy\fP.
 to change \fBmommy\fP's output, you should change the config file.
 for more info about config files, check
-\fIhttps://github.com/fwdekker/mommy/tree/v%%VERSION_NUMBER%%#configuration\fP.
+.UR https://github.com/fwdekker/mommy/tree/v%%VERSION_NUMBER%%#configuration
+.UE .
 
+.SS run
 .TP
-\fB-h\fP, \fB--help\fP
-opens \fBmommy\fP's manual page~
-.TP
-\fB-v\fP, \fB--version\fP
-displays \fBmommy\fP's version information~
-.TP
-\fB-t\fP, \fB--toggle\fP
-toggles whether \fBmommy\fP should display output at all. applies to all sessions of all shells of the current user, until this option is toggled again. useful if you want to temporarily silence \fBmommy\fP without editing your shell config files~
+\fIcommand\fP
+write your \fIcommand\fP after \fBmommy\fP, and \fBmommy\fP will run and respond to the \fIcommand\fP based on its exit code\(ti
 .TP
 \fB-e\fP \fIcommand\fP, \fB--eval=\fP\fIcommand\fP
 runs \fIcommand\fP and responds to the output.
-note that \fIcommand\fP should be given as a single argument~
+note that \fIcommand\fP should be given as a single argument\(ti
 .TP
 \fB-p\fP, \fB--pipefail\fP
-when using \fB-e\fP or \fB--eval\fP, this option enables pipefail in the evaluated command. works only if \fB/bin/sh\fP on your system supports pipefail~
+when using \fB-e\fP or \fB--eval\fP, this option enables pipefail in the
+evaluated command.
+works only if \fB/bin/sh\fP on your system supports pipefail\(ti
 .TP
 \fB-s\fP \fIstatus\fP, \fB--status=\fP\fIstatus\fP
-gives output corresponding to exit code \fIstatus\fP~
-.TP
-\fB-d\fP \fIdirs\fP, \fB--global-config-dirs=\fP\fIdirs\fP
-sets global configuration dirs to the colon-separated list in \fIdirs\fP~
-.TP
-\fB-c\fP \fIfile\fP, \fB--config=\fP\fIfile\fP
-tells \fBmommy\fP that she should read your config from \fIfile\fP~
+gives output corresponding to exit code \fIstatus\fP\(ti
+
+.SS output control
 .TP
 \fB-1\fP
-writes output to \fBstdout\fP instead of \fBstderr\fP~
+writes output to \fBstdout\fP instead of \fBstderr\fP\(ti
+.TP
+\fB-t\fP, \fB--toggle\fP
+toggles whether \fBmommy\fP should display output at all.
+applies to all sessions of all shells of the current user, until this option is
+toggled again.
+useful if you want to temporarily silence \fBmommy\fP without editing your
+config files\(ti
+
+.SS configuration
+.TP
+\fB-c\fP \fIfile\fP, \fB--config=\fP\fIfile\fP
+tells \fBmommy\fP that she should read your config from \fIfile\fP\(ti
+.TP
+\fB-d\fP \fIdirs\fP, \fB--global-config-dirs=\fP\fIdirs\fP
+sets global configuration dirs to the colon-separated list in \fIdirs\fP\(ti
+
+.SS about
+.TP
+\fB-h\fP, \fB--help\fP
+opens \fBmommy\fP's manual page\(ti
+.TP
+\fB-v\fP, \fB--version\fP
+displays \fBmommy\fP's version information\(ti
 
 
 .SH bugs
-\fIhttps://github.com/fwdekker/mommy/issues\fP
+.UR https://github.com/fwdekker/mommy/issues
+.UE

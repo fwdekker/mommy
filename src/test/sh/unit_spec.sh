@@ -31,8 +31,8 @@ set_config() {
 
 
 ## Run tests
-Describe "mommy"
-    Describe "command-line options"
+Describe "mommy:"
+    Describe "command-line options:"
         It "gives an error for unknown short options"
             When run "$MOMMY_EXEC" -z
             The error should equal "mommy doesn't know option -z~"
@@ -53,10 +53,10 @@ Describe "mommy"
 
         # -h/--help is tested in `integration_spec.sh`
 
-        Describe "-v/--version: version information"
+        Describe "version information:"
             Parameters:value "-v" "--version"
 
-            It "outputs version information using $1"
+            It "outputs version information [$1]"
                 When run "$MOMMY_EXEC" "$1"
                 The word 1 of output should equal "mommy,"
                 The word 2 of output should match pattern "v%%VERSION_NUMBER%%,|v[0-9a-z\.\+]*,"
@@ -64,7 +64,7 @@ Describe "mommy"
                 The status should be success
             End
 
-            It "outputs version information even when $1 is not the first option"
+            It "outputs version information even if not given as first argument [$1]"
                 When run "$MOMMY_EXEC" -s 138 "$1"
                 The word 1 of output should equal "mommy,"
                 The word 2 of output should match pattern "v%%VERSION_NUMBER%%,|v[0-9a-z\.\+]*,"
@@ -73,10 +73,10 @@ Describe "mommy"
             End
         End
 
-        Describe "-t/--toggle: toggling output:"
+        Describe "toggling output:"
             Parameters:value "-t" "--toggle"
 
-            It "$1: disables output when used the first time"
+            It "disables output when used the first time [$1]"
                 "$MOMMY_EXEC" -t >/dev/null
 
                 When run "$MOMMY_EXEC" -s 0
@@ -84,7 +84,7 @@ Describe "mommy"
                 The status should be success
             End
 
-            It "$1: disables output when used the first time even when the toggle happens inside a different shell"
+            It "disables output when used the first time even when the toggle happens inside a different shell [$1]"
                 sh -c "'$MOMMY_EXEC' -t" >/dev/null
 
                 When run sh -c "'$MOMMY_EXEC' -s 0"
@@ -92,7 +92,7 @@ Describe "mommy"
                 The status should be success
             End
 
-            It "$1: enables output again when used the second time"
+            It "enables output again when used the second time [$1]"
                 set_config "MOMMY_COMPLIMENTS='bear soup'"
 
                 "$MOMMY_EXEC" -t >/dev/null
@@ -103,12 +103,12 @@ Describe "mommy"
                 The status should be success
             End
 
-            It "$1: shows an explanation when disabling mommy"
+            It "shows an explanation when disabling mommy [$1]"
                 When run "$MOMMY_EXEC" -t
                 The output should include "mommy has been disabled"
             End
 
-            It "$1: shows an explanation when enabling mommy"
+            It "shows an explanation when enabling mommy [$1]"
                 "$MOMMY_EXEC" -t >/dev/null
 
                 When run "$MOMMY_EXEC" -t
@@ -116,13 +116,13 @@ Describe "mommy"
             End
 
             Describe "file management:"
-                It "$1: creates the toggle state file if it does not exist"
+                It "creates the toggle state file if it does not exist [$1]"
                     When run "$MOMMY_EXEC" -t
                     The output should be present
                     The file "$XDG_STATE_HOME/mommy/toggle" should be exist
                 End
 
-                It "$1: deletes the toggle state file if it already exists"
+                It "deletes the toggle state file if it already exists [$1]"
                     "$MOMMY_EXEC" -t >/dev/null
 
                     When run "$MOMMY_EXEC" -t
@@ -130,7 +130,7 @@ Describe "mommy"
                     The file "$XDG_STATE_HOME/mommy/toggle" should not be exist
                 End
 
-                It "$1: fails to disable if the state directory cannot be created"
+                It "fails to disable if the state directory cannot be created [$1]"
                     Mock mkdir
                         exit 1  # TODO[Workaround]: See https://github.com/shellspec/shellspec/issues/355
                     End
@@ -140,7 +140,7 @@ Describe "mommy"
                     The status should be failure
                 End
 
-                It "$1: fails to disable if the state file cannot be created"
+                It "fails to disable if the state file cannot be created [$1]"
                     Mock touch
                         exit 1  # TODO[Workaround]: See https://github.com/shellspec/shellspec/issues/355
                     End
@@ -150,7 +150,7 @@ Describe "mommy"
                     The status should be failure
                 End
 
-                It "$1: fails to enable if the state file cannot be removed"
+                It "fails to enable if the state file cannot be removed [$1]"
                     Mock rm
                         exit 1  # TODO[Workaround]: See https://github.com/shellspec/shellspec/issues/355
                     End
@@ -164,7 +164,7 @@ Describe "mommy"
             End
         End
 
-        Describe "-1: output to stdout"
+        Describe "output to stdout:"
             It "outputs to stderr by default"
                 set_config "MOMMY_COMPLIMENTS='desk copper'"
 
@@ -174,7 +174,7 @@ Describe "mommy"
                 The status should be success
             End
 
-            It "outputs to stdout if -1 is given"
+            It "outputs to stdout if '-1' is given"
                 set_config "MOMMY_COMPLIMENTS='gate friendly'"
 
                 When run "$MOMMY_EXEC" -1 true
@@ -184,16 +184,16 @@ Describe "mommy"
             End
         End
 
-        Describe "-d/--global-config-dirs"
+        Describe "set global configuration directory:"
             Parameters:value "-d " "--global-config-dirs="
 
-            It "gives an error when no argument is given using $1"
+            It "gives an error when no argument is given [$1]"
                 When run "$MOMMY_EXEC" $1"" -c "" true
                 The error should equal "mommy is missing the argument for option '$(strip_opt "$1")'~"
                 The status should be failure
             End
 
-            It "uses the configuration from the file when using $1"
+            It "uses the configuration from the file when [$1]"
                 set_config "MOMMY_COMPLIMENTS='sport revive'" "$MOMMY_TMP_DIR/global1/config.sh"
 
                 When run "$MOMMY_EXEC" $1"$MOMMY_TMP_DIR/global1/" -c "" true
@@ -201,7 +201,7 @@ Describe "mommy"
                 The status should be success
             End
 
-            It "non-existing directories are skipped until an existing directory is found when using $1"
+            It "non-existing directories are skipped until an existing directory is found when [$1]"
                 set_config "MOMMY_COMPLIMENTS='cherry crop'" "$MOMMY_TMP_DIR/global2/config.sh"
 
                 When run "$MOMMY_EXEC" $1"$MOMMY_TMP_DIR/global1/:$MOMMY_TMP_DIR/global2/" -c "" true
@@ -209,7 +209,7 @@ Describe "mommy"
                 The status should be success
             End
 
-            It "when multiple global directories exist, only the first is used when using $1"
+            It "when multiple global directories exist, only the first is used when [$1]"
                 set_config "MOMMY_COMPLIMENTS='film style'" "$MOMMY_TMP_DIR/global1/config.sh"
                 set_config "MOMMY_COMPLIMENTS='care smile'" "$MOMMY_TMP_DIR/global2/config.sh"
 
@@ -219,28 +219,28 @@ Describe "mommy"
             End
         End
 
-        Describe "-c/--config: custom configuration file"
+        Describe "set custom configuration file:"
             Parameters:value "-c " "--config="
 
-            It "ignores an empty path given to $1"
+            It "ignores an empty path [$1]"
                 When run "$MOMMY_EXEC" $1"" true
                 The error should be present
                 The status should be success
             End
 
-            It "ignores an invalid path given to $1"
+            It "ignores an invalid path [$1]"
                 When run "$MOMMY_EXEC" $1"./does_not_exist" true
                 The error should be present
                 The status should be success
             End
 
-            It "ignores a directory path given to $1"
+            It "ignores a directory path [$1]"
                 When run "$MOMMY_EXEC" "$1""." true
                 The error should be present
                 The status should be success
             End
 
-            It "uses the configuration from the file given to $1"
+            It "uses the configuration from the file [$1]"
                 set_config "MOMMY_COMPLIMENTS='apply news'" "$MOMMY_TMP_DIR/config.sh"
 
                 When run "$MOMMY_EXEC" $1"$MOMMY_TMP_DIR/config.sh" true
@@ -248,7 +248,7 @@ Describe "mommy"
                 The status should be success
             End
 
-            It "overrides the global config file when using $1"
+            It "overrides the global config file [$1]"
                 set_config "MOMMY_COMPLIMENTS='ceremony isolation'" "$MOMMY_TMP_DIR/global1/config.sh"
                 set_config "MOMMY_COMPLIMENTS='lesson literature'" "$MOMMY_TMP_DIR/config.sh"
 
@@ -257,7 +257,7 @@ Describe "mommy"
                 The status should be success
             End
 
-            It "retains the non-overridden parts of the global config file when using $1"
+            It "retains the non-overridden parts of the global config file [$1]"
                 set_config "MOMMY_COMPLIMENTS='theory gallon';MOMMY_PREFIX='!'" "$MOMMY_TMP_DIR/global1/config.sh"
                 set_config "MOMMY_COMPLIMENTS='player plain'" "$MOMMY_TMP_DIR/config.sh"
 
@@ -267,7 +267,7 @@ Describe "mommy"
             End
         End
 
-        Describe "vararg: command"
+        Describe "variadic command:"
             It "writes a compliment to stderr if the command returns 0 status"
                 set_config "MOMMY_COMPLIMENTS='purpose wall'"
 
@@ -309,16 +309,16 @@ Describe "mommy"
             End
         End
 
-        Describe "-e/--eval: eval without pipes"
+        Describe "eval without pipes:"
             Parameters:value "-e " "--eval="
 
-            It "gives an error when no argument is given with $1"
+            It "gives an error when no argument is given [$1]"
                 When run "$MOMMY_EXEC" $1""
                 The error should equal "mommy is missing the argument for option '$(strip_opt "$1")'~"
                 The status should be failure
             End
 
-            It "writes a compliment to stderr if the evaluated command returns 0 status when using $1"
+            It "writes a compliment to stderr if the evaluated command returns 0 status [$1]"
                 set_config "MOMMY_COMPLIMENTS='bold accord'"
 
                 When run "$MOMMY_EXEC" $1"true"
@@ -326,7 +326,7 @@ Describe "mommy"
                 The status should be success
             End
 
-            It "writes an encouragement to stderr if the evaluated command returns non-0 status when using $1"
+            It "writes an encouragement to stderr if the evaluated command returns non-0 status [$1]"
                 set_config "MOMMY_ENCOURAGEMENTS='head log'"
 
                 When run "$MOMMY_EXEC" $1"false"
@@ -334,13 +334,13 @@ Describe "mommy"
                 The status should be failure
             End
 
-            It "returns the non-0 status of the evaluated command when using $1"
+            It "returns the non-0 status of the evaluated command [$1]"
                 When run "$MOMMY_EXEC" $1"exit 4"
                 The error should be present
                 The status should equal 4
             End
 
-            It "passes all arguments to the command when using $1"
+            It "passes all arguments to the command [$1]"
                 set_config "MOMMY_COMPLIMENTS='desire bread'"
 
                 When run "$MOMMY_EXEC" $1"echo a b c"
@@ -428,23 +428,23 @@ Describe "mommy"
             End
         End
 
-        Describe "-s/--status: status"
+        Describe "pass on exit code status:"
             Parameters:value "-s " "--status="
 
-            It "gives an error when no argument is given with $1"
+            It "gives an error when no argument is given [$1]"
                 When run "$MOMMY_EXEC" $1"" true
                 The error should equal "mommy is missing the argument for option '$(strip_opt "$1")'~"
                 The status should be failure
             End
 
-            It "gives an error when the given status is not an integer"
+            It "gives an error when the given status is not an integer [$1]"
                 When run "$MOMMY_EXEC" $1"kick" true
                 The error should equal \
                     "mommy expected the argument for option '$(strip_opt "$1")' to be an integer, but it was 'kick'~"
                 The status should be failure
             End
 
-            It "writes a compliment to stderr if the status is 0 when using $1"
+            It "writes a compliment to stderr if the status is 0 [$1]"
                 set_config "MOMMY_COMPLIMENTS='station top'"
 
                 When run "$MOMMY_EXEC" $1"0"
@@ -452,7 +452,7 @@ Describe "mommy"
                 The status should be success
             End
 
-            It "writes an encouragement to stderr if the status is non-0 when using $1"
+            It "writes an encouragement to stderr if the status is non-0 [$1]"
                 set_config "MOMMY_ENCOURAGEMENTS='mend journey'"
 
                 When run "$MOMMY_EXEC" $1"1"
@@ -460,7 +460,7 @@ Describe "mommy"
                 The status should be failure
             End
 
-            It "returns the given non-0 status when using $1"
+            It "returns the given non-0 status [$1]"
                 When run "$MOMMY_EXEC" $1"167"
                 The error should be present
                 The status should equal 167
@@ -468,9 +468,9 @@ Describe "mommy"
         End
     End
 
-    Describe "configuration"
-        Describe "templates"
-            Describe "selection sources"
+    Describe "configuration:"
+        Describe "templates:"
+            Describe "selection sources:"
                 It "chooses from 'MOMMY_COMPLIMENTS'"
                     set_config "MOMMY_COMPLIMENTS='spill drown'"
 
@@ -496,7 +496,7 @@ Describe "mommy"
                 End
             End
 
-            Describe "separators"
+            Describe "separators:"
                 It "inserts a separator between 'MOMMY_COMPLIMENTS' and 'MOMMY_COMPLIMENTS_EXTRA'"
                     set_config "MOMMY_COMPLIMENTS='curse';MOMMY_COMPLIMENTS_EXTRA='dear'"
 
@@ -532,7 +532,7 @@ Describe "mommy"
                 End
             End
 
-            Describe "comments"
+            Describe "comments:"
                 It "ignores lines starting with '#'"
                     set_config "MOMMY_COMPLIMENTS='weaken${n}#egg'"
 
@@ -566,7 +566,7 @@ Describe "mommy"
                 End
             End
 
-            Describe "whitespace in entries"
+            Describe "whitespace in entries:"
                 It "retains leading whitespace in an entry"
                     set_config "MOMMY_COMPLIMENTS=' rake fix'"
 
@@ -584,7 +584,7 @@ Describe "mommy"
                 End
             End
 
-            Describe "toggling"
+            Describe "toggling:"
                 It "outputs nothing if a command succeeds but compliments are disabled"
                     set_config "MOMMY_COMPLIMENTS_ENABLED='0'"
 
@@ -603,7 +603,7 @@ Describe "mommy"
             End
         End
 
-        Describe "template variables"
+        Describe "template variables:"
             It "escapes sed-specific characters"
                 set_config "MOMMY_COMPLIMENTS='>%%SWEETIE%%<';MOMMY_SWEETIE='&\\'"
 
@@ -707,7 +707,7 @@ stimky<"
                 The status should be success
             End
 
-            Describe "pronouns"
+            Describe "pronouns:"
                 It "replaces %%THEY%%"
                     set_config "MOMMY_COMPLIMENTS='>%%THEY%%<';MOMMY_PRONOUNS='front lean weekend range great'"
 
@@ -775,7 +775,7 @@ stimky<"
             End
         End
 
-        Describe "capitalization"
+        Describe "capitalization:"
             It "changes the first character to lowercase if configured to 0"
                 set_config "MOMMY_COMPLIMENTS='Alive station';MOMMY_CAPITALIZE='0'"
 
@@ -809,11 +809,11 @@ stimky<"
             End
         End
 
-        Describe "forbidden words"
+        Describe "forbidden words:"
             # Repeat 5 times because of randomization
             Parameters:value 1 2 3 4 5
 
-            It "removes the template that equals the forbidden word"
+            It "removes the template that equals the forbidden word [$1]"
                 set_config "MOMMY_COMPLIMENTS='mother search/fierce along';MOMMY_FORBIDDEN_WORDS='search'"
 
                 When run "$MOMMY_EXEC" true
@@ -821,7 +821,7 @@ stimky<"
                 The status should be success
             End
 
-            It "removes the template that contains the forbidden word"
+            It "removes the template that contains the forbidden word [$1]"
                 set_config "MOMMY_COMPLIMENTS='clear bow flow/horn origin tired';MOMMY_FORBIDDEN_WORDS='bow'"
 
                 When run "$MOMMY_EXEC" true
@@ -829,7 +829,7 @@ stimky<"
                 The status should be success
             End
 
-            It "removes all templates that contain a forbidden word"
+            It "removes all templates that contain a forbidden word [$1]"
                 set_config "MOMMY_COMPLIMENTS='after boundary/failure school/instant delay';\
                             MOMMY_FORBIDDEN_WORDS='instant/boundary'"
 
@@ -838,7 +838,7 @@ stimky<"
                 The status should be success
             End
 
-            It "removes all templates that match the bracket expansion"
+            It "removes all templates that match the bracket expansion [$1]"
                 set_config "MOMMY_COMPLIMENTS='a/z/c';MOMMY_FORBIDDEN_WORDS='[ac]'"
 
                 When run "$MOMMY_EXEC" true
@@ -846,7 +846,7 @@ stimky<"
                 The status should be success
             End
 
-            It "removes all templates that match the bracket expansion range"
+            It "removes all templates that match the bracket expansion range [$1]"
                 set_config "MOMMY_COMPLIMENTS='a/b/c/z';MOMMY_FORBIDDEN_WORDS='[a-c]'"
 
                 When run "$MOMMY_EXEC" true
@@ -854,7 +854,7 @@ stimky<"
                 The status should be success
             End
 
-            It "maps octal escapes to the corresponding character"
+            It "maps octal escapes to the corresponding character [$1]"
                 set_config "MOMMY_COMPLIMENTS='z/a/b';MOMMY_FORBIDDEN_WORDS='[\0141\0142]'"
 
                 When run "$MOMMY_EXEC" true
@@ -862,7 +862,7 @@ stimky<"
                 The status should be success
             End
 
-            It "maps octal escapes to the corresponding character in a range"
+            It "maps octal escapes to the corresponding character in a range [$1]"
                 set_config "MOMMY_COMPLIMENTS='z/a/b';MOMMY_FORBIDDEN_WORDS='[\0141\0142]'"
 
                 When run "$MOMMY_EXEC" true
@@ -870,7 +870,7 @@ stimky<"
                 The status should be success
             End
 
-            It "supports the | in a regex"
+            It "supports the | in a regex [$1]"
                 set_config "MOMMY_COMPLIMENTS='dinner/rent/shot';MOMMY_FORBIDDEN_WORDS='(dinner|rent)'"
 
                 When run "$MOMMY_EXEC" true
@@ -878,7 +878,7 @@ stimky<"
                 The status should be success
             End
 
-            It "does not output anything even if the list only matches after variable substitutions"
+            It "does not output anything even if the list only matches after variable substitutions [$1]"
                 set_config "MOMMY_COMPLIMENTS='%%THEY%%%%THEM%%';\
                             MOMMY_PRONOUNS='a b c d e';\
                             MOMMY_FORBIDDEN_WORDS='(ab)'"
@@ -889,7 +889,7 @@ stimky<"
             End
         End
 
-        Describe "ignore specific exit codes"
+        Describe "ignore specific exit codes:"
             It "by default, outputs something"
                 When run "$MOMMY_EXEC" exit 0
                 The error should be present

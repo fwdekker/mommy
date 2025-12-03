@@ -3,7 +3,7 @@
 n="
 "
 
-## Configuration
+#region Configuration
 MOMMY_CAREGIVER="mommy"
 MOMMY_PRONOUNS="she her her hers herself"
 MOMMY_SWEETIE="${LOGNAME:-girl}"
@@ -70,9 +70,10 @@ MOMMY_ENCOURAGEMENTS_ENABLED="1"
 
 MOMMY_FORBIDDEN_WORDS=""
 MOMMY_IGNORED_STATUSES="130"
+#endregion
 
 
-## Input validation
+#region Input validation
 # Writes whitespace-concatenated input arguments to stderr and exits.
 die() { printf "%s\n" "$*" >&2; exit 1; }
 
@@ -86,9 +87,10 @@ require_int() {
     *) return 0 ;;
     esac
 }
+#endregion
 
 
-## String manipulation
+#region String manipulation
 # Replaces in `$1` all occurrences of `$2` with `$3`, and writes to a variable named `$replace_all__out`. If the input
 # has no trailing newline, neither will the output.
 # Based on https://stackoverflow.com/a/75037170/
@@ -149,9 +151,10 @@ capitalize() {
     capitalize__out="$(printf "%s\n" "$1" | awk "{ print $capitalize__mapping(substr(\$0, 1, 1)) substr(\$0, 2) }")"
     return 0
 }
+#endregion
 
 
-## Lists
+#region Lists
 # A list is a collection of entries. Entries are separated by a forward slash (`/`) or by a newline. Entries containing
 # only whitespace or starting with a `#` are considered comments and are ignored. If a line starts with a `#`, all `/`
 # on that line are part of the comment and are not considered separators. A normalized list is a list in which there are
@@ -237,9 +240,10 @@ list_normal_choose() {
     list_normalize "$1" "$2"
     list_choose "$list_normalize__out"
 }
+#endregion
 
 
-## Templates
+#region Templates
 # Prints `$2`, but with color depending on `$1`. If `$1` equals `lolcat`, stdin is piped to `lolcat`. If `$1` is empty,
 # or color is not enabled in the terminal, stdin is printed normally. Otherwise, `$1` is used as the xterm color.
 color_print() {
@@ -324,22 +328,23 @@ fill_template() {
     capitalize "$prefix$replace_all__out$suffix" "$7"; fill_template__out="$capitalize__out"
     return 0
 }
+#endregion
 
 
-## Read options
+#region Read command arguments
 opt_help=""
 opt_version=""
-opt_toggle=""
-opt_target="2"
-opt_config="${XDG_CONFIG_HOME:-"$HOME/.config"}/mommy/config.sh"
-opt_global_config_dirs="${XDG_CONFIG_DIRS}:/etc/mommy/:/usr/local/etc/mommy/"
 opt_eval=""
 opt_pipefail=""
 opt_status=""
+opt_target="2"
+opt_toggle=""
+opt_config="${XDG_CONFIG_HOME:-"$HOME/.config"}/mommy/config.sh"
+opt_global_config_dirs="${XDG_CONFIG_DIRS}:/etc/mommy/:/usr/local/etc/mommy/"
 
 # Config string for getopts describes only short options. Starts with ':', then one letter for each short option. Each
 # short option can be followed by ':' to indicate that it takes an argument.
-while getopts ":hvt1d:c:pe:s:-:" OPT; do
+while getopts ":hve:ps:1tc:d:-:" OPT; do
     # Cheap workaround for long options, see https://stackoverflow.com/a/28466267
     if [ "-" = "$OPT" ]; then
         OPT="${OPTARG%%=*}"
@@ -351,13 +356,13 @@ while getopts ":hvt1d:c:pe:s:-:" OPT; do
     case "$OPT" in
     h|help) opt_help="1" ;;
     v|version) opt_version="1" ;;
-    t|toggle) opt_toggle="1" ;;
-    1) opt_target="1" ;;
-    d|global-config-dirs) require_arg; opt_global_config_dirs="$OPTARG" ;;
-    c|config) opt_config="$OPTARG" ;;
     e|eval) require_arg; opt_eval="$OPTARG" ;;
     p|pipefail) opt_pipefail="1" ;;
     s|status) require_arg; require_int; opt_status="$OPTARG" ;;
+    1) opt_target="1" ;;
+    t|toggle) opt_toggle="1" ;;
+    c|config) opt_config="$OPTARG" ;;
+    d|global-config-dirs) require_arg; opt_global_config_dirs="$OPTARG" ;;
     :) die "mommy's last option is missing its argument~" ;;
     ?) die "mommy doesn't know option -$OPTARG~" ;;
     *) die "mommy doesn't know option --$OPT~" ;;
@@ -365,9 +370,10 @@ while getopts ":hvt1d:c:pe:s:-:" OPT; do
 done
 
 shift "$((OPTIND - 1))"
+#endregion
 
 
-## Load configuration
+#region Load configuration files
 # Global
 config_dir=""
 while [ "x$opt_global_config_dirs" != "x$config_dir" ] ;do
@@ -375,26 +381,28 @@ while [ "x$opt_global_config_dirs" != "x$config_dir" ] ;do
     opt_global_config_dirs="${opt_global_config_dirs#"$config_dir":}"
 
     if [ -d "$config_dir" ] && [ -f "$config_dir/config.sh" ] && [ -r "$config_dir/config.sh" ]; then
-        # shellcheck source=/dev/null # User-defined target
         . "$config_dir/config.sh"
         break
     fi
 done
 
 # User
-# shellcheck source=/dev/null # User-defined target
+# shellcheck disable=SC1090 # User-defined target
 [ -f "$opt_config" ] && [ -r "$opt_config" ] && . "$opt_config"
+#endregion
 
 
-## State
+#region Parse state
 state_dir="${XDG_STATE_HOME:-"$HOME/.local/state"}/mommy/"
 
 # Toggle output. 0 = state file exists = no output. 1 = state file does not exist = regular output
 state_toggle_path="$state_dir/toggle"
 test -f "$state_toggle_path"; state_toggle="$?"
+#endregion
 
 
-## Output (primary)
+#region Determine output
+#region Help and version information
 if [ "x" != "x$opt_help" ]; then
     man mommy
 
@@ -410,15 +418,15 @@ elif [ "x" != "x$opt_version" ]; then
     printf "mommy, v%s, %s\n" "%%VERSION_NUMBER%%" "%%VERSION_DATE%%"
     exit 0
 fi
+#endregion
 
-
-## Validate inputs
+#region Validate input arguments
 if [ "x" != "x$opt_pipefail" ] && [ "x" = "x$opt_eval" ]; then
     die "mommy supports option '-p' or '--pipefail' only when using '-e' or '--eval'~"
 fi
+#endregion
 
-
-## Output
+#region Toggling and command execution
 if [ "x" != "x$opt_toggle" ]; then
     if [ "0" -eq "$state_toggle" ]; then
         if ! rm -- "$state_toggle_path"; then die "mommy could not delete the state file~"; fi
@@ -480,3 +488,5 @@ else
 
     exit "$command_exit_code"
 fi
+#endregion
+#endregion

@@ -43,14 +43,6 @@ end
 
 
 ## Completions
-set --local opt_help     "--short-option h --long-option help"
-set --local opt_version  "--short-option v --long-option version"
-set --local opt_toggle   "--short-option t --long-option toggle"
-set --local opt_stdout   "--short-option 1"
-set --local opt_eval     "--short-option e --long-option eval"
-set --local opt_pipefail "--short-option p --long-option pipefail"
-set --local opt_status   "--short-option s --long-option status"
-
 complete --command mommy --no-files  # Disabled by default, but re-enabled for specific cases below
 
 # Help/version/toggle
@@ -68,40 +60,38 @@ complete --command mommy --short-option t --long-option toggle \
 complete --command mommy --short-option c --long-option config \
     --require-parameter --force-files \
     --description "Configuration file" \
-    --condition "not __fish_seen_argument $opt_help $opt_version $opt_toggle"\
+    --condition "not __fish_seen_argument -h --help -v --version -t --toggle"\
     --condition "test -z (get_args)"
 complete --command mommy --short-option d --long-option global-config-dirs \
     --require-parameter \
     --arguments "(__fish_complete_directories)" \
     --description "Colon-separated global config file dirs" \
-    --condition "not __fish_seen_argument $opt_help $opt_version $opt_toggle"\
+    --condition "not __fish_seen_argument -h --help -v --version -t --toggle"\
     --condition "test -z (get_args)"
 
 # Misc
 complete --command mommy --short-option 1 \
     --description "Write to stdout" \
-    --condition "not __fish_seen_argument $opt_help $opt_version $opt_toggle $opt_stdout" \
+    --condition "not __fish_seen_argument -h --help -v --version -t --toggle -1" \
     --condition "test -z (get_args)"
 
 # Usage
 complete --command mommy \
-    # `complete --do-complete` requires one argument, so must be wrapped in quotes.
-    # Fish <3.4.0 cannot do `$(...)`, so workaround is to assign to temporary variable.
     --keep-order \
-    --arguments "(set --local command (get_args_with_token); complete --do-complete \"\$command\")" \
-    --condition "test -n (get_args_with_token); or not __fish_seen_argument $opt_help $opt_version $opt_toggle $opt_eval $opt_pipefail $opt_status"
+    --arguments "(complete --do-complete \"(get_args_with_token)\")" \
+    --condition "test -n (get_args_with_token); or not __fish_seen_argument -h --help -v --version -t --toggle -e --eval -p --pipefail -s --status"
 complete --command mommy --short-option e --long-option eval \
     --require-parameter \
     --description "Evaluate string" \
-    --condition "not __fish_seen_argument $opt_help $opt_version $opt_toggle $opt_eval $opt_status" \
+    --condition "not __fish_seen_argument -h --help -v --version -t --toggle -e --eval -s --status" \
     --condition "test -z (get_args)"
 complete --command mommy --short-option p --long-option pipefail \
-    --description "Enable pipefail for evaluated commands" \
-    --condition "not __fish_seen_argument $opt_help $opt_version $opt_toggle $opt_pipefail $opt_status" \
+    --description "Enable pipefail" \
+    --condition "not __fish_seen_argument -h --help -v --version -t --toggle -p --pipefail -s --status" \
     --condition "test -z (get_args)"
 complete --command mommy --short-option s --long-option status \
     --require-parameter --no-files \
     --description "Exit code" \
     --arguments "(echo 0\tSuccess\n1\tError)" \
-    --condition "not __fish_seen_argument $opt_help $opt_version $opt_toggle $opt_eval $opt_pipefail $opt_status" \
+    --condition "not __fish_seen_argument -h --help -v --version -t --toggle -e --eval -p --pipefail -s --status" \
     --condition "test -z (get_args)"
