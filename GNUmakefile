@@ -24,6 +24,10 @@ man_compress_ext := .gz
 %/generic: prefix = $(build_dir)/generic/mommy-$(version)/usr/
 %/gentoo: man_compress_cmd := :  # Disables compression by calling the noop `:` command instead
 %/gentoo: man_compress_ext :=  # The empty string
+%/haiku: prefix = $(build_dir)/haiku/
+%/haiku: man_prefix = $(prefix)/documentation/man/
+%/haiku: fish_prefix = $(prefix)/data/fish/vendor_completions.d/
+%/haiku: zsh_prefix = $(prefix)/data/zsh/site-functions/
 %/netbsd: prefix = $(build_dir)/netbsd/usr/pkg/
 %/netbsd: man_prefix = $(prefix)/man/
 %/openbsd: prefix = $(build_dir)/openbsd/usr/local/
@@ -34,6 +38,7 @@ man_compress_ext := .gz
 ## Extracted values
 version := $(shell head -n 1 version)
 date := $(shell tail -n 1 version)
+year := $(shell tail -n 1 version | cut -d "-" -f 1)
 
 comment := $(shell grep -- "--description" .fpm | tr -d "\"" | cut -d " " -f 2-)
 maintainer := $(shell grep -- "--maintainer" .fpm | tr -d "\"" | cut -d " " -f 2-)
@@ -145,6 +150,25 @@ dist/osxpkg: fpm/osxpkg
 	@mv "$(dist_dir)/"*".osxpkg" "$(dist_dir)/mommy-$(version)+osx.pkg"
 dist/pacman: fpm/pacman
 dist/rpm: fpm/rpm
+
+# Build Haiku package manually
+dist/haiku: install
+	@mkdir -p "$(build_dir)/haiku/data/licenses"
+	@cp ./LICENSE "$(build_dir)/haiku/data/licenses/Unlicense"
+
+	@echo "name         mommy"                                           > "$(build_dir)/haiku/.PackageInfo"
+	@echo "version      $(version)-1"                                   >> "$(build_dir)/haiku/.PackageInfo"
+	@echo "architecture any"                                            >> "$(build_dir)/haiku/.PackageInfo"
+	@echo "summary      \"$(comment)\""                                 >> "$(build_dir)/haiku/.PackageInfo"
+	@echo "description  \"$(comment)\""                                 >> "$(build_dir)/haiku/.PackageInfo"
+	@echo "vendor       \"$(maintainer)\""                              >> "$(build_dir)/haiku/.PackageInfo"
+	@echo "packager     \"$(maintainer)\""                              >> "$(build_dir)/haiku/.PackageInfo"
+	@echo "licenses     { \"Unlicense\" }"                              >> "$(build_dir)/haiku/.PackageInfo"
+	@echo "copyrights   { \"Copyright (C) $(year) by $(maintainer)\" }" >> "$(build_dir)/haiku/.PackageInfo"
+	@echo "provides     { mommy = $(version)-1 }"                       >> "$(build_dir)/haiku/.PackageInfo"
+
+	@mkdir -p "$(dist_dir)"
+	@package create -C "$(build_dir)/haiku" "$(dist_dir)/mommy-$(version).hpkg"
 
 # Build NetBSD package manually
 dist/netbsd: install
