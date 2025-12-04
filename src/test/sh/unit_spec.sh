@@ -2,10 +2,10 @@
 # shellcheck disable=SC2317 # False positive when using `return` or `exit` inside `Mock`
 
 ## Use isolated XDG directories
-XDG_CONFIG_DIRS="$MOMMY_TMP_DIR/xdg/"
+XDG_CONFIG_DIRS="$MOMMY_TMP_DIR/global/"
 export XDG_CONFIG_DIRS
 
-XDG_CONFIG_HOME="$MOMMY_TMP_DIR/config/"
+XDG_CONFIG_HOME="$MOMMY_TMP_DIR/user/"
 export XDG_CONFIG_HOME
 
 XDG_STATE_HOME="$MOMMY_TMP_DIR/state/"
@@ -13,36 +13,52 @@ export XDG_STATE_HOME
 
 
 ## Functions
-# Writes mommy config string `$1` to file `$2`. Creates the containing directory if it does not exist.
-#
-# * By default, configures `MOMMY_COLOR=''` and `MOMMY_SUFFIX=''`. This can be overridden in `$1`.
-# * If not specified, `$2` defaults to the default config file. Note that `$XDG_CONFIG_HOME` is set in `spec_helper.sh`.
-set_config() {
-    set_config__file="${2:-$XDG_CONFIG_HOME/mommy/config.sh}"
-    mkdir -p -- "$(dirname -- "$set_config__file")"
-    printf "MOMMY_COLOR='';MOMMY_SUFFIX='';%s\n" "$1" > "$set_config__file"
+# Prints the path to configuration directory `$1`
+conf_dir() {
+    printf "%s\n" "$MOMMY_TMP_DIR/$1"
+}
+
+# Prints the path to configuration file `$2` in configuration directory `$1`
+conf_file() {
+    printf "%s\n" "$MOMMY_TMP_DIR/$1/mommy/${2:-config.sh}"
+}
+
+# Writes config string `$1` to file `$2`. Target file defaults to user config file. Creates containing directory if it
+# does not exist.
+write_raw() {
+    path="${2:-"$(conf_file user)"}"
+    mkdir -p -- "$(dirname -- "$path")"
+    printf "%s" "$1" > "$path"
+}
+
+# Like `write_raw`, but sets sensible test defaults `MOMMY_COLOR=''` and `MOMMY_SUFFIX=''`, though these can be
+# overridden in `$1`.
+write_conf() {
+    write_raw "MOMMY_COLOR='';MOMMY_SUFFIX='';$1" "$2"
 }
 
 
 ## Run tests
 Describe "mommy:"
     Describe "command-line options:"
-        It "gives an error for unknown short options"
-            When run "$MOMMY_EXEC" -z
-            The error should equal "mommy doesn't know option -z~"
-            The status should be failure
-        End
+        Describe "validation:"
+            It "gives an error for unknown short options"
+                When run "$MOMMY_EXEC" -z
+                The error should equal "mommy doesn't know option -z~"
+                The status should be failure
+            End
 
-        It "gives an error for unknown long options"
-            When run "$MOMMY_EXEC" --doesnotexist
-            The error should equal "mommy doesn't know option --doesnotexist~"
-            The status should be failure
-        End
+            It "gives an error for unknown long options"
+                When run "$MOMMY_EXEC" --doesnotexist
+                The error should equal "mommy doesn't know option --doesnotexist~"
+                The status should be failure
+            End
 
-        It "gives an error for missing required argument to short option when no command is given"
-            When run "$MOMMY_EXEC" -s
-            The error should equal "mommy's last option is missing its argument~"
-            The status should be failure
+            It "gives an error for missing required argument to short option when no command is given"
+                When run "$MOMMY_EXEC" -s
+                The error should equal "mommy's last option is missing its argument~"
+                The status should be failure
+            End
         End
 
         # -h/--help is tested in `integration_spec.sh`
@@ -87,7 +103,7 @@ Describe "mommy:"
             End
 
             It "enables output again when used the second time [$1]"
-                set_config "MOMMY_COMPLIMENTS='bear soup'"
+                write_conf "MOMMY_COMPLIMENTS='bear soup'"
 
                 "$MOMMY_EXEC" -t >/dev/null
                 "$MOMMY_EXEC" -t >/dev/null
@@ -160,7 +176,7 @@ Describe "mommy:"
 
         Describe "output to stdout:"
             It "outputs to stderr by default"
-                set_config "MOMMY_COMPLIMENTS='desk copper'"
+                write_conf "MOMMY_COMPLIMENTS='desk copper'"
 
                 When run "$MOMMY_EXEC" true
                 The output should not be present
@@ -169,7 +185,7 @@ Describe "mommy:"
             End
 
             It "outputs to stdout if '-1' is given"
-                set_config "MOMMY_COMPLIMENTS='gate friendly'"
+                write_conf "MOMMY_COMPLIMENTS='gate friendly'"
 
                 When run "$MOMMY_EXEC" -1 true
                 The output should equal "gate friendly"
@@ -178,42 +194,7 @@ Describe "mommy:"
             End
         End
 
-        Describe "set global configuration directory:"
-            Parameters:value "-d " "--global-config-dirs="
-
-            It "gives an error when no argument is given [$1]"
-                When run "$MOMMY_EXEC" $1"" -c "" true
-                The error should equal "mommy is missing the argument for option '$(strip_opt "$1")'~"
-                The status should be failure
-            End
-
-            It "uses the configuration from the file when [$1]"
-                set_config "MOMMY_COMPLIMENTS='sport revive'" "$MOMMY_TMP_DIR/global1/config.sh"
-
-                When run "$MOMMY_EXEC" $1"$MOMMY_TMP_DIR/global1/" -c "" true
-                The error should equal "sport revive"
-                The status should be success
-            End
-
-            It "non-existing directories are skipped until an existing directory is found when [$1]"
-                set_config "MOMMY_COMPLIMENTS='cherry crop'" "$MOMMY_TMP_DIR/global2/config.sh"
-
-                When run "$MOMMY_EXEC" $1"$MOMMY_TMP_DIR/global1/:$MOMMY_TMP_DIR/global2/" -c "" true
-                The error should equal "cherry crop"
-                The status should be success
-            End
-
-            It "when multiple global directories exist, only the first is used when [$1]"
-                set_config "MOMMY_COMPLIMENTS='film style'" "$MOMMY_TMP_DIR/global1/config.sh"
-                set_config "MOMMY_COMPLIMENTS='care smile'" "$MOMMY_TMP_DIR/global2/config.sh"
-
-                When run "$MOMMY_EXEC" $1"$MOMMY_TMP_DIR/global1/:$MOMMY_TMP_DIR/global2/" -c "" true
-                The error should equal "film style"
-                The status should be success
-            End
-        End
-
-        Describe "set custom configuration file:"
+        Describe "override user config file path:"
             Parameters:value "-c " "--config="
 
             It "ignores an empty path [$1]"
@@ -229,41 +210,183 @@ Describe "mommy:"
             End
 
             It "ignores a directory path [$1]"
-                When run "$MOMMY_EXEC" "$1""." true
+                When run "$MOMMY_EXEC" $1"." true
                 The error should be present
                 The status should be success
             End
 
             It "uses the configuration from the file [$1]"
-                set_config "MOMMY_COMPLIMENTS='apply news'" "$MOMMY_TMP_DIR/config.sh"
+                write_conf "MOMMY_COMPLIMENTS='apply news'" "$(conf_file foo bar.sh)"
 
-                When run "$MOMMY_EXEC" $1"$MOMMY_TMP_DIR/config.sh" true
+                When run "$MOMMY_EXEC" $1"$(conf_file foo bar.sh)" true
                 The error should equal "apply news"
                 The status should be success
             End
 
-            It "overrides the global config file [$1]"
-                set_config "MOMMY_COMPLIMENTS='ceremony isolation'" "$MOMMY_TMP_DIR/global1/config.sh"
-                set_config "MOMMY_COMPLIMENTS='lesson literature'" "$MOMMY_TMP_DIR/config.sh"
+            It "does not change the directory from which a role is loaded [$1]"
+                write_conf "MOMMY_COMPLIMENTS='guide top'" "$(conf_file user roles/shop.sh)"
 
-                When run "$MOMMY_EXEC" --global-config-dirs="$MOMMY_TMP_DIR/global1/" $1"$MOMMY_TMP_DIR/config.sh" true
+                When run "$MOMMY_EXEC" $1"$(conf_file foo bar.sh)" --role=shop true
+                The error should equal "guide top"
+                The status should be success
+            End
+        End
+
+        Describe "set user config directory:"
+            Parameters:value "-u " "--user-config-dir="
+
+            It "changes the directory from which the user config is loaded [$1]"
+                write_conf "MOMMY_COMPLIMENTS='beam bowel'" "$(conf_file foo)"
+
+                When run "$MOMMY_EXEC" $1"$(conf_dir foo)" true
+                The error should equal "beam bowel"
+                The status should be success
+            End
+
+            It "does not change the directory from which the user config is loaded if -c/--config is used"
+                write_conf "MOMMY_COMPLIMENTS='tent pipe'" "$(conf_file foo bar.sh)"
+
+                When run "$MOMMY_EXEC" $1"$(conf_dir baz)" -c "$(conf_file foo bar.sh)" true
+                The error should equal "tent pipe"
+                The status should be success
+            End
+
+            It "changes the directory from which the role is loaded [$1]"
+                write_conf "MOMMY_COMPLIMENTS='teach risk'" "$(conf_file foo roles/width.sh)"
+
+                When run "$MOMMY_EXEC" $1"$(conf_dir foo)" -r width true
+                The error should equal "teach risk"
+                The status should be success
+            End
+        End
+
+        Describe "set global config directory:"
+            Parameters:value "-d " "--global-config-dirs="
+
+            It "gives an error when no argument is given [$1]"
+                When run "$MOMMY_EXEC" $1"" true
+                The error should equal "mommy is missing the argument for option '$(strip_opt "$1")'~"
+                The status should be failure
+            End
+
+            It "uses the config file in the specified directory [$1]"
+                write_conf "MOMMY_COMPLIMENTS='sport revive'" "$(conf_file foo)"
+
+                When run "$MOMMY_EXEC" $1"$(conf_dir foo)" true
+                The error should equal "sport revive"
+                The status should be success
+            End
+
+            It "skips non-existing global config dirs until one is found that exists [$1]"
+                write_conf "MOMMY_COMPLIMENTS='cherry crop'" "$(conf_file foo)"
+
+                When run "$MOMMY_EXEC" $1"$(conf_dir bar):$(conf_dir foo)" true
+                The error should equal "cherry crop"
+                The status should be success
+            End
+
+            It "skips global config dirs without the appropriate file until one is found that exists [$1]"
+                mkdir -p "$(conf_file foo)"
+                write_conf "MOMMY_COMPLIMENTS='paper load'" "$(conf_file bar)"
+
+                When run "$MOMMY_EXEC" $1"$(conf_dir foo):$(conf_dir bar)" true
+                The error should equal "paper load"
+                The status should be success
+            End
+
+            It "when multiple global config files exist, only the first is used [$1]"
+                write_conf "MOMMY_COMPLIMENTS='film style'" "$(conf_file foo)"
+                write_conf "MOMMY_COMPLIMENTS='care smile'" "$(conf_file bar)"
+
+                When run "$MOMMY_EXEC" $1"$(conf_dir foo):$(conf_dir bar)" true
+                The error should equal "film style"
+                The status should be success
+            End
+        End
+
+        Describe "roles:"
+            Parameters:value "-r " "--role="
+
+            It "gives an error if the role string is empty [$1]"
+                When run "$MOMMY_EXEC" $1"" true
+                The error should equal "mommy is missing the argument for option '$(strip_opt "$1")'~"
+                The status should be failure
+            End
+
+            It "gives an error if the role exists in neither global config dirs nor in the user config dir [$1]"
+                When run "$MOMMY_EXEC" $1"axis" true
+                The error should equal "mommy does not know the role 'axis'~"
+                The status should be failure
+            End
+
+            It "loads the given role if it exists in the global config dirs and not in the user config dir [$1]"
+                write_conf "MOMMY_COMPLIMENTS='gain calf'" "$(conf_file user roles/burst.sh)"
+
+                When run "$MOMMY_EXEC" $1"burst" true
+                The error should equal "gain calf"
+                The status should be success
+            End
+
+            It "loads the given role if it exists in the user config dir and not in the global config dirs [$1]"
+                write_conf "MOMMY_COMPLIMENTS='lock lie'" "$(conf_file global roles/essay.sh)"
+
+                When run "$MOMMY_EXEC" $1"essay" true
+                The error should equal "lock lie"
+                The status should be success
+            End
+
+            It "loads the given role from the user config dir even if it also exists in the global config dirs [$1]"
+                write_conf "MOMMY_PREFIX='!'" "$(conf_file global roles/plot.sh)"
+                write_conf "MOMMY_COMPLIMENTS='rise part'" "$(conf_file user roles/plot.sh)"
+
+                When run "$MOMMY_EXEC" $1"plot" true
+                The error should equal "rise part"
+                The status should be success
+            End
+        End
+
+        Describe "config load order:"
+            It "user config overrides global config"
+                write_conf "MOMMY_COMPLIMENTS='ceremony isolation'" "$(conf_file global)"
+                write_conf "MOMMY_COMPLIMENTS='lesson literature'" "$(conf_file user)"
+
+                When run "$MOMMY_EXEC" true
                 The error should equal "lesson literature"
                 The status should be success
             End
 
-            It "retains the non-overridden parts of the global config file [$1]"
-                set_config "MOMMY_COMPLIMENTS='theory gallon';MOMMY_PREFIX='!'" "$MOMMY_TMP_DIR/global1/config.sh"
-                set_config "MOMMY_COMPLIMENTS='player plain'" "$MOMMY_TMP_DIR/config.sh"
+            It "role overrides global config"
+                write_conf "MOMMY_COMPLIMENTS='bark lunch'" "$(conf_file global)"
+                write_conf "MOMMY_COMPLIMENTS='gas shape'" "$(conf_file user roles/urge.sh)"
 
-                When run "$MOMMY_EXEC" --global-config-dirs="$MOMMY_TMP_DIR/global1/" $1"$MOMMY_TMP_DIR/config.sh" true
-                The error should equal "!player plain"
+                When run "$MOMMY_EXEC" -r urge true
+                The error should equal "gas shape"
+                The status should be success
+            End
+
+            It "role overrides user config"
+                write_conf "MOMMY_COMPLIMENTS='palm inn'" "$(conf_file user)"
+                write_conf "MOMMY_COMPLIMENTS='take nest'" "$(conf_file user roles/high.sh)"
+
+                When run "$MOMMY_EXEC" -r high true
+                The error should equal "take nest"
+                The status should be success
+            End
+
+            It "overrides cascade, from global to user to role"
+                write_raw "MOMMY_COMPLIMENTS='steel cry';MOMMY_PREFIX='!';MOMMY_SUFFIX='@';MOMMY_COLOR=''" "$(conf_file global)"
+                write_raw "MOMMY_COMPLIMENTS='item fish';MOMMY_PREFIX='%'" "$(conf_file user)"
+                write_raw "MOMMY_COMPLIMENTS='tasty laser'" "$(conf_file user roles/level.sh)"
+
+                When run "$MOMMY_EXEC" -r level true
+                The error should equal "%tasty laser@"
                 The status should be success
             End
         End
 
         Describe "variadic command:"
             It "writes a compliment to stderr if the command returns 0 status"
-                set_config "MOMMY_COMPLIMENTS='purpose wall'"
+                write_conf "MOMMY_COMPLIMENTS='purpose wall'"
 
                 When run "$MOMMY_EXEC" true
                 The error should equal "purpose wall"
@@ -271,7 +394,7 @@ Describe "mommy:"
             End
 
             It "writes an encouragement to stderr if the command returns non-0 status"
-                set_config "MOMMY_ENCOURAGEMENTS='razor woolen'"
+                write_conf "MOMMY_ENCOURAGEMENTS='razor woolen'"
 
                 When run "$MOMMY_EXEC" false
                 The error should equal "razor woolen"
@@ -285,7 +408,7 @@ Describe "mommy:"
             End
 
             It "passes all arguments to the command"
-                set_config "MOMMY_COMPLIMENTS='disagree mean'"
+                write_conf "MOMMY_COMPLIMENTS='disagree mean'"
 
                 When run "$MOMMY_EXEC" echo a b c
                 The output should equal "a b c"
@@ -294,7 +417,7 @@ Describe "mommy:"
             End
 
             It "separates arguments to mommy and arguments to the command"
-                set_config "MOMMY_COMPLIMENTS='pot bond'"
+                write_conf "MOMMY_COMPLIMENTS='pot bond'"
 
                 When run "$MOMMY_EXEC" -d / echo a b c
                 The output should equal "a b c"
@@ -313,7 +436,7 @@ Describe "mommy:"
             End
 
             It "writes a compliment to stderr if the evaluated command returns 0 status [$1]"
-                set_config "MOMMY_COMPLIMENTS='bold accord'"
+                write_conf "MOMMY_COMPLIMENTS='bold accord'"
 
                 When run "$MOMMY_EXEC" $1"true"
                 The error should equal "bold accord"
@@ -321,7 +444,7 @@ Describe "mommy:"
             End
 
             It "writes an encouragement to stderr if the evaluated command returns non-0 status [$1]"
-                set_config "MOMMY_ENCOURAGEMENTS='head log'"
+                write_conf "MOMMY_ENCOURAGEMENTS='head log'"
 
                 When run "$MOMMY_EXEC" $1"false"
                 The error should equal "head log"
@@ -335,7 +458,7 @@ Describe "mommy:"
             End
 
             It "passes all arguments to the command [$1]"
-                set_config "MOMMY_COMPLIMENTS='desire bread'"
+                write_conf "MOMMY_COMPLIMENTS='desire bread'"
 
                 When run "$MOMMY_EXEC" $1"echo a b c"
                 The output should equal "a b c"
@@ -356,7 +479,7 @@ Describe "mommy:"
                 It "fails if '--status' is used with '--pipefail'"
                     When run "$MOMMY_EXEC" -p -s 0
                     The output should not be present
-                    The error should include "mommy supports option '-p' or '--pipefail' only"
+                    The error should include "mommy supports option -p/--pipefail only"
                     The status should be failure
                 End
             End
@@ -365,7 +488,7 @@ Describe "mommy:"
                 Parameters:value "-e " "--eval="
 
                 It "considers the command a success if all parts succeed [$1]"
-                    set_config "MOMMY_COMPLIMENTS='milk literary'"
+                    write_conf "MOMMY_COMPLIMENTS='milk literary'"
 
                     When run "$MOMMY_EXEC" $1"echo 'faith cap' | grep -q 'faith'"
                     The error should equal "milk literary"
@@ -373,7 +496,7 @@ Describe "mommy:"
                 End
 
                 It "considers the command a failure if the last part fails [$1]"
-                    set_config "MOMMY_ENCOURAGEMENTS='bear cupboard'"
+                    write_conf "MOMMY_ENCOURAGEMENTS='bear cupboard'"
 
                     When run "$MOMMY_EXEC" $1"echo 'try thick' | grep -q 'sail'"
                     The error should equal "bear cupboard"
@@ -381,7 +504,7 @@ Describe "mommy:"
                 End
 
                 It "considers the command a success even if only a non-last part fails [$1]"
-                    set_config "MOMMY_COMPLIMENTS='pony skin'"
+                    write_conf "MOMMY_COMPLIMENTS='pony skin'"
 
                     When run "$MOMMY_EXEC" $1"echo 'dozen pluck' | grep -q 'prize' | cat"
                     The error should equal "pony skin"
@@ -398,7 +521,7 @@ Describe "mommy:"
                 Parameters:value "-p -e " "-p --eval=" "-pe " "--pipefail -e " "--pipefail --eval="
 
                 It "considers the command a success if all parts succeed [$1]"
-                    set_config "MOMMY_COMPLIMENTS='rung jam'"
+                    write_conf "MOMMY_COMPLIMENTS='rung jam'"
 
                     When run "$MOMMY_EXEC" $1"echo 'shy fairy' | grep -q 'shy' | cat"
                     The error should equal "rung jam"
@@ -406,7 +529,7 @@ Describe "mommy:"
                 End
 
                 It "considers the command a failure if the last part fails [$1]"
-                    set_config "MOMMY_ENCOURAGEMENTS='tasty gate'"
+                    write_conf "MOMMY_ENCOURAGEMENTS='tasty gate'"
 
                     When run "$MOMMY_EXEC" $1"echo 'video node' | grep -q 'grand'"
                     The error should equal "tasty gate"
@@ -414,7 +537,7 @@ Describe "mommy:"
                 End
 
                 It "considers the command a failure even if only a non-last part fails [$1]"
-                    set_config "MOMMY_ENCOURAGEMENTS='old week'"
+                    write_conf "MOMMY_ENCOURAGEMENTS='old week'"
 
                     When run "$MOMMY_EXEC" $1"echo 'seed high' | grep -q 'clue' | cat"
                     The error should equal "old week"
@@ -435,12 +558,12 @@ Describe "mommy:"
             It "gives an error when the given status is not an integer [$1]"
                 When run "$MOMMY_EXEC" $1"kick" true
                 The error should equal \
-                    "mommy expected the argument for option '$(strip_opt "$1")' to be an integer, but it was 'kick'~"
+                    "mommy expected the argument for option '$(strip_opt "$1")' to be an integer, but was 'kick'~"
                 The status should be failure
             End
 
             It "writes a compliment to stderr if the status is 0 [$1]"
-                set_config "MOMMY_COMPLIMENTS='station top'"
+                write_conf "MOMMY_COMPLIMENTS='station top'"
 
                 When run "$MOMMY_EXEC" $1"0"
                 The error should equal "station top"
@@ -448,7 +571,7 @@ Describe "mommy:"
             End
 
             It "writes an encouragement to stderr if the status is non-0 [$1]"
-                set_config "MOMMY_ENCOURAGEMENTS='mend journey'"
+                write_conf "MOMMY_ENCOURAGEMENTS='mend journey'"
 
                 When run "$MOMMY_EXEC" $1"1"
                 The error should equal "mend journey"
@@ -467,7 +590,7 @@ Describe "mommy:"
         Describe "templates:"
             Describe "selection sources:"
                 It "chooses from 'MOMMY_COMPLIMENTS'"
-                    set_config "MOMMY_COMPLIMENTS='spill drown'"
+                    write_conf "MOMMY_COMPLIMENTS='spill drown'"
 
                     When run "$MOMMY_EXEC" true
                     The error should equal "spill drown"
@@ -475,7 +598,7 @@ Describe "mommy:"
                 End
 
                 It "chooses from 'MOMMY_COMPLIMENTS_EXTRA'"
-                    set_config "MOMMY_COMPLIMENTS='';MOMMY_COMPLIMENTS_EXTRA='bill lump'"
+                    write_conf "MOMMY_COMPLIMENTS='';MOMMY_COMPLIMENTS_EXTRA='bill lump'"
 
                     When run "$MOMMY_EXEC" true
                     The error should equal "bill lump"
@@ -483,7 +606,7 @@ Describe "mommy:"
                 End
 
                 It "outputs nothing if no compliments are set"
-                    set_config "MOMMY_COMPLIMENTS='';MOMMY_COMPLIMENTS_EXTRA=''"
+                    write_conf "MOMMY_COMPLIMENTS='';MOMMY_COMPLIMENTS_EXTRA=''"
 
                     When run "$MOMMY_EXEC" true
                     The error should not be present
@@ -493,7 +616,7 @@ Describe "mommy:"
 
             Describe "separators:"
                 It "inserts a separator between 'MOMMY_COMPLIMENTS' and 'MOMMY_COMPLIMENTS_EXTRA'"
-                    set_config "MOMMY_COMPLIMENTS='curse';MOMMY_COMPLIMENTS_EXTRA='dear'"
+                    write_conf "MOMMY_COMPLIMENTS='curse';MOMMY_COMPLIMENTS_EXTRA='dear'"
 
                     When run "$MOMMY_EXEC" true
                     The error should not equal "curse dear"
@@ -501,7 +624,7 @@ Describe "mommy:"
                 End
 
                 It "uses / as a separator"
-                    set_config "MOMMY_COMPLIMENTS='boy/only'"
+                    write_conf "MOMMY_COMPLIMENTS='boy/only'"
 
                     When run "$MOMMY_EXEC" true
                     The error should not equal "boy/only"
@@ -509,7 +632,7 @@ Describe "mommy:"
                 End
 
                 It "uses a newline as a separator"
-                    set_config "MOMMY_COMPLIMENTS='salt${n}staff'"
+                    write_conf "MOMMY_COMPLIMENTS='salt${n}staff'"
 
                     When run "$MOMMY_EXEC" true
                     The error should not equal "salt${n}staff"
@@ -519,7 +642,7 @@ Describe "mommy:"
                 It "removes entries containing only whitespace"
                     # Probability of ~1/30 to pass even if code is buggy
 
-                    set_config "MOMMY_COMPLIMENTS='  /  /wage rot/  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  '"
+                    write_conf "MOMMY_COMPLIMENTS='  /  /wage rot/  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  /  '"
 
                     When run "$MOMMY_EXEC" true
                     The error should equal "wage rot"
@@ -529,7 +652,7 @@ Describe "mommy:"
 
             Describe "comments:"
                 It "ignores lines starting with '#'"
-                    set_config "MOMMY_COMPLIMENTS='weaken${n}#egg'"
+                    write_conf "MOMMY_COMPLIMENTS='weaken${n}#egg'"
 
                     When run "$MOMMY_EXEC" true
                     The error should equal "weaken"
@@ -537,7 +660,7 @@ Describe "mommy:"
                 End
 
                 It "does not ignore lines starting with ' #'"
-                    set_config "MOMMY_COMPLIMENTS=' #seat'"
+                    write_conf "MOMMY_COMPLIMENTS=' #seat'"
 
                     When run "$MOMMY_EXEC" true
                     The error should equal " #seat"
@@ -545,7 +668,7 @@ Describe "mommy:"
                 End
 
                 It "does not ignore lines with a '#' not at the start"
-                    set_config "MOMMY_COMPLIMENTS='lo#ud'"
+                    write_conf "MOMMY_COMPLIMENTS='lo#ud'"
 
                     When run "$MOMMY_EXEC" true
                     The error should equal "lo#ud"
@@ -553,7 +676,7 @@ Describe "mommy:"
                 End
 
                 It "ignores the '/' in a comment line"
-                    set_config "MOMMY_COMPLIMENTS='figure${n}#penny/some'"
+                    write_conf "MOMMY_COMPLIMENTS='figure${n}#penny/some'"
 
                     When run "$MOMMY_EXEC" true
                     The error should equal "figure"
@@ -563,7 +686,7 @@ Describe "mommy:"
 
             Describe "whitespace in entries:"
                 It "retains leading whitespace in an entry"
-                    set_config "MOMMY_COMPLIMENTS=' rake fix'"
+                    write_conf "MOMMY_COMPLIMENTS=' rake fix'"
 
                     When run "$MOMMY_EXEC" true
                     The error should equal " rake fix"
@@ -571,7 +694,7 @@ Describe "mommy:"
                 End
 
                 It "retains trailing whitespace in an entry"
-                    set_config "MOMMY_COMPLIMENTS='read wealth '"
+                    write_conf "MOMMY_COMPLIMENTS='read wealth '"
 
                     When run "$MOMMY_EXEC" true
                     The error should equal "read wealth "
@@ -581,7 +704,7 @@ Describe "mommy:"
 
             Describe "toggling:"
                 It "outputs nothing if a command succeeds but compliments are disabled"
-                    set_config "MOMMY_COMPLIMENTS_ENABLED='0'"
+                    write_conf "MOMMY_COMPLIMENTS_ENABLED='0'"
 
                     When run "$MOMMY_EXEC" true
                     The error should not be present
@@ -589,7 +712,7 @@ Describe "mommy:"
                 End
 
                 It "outputs nothing if a command fails but encouragements are disabled"
-                    set_config "MOMMY_ENCOURAGEMENTS_ENABLED='0'"
+                    write_conf "MOMMY_ENCOURAGEMENTS_ENABLED='0'"
 
                     When run "$MOMMY_EXEC" false
                     The error should not be present
@@ -600,7 +723,7 @@ Describe "mommy:"
 
         Describe "template variables:"
             It "escapes sed-specific characters"
-                set_config "MOMMY_COMPLIMENTS='>%%SWEETIE%%<';MOMMY_SWEETIE='&\\'"
+                write_conf "MOMMY_COMPLIMENTS='>%%SWEETIE%%<';MOMMY_SWEETIE='&\\'"
 
                 When run "$MOMMY_EXEC" true
                 The error should equal ">&\\<"
@@ -608,7 +731,7 @@ Describe "mommy:"
             End
 
             It "replaces %%SWEETIE%%"
-                set_config "MOMMY_COMPLIMENTS='>%%SWEETIE%%<';MOMMY_SWEETIE='attempt'"
+                write_conf "MOMMY_COMPLIMENTS='>%%SWEETIE%%<';MOMMY_SWEETIE='attempt'"
 
                 When run "$MOMMY_EXEC" true
                 The error should equal ">attempt<"
@@ -616,7 +739,7 @@ Describe "mommy:"
             End
 
             It "replaces %%CAREGIVER%%"
-                set_config "MOMMY_COMPLIMENTS='>%%CAREGIVER%%<';MOMMY_CAREGIVER='help'"
+                write_conf "MOMMY_COMPLIMENTS='>%%CAREGIVER%%<';MOMMY_CAREGIVER='help'"
 
                 When run "$MOMMY_EXEC" true
                 The error should equal ">help<"
@@ -624,7 +747,7 @@ Describe "mommy:"
             End
 
             It "replaces %%N%%"
-                set_config "MOMMY_COMPLIMENTS='>bottom%%N%%stimky<'"
+                write_conf "MOMMY_COMPLIMENTS='>bottom%%N%%stimky<'"
 
                 When run "$MOMMY_EXEC" true
                 The error should equal ">bottom
@@ -633,7 +756,7 @@ stimky<"
             End
 
             It "replaces %%S%%"
-                set_config "MOMMY_COMPLIMENTS='>global%%S%%seminar<'"
+                write_conf "MOMMY_COMPLIMENTS='>global%%S%%seminar<'"
 
                 When run "$MOMMY_EXEC" true
                 The error should equal ">global/seminar<"
@@ -641,7 +764,7 @@ stimky<"
             End
 
             It "replaces %%_%%"
-                set_config "MOMMY_COMPLIMENTS='>model%%_%%punish<'"
+                write_conf "MOMMY_COMPLIMENTS='>model%%_%%punish<'"
 
                 When run "$MOMMY_EXEC" true
                 The error should equal ">model punish<"
@@ -649,7 +772,7 @@ stimky<"
             End
 
             It "replaces %%_%% inside pronouns"
-                set_config "MOMMY_COMPLIMENTS='>%%THEY%%<';MOMMY_PRONOUNS='nor%%_%%mal tumble source land storm'"
+                write_conf "MOMMY_COMPLIMENTS='>%%THEY%%<';MOMMY_PRONOUNS='nor%%_%%mal tumble source land storm'"
 
                 When run "$MOMMY_EXEC" true
                 The error should equal ">nor mal<"
@@ -657,7 +780,7 @@ stimky<"
             End
 
             It "prepends the prefix"
-                set_config "MOMMY_COMPLIMENTS='<';MOMMY_PREFIX='woolen'"
+                write_conf "MOMMY_COMPLIMENTS='<';MOMMY_PREFIX='woolen'"
 
                 When run "$MOMMY_EXEC" true
                 The error should equal "woolen<"
@@ -665,7 +788,7 @@ stimky<"
             End
 
             It "appends the suffix"
-                set_config "MOMMY_COMPLIMENTS='>';MOMMY_SUFFIX='respect'"
+                write_conf "MOMMY_COMPLIMENTS='>';MOMMY_SUFFIX='respect'"
 
                 When run "$MOMMY_EXEC" true
                 The error should equal ">respect"
@@ -677,7 +800,7 @@ stimky<"
                 # Probability of 1/(26^4)=1/456976 to fail even if code is correct.
 
                 caregiver="a/b/c/d/e/f/g/h/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z"
-                set_config "MOMMY_COMPLIMENTS='>%%CAREGIVER%%<';MOMMY_CAREGIVER='$caregiver'"
+                write_conf "MOMMY_COMPLIMENTS='>%%CAREGIVER%%<';MOMMY_CAREGIVER='$caregiver'"
 
                 output1=$("$MOMMY_EXEC" true 2>&1)
                 output2=$("$MOMMY_EXEC" true 2>&1)
@@ -695,7 +818,7 @@ stimky<"
             End
 
             It "chooses the empty string if a variable is not set"
-                set_config "MOMMY_COMPLIMENTS='>%%SWEETIE%%|%%THEIR%%<';MOMMY_SWEETIE='';MOMMY_PRONOUNS=''"
+                write_conf "MOMMY_COMPLIMENTS='>%%SWEETIE%%|%%THEIR%%<';MOMMY_SWEETIE='';MOMMY_PRONOUNS=''"
 
                 When run "$MOMMY_EXEC" true
                 The error should equal ">|<"
@@ -704,7 +827,7 @@ stimky<"
 
             Describe "pronouns:"
                 It "replaces %%THEY%%"
-                    set_config "MOMMY_COMPLIMENTS='>%%THEY%%<';MOMMY_PRONOUNS='front lean weekend range great'"
+                    write_conf "MOMMY_COMPLIMENTS='>%%THEY%%<';MOMMY_PRONOUNS='front lean weekend range great'"
 
                     When run "$MOMMY_EXEC" true
                     The error should equal ">front<"
@@ -712,7 +835,7 @@ stimky<"
                 End
 
                 It "replaces %%THEM%%"
-                    set_config "MOMMY_COMPLIMENTS='>%%THEM%%<';MOMMY_PRONOUNS='paint heighten well have spoil'"
+                    write_conf "MOMMY_COMPLIMENTS='>%%THEM%%<';MOMMY_PRONOUNS='paint heighten well have spoil'"
 
                     When run "$MOMMY_EXEC" true
                     The error should equal ">heighten<"
@@ -720,7 +843,7 @@ stimky<"
                 End
 
                 It "replaces %%THEIR%%"
-                    set_config "MOMMY_COMPLIMENTS='>%%THEIR%%<';MOMMY_PRONOUNS='sink satisfy razor fox dirty'"
+                    write_conf "MOMMY_COMPLIMENTS='>%%THEIR%%<';MOMMY_PRONOUNS='sink satisfy razor fox dirty'"
 
                     When run "$MOMMY_EXEC" true
                     The error should equal ">razor<"
@@ -728,7 +851,7 @@ stimky<"
                 End
 
                 It "replaces %%THEIRS%%"
-                    set_config "MOMMY_COMPLIMENTS='>%%THEIRS%%<';MOMMY_PRONOUNS='medal worth ride thrust poetry'"
+                    write_conf "MOMMY_COMPLIMENTS='>%%THEIRS%%<';MOMMY_PRONOUNS='medal worth ride thrust poetry'"
 
                     When run "$MOMMY_EXEC" true
                     The error should equal ">thrust<"
@@ -736,7 +859,7 @@ stimky<"
                 End
 
                 It "replaces %%THEMSELF%%"
-                    set_config "MOMMY_COMPLIMENTS='>%%THEMSELF%%<';MOMMY_PRONOUNS='accept belong fever forge manner'"
+                    write_conf "MOMMY_COMPLIMENTS='>%%THEMSELF%%<';MOMMY_PRONOUNS='accept belong fever forge manner'"
 
                     When run "$MOMMY_EXEC" true
                     The error should equal ">manner<"
@@ -744,7 +867,7 @@ stimky<"
                 End
 
                 It "replaces %%THEIRS%% with an induced default value if only three words are given"
-                    set_config "MOMMY_COMPLIMENTS='>%%THEIRS%%<';MOMMY_PRONOUNS='singer medium bow'"
+                    write_conf "MOMMY_COMPLIMENTS='>%%THEIRS%%<';MOMMY_PRONOUNS='singer medium bow'"
 
                     When run "$MOMMY_EXEC" true
                     The error should equal ">bows<"
@@ -752,7 +875,7 @@ stimky<"
                 End
 
                 It "replaces %%THEMSELF%% with an induced default value if only three words are given"
-                    set_config "MOMMY_COMPLIMENTS='>%%THEMSELF%%<';MOMMY_PRONOUNS='load aunt hell'"
+                    write_conf "MOMMY_COMPLIMENTS='>%%THEMSELF%%<';MOMMY_PRONOUNS='load aunt hell'"
 
                     When run "$MOMMY_EXEC" true
                     The error should equal ">auntself<"
@@ -760,7 +883,7 @@ stimky<"
                 End
 
                 It "chooses a consistent set of pronouns"
-                    set_config "MOMMY_COMPLIMENTS='>%%THEY%%.%%THEM%%.%%THEIR%%.%%THEIRS%%.%%THEMSELF%%<';\
+                    write_conf "MOMMY_COMPLIMENTS='>%%THEY%%.%%THEM%%.%%THEIR%%.%%THEIRS%%.%%THEMSELF%%<';\
                                 MOMMY_PRONOUNS='a b c d e/f g h i j'"
 
                     When run "$MOMMY_EXEC" true
@@ -772,7 +895,7 @@ stimky<"
 
         Describe "capitalization:"
             It "changes the first character to lowercase if configured to 0"
-                set_config "MOMMY_COMPLIMENTS='Alive station';MOMMY_CAPITALIZE='0'"
+                write_conf "MOMMY_COMPLIMENTS='Alive station';MOMMY_CAPITALIZE='0'"
 
                 When run "$MOMMY_EXEC" true
                 The error should equal "alive station"
@@ -780,7 +903,7 @@ stimky<"
             End
 
             It "changes the first character to uppercase if configured to 1"
-                set_config "MOMMY_COMPLIMENTS='inquiry speech';MOMMY_CAPITALIZE='1'"
+                write_conf "MOMMY_COMPLIMENTS='inquiry speech';MOMMY_CAPITALIZE='1'"
 
                 When run "$MOMMY_EXEC" true
                 The error should equal "Inquiry speech"
@@ -788,7 +911,7 @@ stimky<"
             End
 
             It "uses the template's original capitalization if configured to the empty string"
-                set_config "MOMMY_COMPLIMENTS='Medicine frighten';MOMMY_CAPITALIZE="
+                write_conf "MOMMY_COMPLIMENTS='Medicine frighten';MOMMY_CAPITALIZE="
 
                 When run "$MOMMY_EXEC" true
                 The error should equal "Medicine frighten"
@@ -796,7 +919,7 @@ stimky<"
             End
 
             It "uses the template's original capitalization if configured to anything else"
-                set_config "MOMMY_COMPLIMENTS='Belong shore';MOMMY_CAPITALIZE='2'"
+                write_conf "MOMMY_COMPLIMENTS='Belong shore';MOMMY_CAPITALIZE='2'"
 
                 When run "$MOMMY_EXEC" true
                 The error should equal "Belong shore"
@@ -809,7 +932,7 @@ stimky<"
             Parameters:value 1 2 3 4 5
 
             It "removes the template that equals the forbidden word [$1]"
-                set_config "MOMMY_COMPLIMENTS='mother search/fierce along';MOMMY_FORBIDDEN_WORDS='search'"
+                write_conf "MOMMY_COMPLIMENTS='mother search/fierce along';MOMMY_FORBIDDEN_WORDS='search'"
 
                 When run "$MOMMY_EXEC" true
                 The error should equal "fierce along"
@@ -817,7 +940,7 @@ stimky<"
             End
 
             It "removes the template that contains the forbidden word [$1]"
-                set_config "MOMMY_COMPLIMENTS='clear bow flow/horn origin tired';MOMMY_FORBIDDEN_WORDS='bow'"
+                write_conf "MOMMY_COMPLIMENTS='clear bow flow/horn origin tired';MOMMY_FORBIDDEN_WORDS='bow'"
 
                 When run "$MOMMY_EXEC" true
                 The error should equal "horn origin tired"
@@ -825,7 +948,7 @@ stimky<"
             End
 
             It "removes all templates that contain a forbidden word [$1]"
-                set_config "MOMMY_COMPLIMENTS='after boundary/failure school/instant delay';\
+                write_conf "MOMMY_COMPLIMENTS='after boundary/failure school/instant delay';\
                             MOMMY_FORBIDDEN_WORDS='instant/boundary'"
 
                 When run "$MOMMY_EXEC" true
@@ -834,7 +957,7 @@ stimky<"
             End
 
             It "removes all templates that match the bracket expansion [$1]"
-                set_config "MOMMY_COMPLIMENTS='a/z/c';MOMMY_FORBIDDEN_WORDS='[ac]'"
+                write_conf "MOMMY_COMPLIMENTS='a/z/c';MOMMY_FORBIDDEN_WORDS='[ac]'"
 
                 When run "$MOMMY_EXEC" true
                 The error should equal "z"
@@ -842,7 +965,7 @@ stimky<"
             End
 
             It "removes all templates that match the bracket expansion range [$1]"
-                set_config "MOMMY_COMPLIMENTS='a/b/c/z';MOMMY_FORBIDDEN_WORDS='[a-c]'"
+                write_conf "MOMMY_COMPLIMENTS='a/b/c/z';MOMMY_FORBIDDEN_WORDS='[a-c]'"
 
                 When run "$MOMMY_EXEC" true
                 The error should equal "z"
@@ -850,7 +973,7 @@ stimky<"
             End
 
             It "maps octal escapes to the corresponding character [$1]"
-                set_config "MOMMY_COMPLIMENTS='z/a/b';MOMMY_FORBIDDEN_WORDS='[\0141\0142]'"
+                write_conf "MOMMY_COMPLIMENTS='z/a/b';MOMMY_FORBIDDEN_WORDS='[\0141\0142]'"
 
                 When run "$MOMMY_EXEC" true
                 The error should equal "z"
@@ -858,7 +981,7 @@ stimky<"
             End
 
             It "maps octal escapes to the corresponding character in a range [$1]"
-                set_config "MOMMY_COMPLIMENTS='z/a/b';MOMMY_FORBIDDEN_WORDS='[\0141\0142]'"
+                write_conf "MOMMY_COMPLIMENTS='z/a/b';MOMMY_FORBIDDEN_WORDS='[\0141\0142]'"
 
                 When run "$MOMMY_EXEC" true
                 The error should equal "z"
@@ -866,7 +989,7 @@ stimky<"
             End
 
             It "supports the | in a regex [$1]"
-                set_config "MOMMY_COMPLIMENTS='dinner/rent/shot';MOMMY_FORBIDDEN_WORDS='(dinner|rent)'"
+                write_conf "MOMMY_COMPLIMENTS='dinner/rent/shot';MOMMY_FORBIDDEN_WORDS='(dinner|rent)'"
 
                 When run "$MOMMY_EXEC" true
                 The error should equal "shot"
@@ -874,7 +997,7 @@ stimky<"
             End
 
             It "does not output anything even if the list only matches after variable substitutions [$1]"
-                set_config "MOMMY_COMPLIMENTS='%%THEY%%%%THEM%%';\
+                write_conf "MOMMY_COMPLIMENTS='%%THEY%%%%THEM%%';\
                             MOMMY_PRONOUNS='a b c d e';\
                             MOMMY_FORBIDDEN_WORDS='(ab)'"
 
@@ -898,7 +1021,7 @@ stimky<"
             End
 
             It "outputs something if no exit code is suppressed"
-                set_config "MOMMY_IGNORED_STATUSES=''"
+                write_conf "MOMMY_IGNORED_STATUSES=''"
 
                 When run "$MOMMY_EXEC" exit 130
                 The error should be present
@@ -906,7 +1029,7 @@ stimky<"
             End
 
             It "output nothing if the exit code is the configured value"
-                set_config "MOMMY_IGNORED_STATUSES='32'"
+                write_conf "MOMMY_IGNORED_STATUSES='32'"
 
                 When run "$MOMMY_EXEC" exit 32
                 The error should not be present
@@ -914,7 +1037,7 @@ stimky<"
             End
 
             It "does not output anything if the exit code is one of the configured values"
-                set_config "MOMMY_IGNORED_STATUSES='32/84/89'"
+                write_conf "MOMMY_IGNORED_STATUSES='32/84/89'"
 
                 When run "$MOMMY_EXEC" exit 84
                 The error should not be present

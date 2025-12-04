@@ -73,6 +73,7 @@ MOMMY_IGNORED_STATUSES="130"
 #endregion
 
 
+#region Helper functions
 #region Input validation
 # Writes whitespace-concatenated input arguments to stderr and exits.
 die() { printf "%s\n" "$*" >&2; exit 1; }
@@ -83,9 +84,54 @@ require_arg() { if [ "x" = "x$OPTARG" ]; then die "mommy is missing the argument
 # Dies if `$OPTARG` is not a non-negative integer.
 require_int() {
     case "$OPTARG" in
-    ""|*[!0123456789]*) die "mommy expected the argument for option '$OPT' to be an integer, but it was '$OPTARG'~" ;;
+    ""|*[!0123456789]*) die "mommy expected the argument for option '$OPT' to be an integer, but was '$OPTARG'~" ;;
     *) return 0 ;;
     esac
+}
+
+# Dies if `$OPTARG` contains the symbol '.' or the symbol '/'
+require_not_path() {
+    case "$OPTARG" in
+    *.*|*/*) die "mommy expected the argument for option '$OPT' to contain neither '.' nor '/', but was '$OPTARG'~" ;;
+    *) return 0 ;;
+    esac
+}
+#endregion
+
+
+#region Config files
+# Traverses `:`-separated directories in `$1`, finds the first directory in which the file `$2` exists and is readable,
+# and stores the path to that file in `$locate_config__result`, returning 0 if and only if such a file was found.
+locate_config() {
+    locate_config__dirs="$1"
+    locate_config__dir=""
+    locate_config__result=""
+
+    while [ "x$locate_config__dirs" != "x$locate_config__dir" ] ;do
+        locate_config__dir="${locate_config__dirs%%:*}"
+        locate_config__dirs="${locate_config__dirs#"$locate_config__dir":}"
+
+        if [ -f "$locate_config__dir/$2" ] && [ -r "$locate_config__dir/$2" ]; then
+            locate_config__result="$locate_config__dir/$2"
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+# If `$1` is set, and refers to a readable file, then `$1` is sourced and written to `$locate_config__result`.
+# Otherwise, if `$1` is not set, then `$locate_config__result` is sourced unconditionally.
+load_config() {
+    if [ "x" != "x$1" ]; then
+        if [ ! -f "$1" ] || [ ! -r "$1" ]; then
+            return 1
+        fi
+        locate_config__result="$1"
+    fi
+
+    # shellcheck disable=SC1090 # User-defined target
+    . "$locate_config__result"
 }
 #endregion
 
@@ -329,9 +375,10 @@ fill_template() {
     return 0
 }
 #endregion
+#endregion
 
 
-#region Read command arguments
+#region Read command options
 opt_help=""
 opt_version=""
 opt_eval=""
@@ -339,12 +386,14 @@ opt_pipefail=""
 opt_status=""
 opt_target="2"
 opt_toggle=""
-opt_config="${XDG_CONFIG_HOME:-"$HOME/.config"}/mommy/config.sh"
-opt_global_config_dirs="${XDG_CONFIG_DIRS}:/etc/mommy/:/usr/local/etc/mommy/"
+opt_role=""
+opt_user_config_dir="${XDG_CONFIG_HOME:-"$HOME/.config"}"
+opt_user_config_path=""
+opt_global_config_dirs="${XDG_CONFIG_DIRS}:/etc/:/usr/local/etc/"
 
 # Config string for getopts describes only short options. Starts with ':', then one letter for each short option. Each
 # short option can be followed by ':' to indicate that it takes an argument.
-while getopts ":hve:ps:1tc:d:-:" OPT; do
+while getopts ":hve:ps:1tr:c:u:d:-:" OPT; do
     # Cheap workaround for long options, see https://stackoverflow.com/a/28466267
     if [ "-" = "$OPT" ]; then
         OPT="${OPTARG%%=*}"
@@ -361,7 +410,9 @@ while getopts ":hve:ps:1tc:d:-:" OPT; do
     s|status) require_arg; require_int; opt_status="$OPTARG" ;;
     1) opt_target="1" ;;
     t|toggle) opt_toggle="1" ;;
-    c|config) opt_config="$OPTARG" ;;
+    r|role) require_arg; require_not_path; opt_role="$OPTARG" ;;
+    c|config) opt_user_config_path="$OPTARG" ;;
+    u|user-config-dir) require_arg; opt_user_config_dir="$OPTARG" ;;
     d|global-config-dirs) require_arg; opt_global_config_dirs="$OPTARG" ;;
     :) die "mommy's last option is missing its argument~" ;;
     ?) die "mommy doesn't know option -$OPTARG~" ;;
@@ -373,35 +424,6 @@ shift "$((OPTIND - 1))"
 #endregion
 
 
-#region Load configuration files
-# Global
-config_dir=""
-while [ "x$opt_global_config_dirs" != "x$config_dir" ] ;do
-    config_dir="${opt_global_config_dirs%%:*}"
-    opt_global_config_dirs="${opt_global_config_dirs#"$config_dir":}"
-
-    if [ -d "$config_dir" ] && [ -f "$config_dir/config.sh" ] && [ -r "$config_dir/config.sh" ]; then
-        . "$config_dir/config.sh"
-        break
-    fi
-done
-
-# User
-# shellcheck disable=SC1090 # User-defined target
-[ -f "$opt_config" ] && [ -r "$opt_config" ] && . "$opt_config"
-#endregion
-
-
-#region Parse state
-state_dir="${XDG_STATE_HOME:-"$HOME/.local/state"}/mommy/"
-
-# Toggle output. 0 = state file exists = no output. 1 = state file does not exist = regular output
-state_toggle_path="$state_dir/toggle"
-test -f "$state_toggle_path"; state_toggle="$?"
-#endregion
-
-
-#region Determine output
 #region Help and version information
 if [ "x" != "x$opt_help" ]; then
     man mommy
@@ -420,13 +442,44 @@ elif [ "x" != "x$opt_version" ]; then
 fi
 #endregion
 
-#region Validate input arguments
+
+#region Validate command options
 if [ "x" != "x$opt_pipefail" ] && [ "x" = "x$opt_eval" ]; then
-    die "mommy supports option '-p' or '--pipefail' only when using '-e' or '--eval'~"
+    die "mommy supports option -p/--pipefail only when using -e/--eval~"
 fi
 #endregion
 
-#region Toggling and command execution
+
+#region Load config and state
+## Config
+if locate_config "$opt_global_config_dirs" "mommy/config.sh"; then
+    load_config
+fi
+
+if [ "x" != "x$opt_user_config_path" ]; then
+    load_config "$opt_user_config_path"
+elif locate_config "$opt_user_config_dir" "mommy/config.sh"; then
+    load_config
+fi
+
+if [ "x" != "x$opt_role" ]; then
+    if locate_config "$opt_user_config_dir:$opt_global_config_dirs" "mommy/roles/$opt_role.sh"; then
+        load_config
+    else
+        die "mommy does not know the role '$opt_role'~"
+    fi
+fi
+
+## State
+state_dir="${XDG_STATE_HOME:-"$HOME/.local/state"}/mommy/"
+
+# Toggle output. 0 = state file exists = no output. 1 = state file does not exist = regular output
+state_toggle_path="$state_dir/toggle"
+test -f "$state_toggle_path"; state_toggle="$?"
+#endregion
+
+
+#region Determine output
 if [ "x" != "x$opt_toggle" ]; then
     if [ "0" -eq "$state_toggle" ]; then
         if ! rm -- "$state_toggle_path"; then die "mommy could not delete the state file~"; fi
@@ -488,5 +541,4 @@ else
 
     exit "$command_exit_code"
 fi
-#endregion
 #endregion

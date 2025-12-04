@@ -39,12 +39,9 @@ mommy_clean_tmp() {
 }
 
 mommy_before_each() {
-    mkdir -p "$MOMMY_TMP_DIR" "$MOMMY_TMP_DIR/global1/" "$MOMMY_TMP_DIR/global2/"
+    mkdir -p "$MOMMY_TMP_DIR"
 }
 
 mommy_after_each() {
-    find "$MOMMY_TMP_DIR" -mindepth 1 \
-        ! -path "$MOMMY_TMP_DIR/global1" \
-        ! -path "$MOMMY_TMP_DIR/global2" \
-        -exec rm -rf {} +
+    find "$MOMMY_TMP_DIR" -mindepth 1 -exec rm -rf {} +
 }

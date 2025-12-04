@@ -908,16 +908,16 @@ you should **not** update the `latest` branch manually!
 mommy recognises _all_ contributors, no matter the size of the contribution.
 if mommy should add, remove, or change anything here, [open an issue](https://github.com/fwdekker/mommy/issues/new) or [contact the author](https://fwdekker.com/about/)~
 
-* mommy thanks [aria beingessner](https://github.com/Gankra) for creating [cargo-mommy](https://github.com/Gankra/cargo-mommy), which inspired mommy to spawn herself into existence~
+* mommy thanks [aria desires](https://github.com/Gankra) for creating [cargo-mommy](https://github.com/Gankra/cargo-mommy), which inspired mommy to spawn herself into existence~
 * mommy thanks [austin burk](https://github.com/sudofox) for creating [shell-mommy](https://github.com/sudofox/shell-mommy) and contributing to the mommy-sphere; mommy did not know about shell-mommy before embarking on her journey, but loves her very much~
 * mommy thanks [natawie](https://github.com/natawie) for [suggesting publishing mommy on copr](https://github.com/fwdekker/mommy/issues/39) and [writing the zsh completions](https://github.com/fwdekker/mommy/pull/48)~
 * mommy thanks [amber sprenkels](https://github.com/dsprenkels) for [reporting a bug](https://github.com/fwdekker/mommy/issues/45), [sharing great ideas](https://github.com/fwdekker/mommy/issues/46), and [making mommy talk less like a robot](https://github.com/fwdekker/mommy/pull/47)~
 * mommy thanks [wei he](https://github.com/wei) for creating [socialify](https://github.com/wei/socialify), which mommy uses for her github social preview~
 * mommy thanks [ckie](https://github.com/ckiee) for [bringing mommy to nixpkgs](https://github.com/NixOS/nixpkgs/pull/250034), [several neat improvements](https://github.com/fwdekker/mommy/pull/61), and for [maintaining the nixpkg](https://github.com/NixOS/nixpkgs/pull/274867)~
 * mommy thanks [aemogie.](https://github.com/aemogie) for [telling her how to integrate with nushell](https://github.com/fwdekker/mommy/issues/65)~
-* mommy thanks [maximilian downey twiss](https://github.com/Zopolis4) for [bumping mommy's actions to their latest versions](https://github.com/fwdekker/mommy/pull/68)~
+* mommy thanks [max downey twiss](https://github.com/Zopolis4) for [bumping mommy's actions to their latest versions](https://github.com/fwdekker/mommy/pull/68)~
 * mommy thanks [fuel-pcbox](https://github.com/fuel-pcbox) for [her suggestion of supporting regexes for forbidden words](https://github.com/fwdekker/mommy/issues/103)~
 * mommy thanks [satyam singh niranjan](https://github.com/Satanarious) for [suggesting powershell support](https://github.com/fwdekker/mommy/issues/124)~
-* mommy thanks [biko](https://github.com/Bikoil) for [making mommy refer to people by their username by default](https://github.com/fwdekker/mommy/issues/131)~
+* mommy thanks [bikolyn](https://github.com/Bikoil) for [making mommy refer to people by their username by default](https://github.com/fwdekker/mommy/issues/131)~
 * mommy thanks [toria](https://github.com/ninetailedtori) for [documenting how to configure starship](https://github.com/fwdekker/mommy/pull/135)~
 * mommy thanks [david scann](https://github.com/DavidScann) for [providing feedback on the toggle feature](https://github.com/fwdekker/mommy/issues/46#issuecomment-2888498320)~
