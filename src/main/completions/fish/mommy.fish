@@ -1,5 +1,3 @@
-#!/bin/fish
-
 ## Helper functions
 # Extracts the non-option commands from `$argv` and writes to stdout.
 # For example, given `mommy -c ./config.sh apt update -f`, writes `apt update -f`.

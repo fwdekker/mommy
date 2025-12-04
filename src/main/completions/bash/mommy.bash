@@ -1,5 +1,3 @@
-#!/bin/bash
-
 ## Four basics to writing Bash completions:
 # COMPREPLY - array for possible completions
 # COMP_WORDS - array of individual arguments typed so far
