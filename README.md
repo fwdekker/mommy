@@ -54,15 +54,15 @@ find your operating system and package manager for the right instructions~
 <summary>arch linux</summary>
 
 * **arch user repository** (automatic updates)  
-  installs from the [arch user repository](https://aur.archlinux.org/packages/mommy), allowing for automatic updates.
+  installs from the [arch user repository](https://aur.archlinux.org/packages/mommy) (or the [package from latest commit](https://aur.archlinux.org/packages/mommy-git)), allowing for automatic updates.
   you should probably use [an aur helper](https://wiki.archlinux.org/title/AUR_helpers) to do this:
   ```shell
   # if you use yay
-  yay -S mommy
+  yay -S mommy(-git)
   # if you use paru
-  paru -S mommy
+  paru -S mommy(-git)
   # if you use aura
-  aura -A mommy
+  aura -A mommy(-git)
   # and so on
   ```
 * **homebrew** (automatic updates)  
@@ -455,7 +455,7 @@ after that, she will read the user-specific **local** config file, overriding th
     2. mommy traverses this list, and stops once she finds a directory that contains the file `config.sh`.
        this file will be the global config file~
 * to find the **local** config file, mommy runs the following procedure.
-    1. if a config file is specified using a [command-line option](#usage), that file is used. 
+    1. if a config file is specified using a [command-line option](#usage), that file is used.
     2. if `$XDG_CONFIG_HOME` is defined, the file `$XDG_CONFIG_HOME/mommy/config.sh` is used.
     3. otherwise, `$HOME/.config/mommy/config.sh` is used~
 </details>
@@ -646,9 +646,9 @@ some steps vary depending on [how and where you installed mommy](#installation)~
 <details>
 <summary><a name="shell-integration--starship"></a>🚀 starship</summary>
 
-[starship](https://starship.rs/) is a cross-shell prompt. 
-unfortunately, [starship doesn't support mommy](https://github.com/fwdekker/mommy/issues/156#issuecomment-3596187052). 
-starship doesn't have any way of passing the previous command's exit code to another program. 
+[starship](https://starship.rs/) is a cross-shell prompt.
+unfortunately, [starship doesn't support mommy](https://github.com/fwdekker/mommy/issues/156#issuecomment-3596187052).
+starship doesn't have any way of passing the previous command's exit code to another program.
 if that feature is ever added, then you can integrate starship with mommy~
 
 </details>
@@ -744,7 +744,7 @@ this section explains some development details of the project, like its file str
 |------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | _project root_               | various configuration files and repository documentation                                                                                                          |
 | `.github/`                   | supplemental files for the repository on github                                                                                                                   |
-| `.github/img/`               | images used in the readme                                                                                                                                         | 
+| `.github/img/`               | images used in the readme                                                                                                                                         |
 | `.github/workflows/`         | github actions definitions                                                                                                                                        |
 | `pkg/`                       | files used by programs that package mommy into distributable files                                                                                                |
 | `pkg/fpm/`                   | changelogs for packages created by `fpm`. more about these changelogs in the [development section in the readme](/?tab=readme-ov-file#%EF%B8%8F-development-top-) |
@@ -848,7 +848,7 @@ let's go into them in more detail~
   some servers host instructions on how to build mommy, but don't do any work beyond that.
   users connect to the server, get the latest instructions, and their system builds mommy for them locally~
 
-  * for **arch linux**, the [arch user repository](https://aur.archlinux.org/) hosts the [mommy package](https://aur.archlinux.org/packages/mommy).
+  * for **arch linux**, the [arch user repository](https://aur.archlinux.org/) hosts the [mommy package](https://aur.archlinux.org/packages/mommy (or the version with latest commit at https://aur.archlinux.org/packages/mommy-git).
     a development mirror is hosted on github in [aur-mommy](https://github.com/fwdekker/aur-mommy)~
   * for **homebrew**, mommy has the [homebrew-mommy](https://github.com/fwdekker/homebrew-mommy) repository on github,
     which is resolved automatically by the brew client based on the repository's name~
@@ -919,5 +919,5 @@ if mommy should add, remove, or change anything here, [open an issue](https://gi
 * mommy thanks [fuel-pcbox](https://github.com/fuel-pcbox) for [her suggestion of supporting regexes for forbidden words](https://github.com/fwdekker/mommy/issues/103)~
 * mommy thanks [satyam singh niranjan](https://github.com/Satanarious) for [suggesting powershell support](https://github.com/fwdekker/mommy/issues/124)~
 * mommy thanks [biko](https://github.com/Bikoil) for [making mommy refer to people by their username by default](https://github.com/fwdekker/mommy/issues/131)~
-* mommy thanks [toria](https://github.com/ninetailedtori) for [documenting how to configure starship](https://github.com/fwdekker/mommy/pull/135)~
+* mommy thanks [toria](https://github.com/ninetailedtori) for [documenting how to configure starship, managing the mommy-git archpkg and adding bash_completions](https://github.com/fwdekker/mommy/pull/135, https://aur.archlinux.org/packages/mommy-git, https://github.com/fwdekker/mommy/pull/170)~
 * mommy thanks [david scann](https://github.com/DavidScann) for [providing feedback on the toggle feature](https://github.com/fwdekker/mommy/issues/46#issuecomment-2888498320)~

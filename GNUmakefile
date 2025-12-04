@@ -7,6 +7,7 @@ dist_dir := dist/
 prefix := /usr/
 bin_prefix = $(prefix)/bin/
 man_prefix = $(prefix)/share/man/
+bash_prefix = $(prefix)/share/bash-completion/completions/
 fish_prefix = $(prefix)/share/fish/vendor_completions.d/
 zsh_prefix = $(prefix)/share/zsh/site-functions/
 
@@ -26,6 +27,7 @@ man_compress_ext := .gz
 %/gentoo: man_compress_ext :=  # The empty string
 %/haiku: prefix = $(build_dir)/haiku/
 %/haiku: man_prefix = $(prefix)/documentation/man/
+%/haiku: bash_prefix = $(prefix)/data/bash-completion/completions/
 %/haiku: fish_prefix = $(prefix)/data/fish/vendor_completions.d/
 %/haiku: zsh_prefix = $(prefix)/data/zsh/site-functions/
 %/netbsd: prefix = $(build_dir)/netbsd/usr/pkg/
@@ -80,6 +82,9 @@ build:
 	@mkdir -p "$(build_dir)/man/man1/"
 	@cp src/main/man/man1/mommy.1 "$(build_dir)/man/man1/"
 
+	@mkdir -p "$(build_dir)/completions/bash/"
+	@cp src/main/completions/bash/mommy.bash "$(build_dir)/completions/bash/"
+
 	@mkdir -p "$(build_dir)/completions/fish/"
 	@cp src/main/completions/fish/mommy.fish "$(build_dir)/completions/fish/"
 
@@ -106,11 +111,12 @@ build/%: build ;
 .PHONY: install
 install: build
 	@# Create directories
-	@install -m 755 -d "$(bin_prefix)" "$(man_prefix)/man1/" "$(fish_prefix)" "$(zsh_prefix)"
+	@install -m 755 -d "$(bin_prefix)" "$(man_prefix)/man1/" "$(bash_prefix)" "$(fish_prefix)" "$(zsh_prefix)"
 
 	@# Copy files
 	@install -m 755 "$(build_dir)/bin/mommy" "$(bin_prefix)"
 	@install -m 644 "$(build_dir)/man/man1/mommy.1$(man_compress_ext)" "$(man_prefix)/man1/"
+	@install -m 644 "$(build_dir)/completions/bash/mommy.bash" "$(bash_prefix)"
 	@install -m 644 "$(build_dir)/completions/fish/mommy.fish" "$(fish_prefix)"
 	@install -m 644 "$(build_dir)/completions/zsh/_mommy" "$(zsh_prefix)"
 
@@ -125,6 +131,7 @@ install/%: install ;
 uninstall:
 	@rm "$(bin_prefix)/mommy"
 	@rm "$(man_prefix)/man1/mommy.1$(man_compress_ext)"
+	@rm "$(bash_prefix)/mommy.bash"
 	@rm "$(fish_prefix)/mommy.fish"
 	@rm "$(zsh_prefix)/_mommy"
 
@@ -234,5 +241,6 @@ fpm/%: build
 		\
 		"$(build_dir)/bin/mommy=$(bin_prefix)/mommy" \
 		"$(build_dir)/man/man1/mommy.1$(man_compress_ext)=$(man_prefix)/man1/mommy.1$(man_compress_ext)" \
+		"$(build_dir)/completions/bash/mommy.bash=$(bash_prefix)/mommy.bash" \
 		"$(build_dir)/completions/fish/mommy.fish=$(fish_prefix)/mommy.fish" \
 		"$(build_dir)/completions/zsh/_mommy=$(zsh_prefix)/_mommy"
