@@ -1,5 +1,3 @@
-#!/bin/zsh
-
 #compdef mommy
 
 local exit_codes state
