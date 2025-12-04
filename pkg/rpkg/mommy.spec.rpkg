@@ -38,6 +38,7 @@ rm -rf "%{_tmppath}/shellspec/"
 %files
 %{_bindir}/mommy
 %doc %{_mandir}/man1/mommy.1.gz
+%{_datarootdir}/bash-completions/completions/mommy.bash
 %{_datarootdir}/fish/vendor_completions.d/mommy.fish
 %{_datarootdir}/zsh/site-functions/_mommy
 
