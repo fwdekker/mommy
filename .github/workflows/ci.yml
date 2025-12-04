@@ -34,8 +34,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Test script
-        # TODO[Workaround]: Enable POSIX 2024 once GitHub uses Ubuntu 25.04 or newer, which includes dash >= v0.5.12-7
-        run: MOMMY_POSIX2024_SKIP=1 make test
+        run: make test
 
       - name: Install fpm and build dependencies
         run: |
@@ -52,8 +51,7 @@ jobs:
           printf "::endgroup::\n"
 
           printf "::group::Test\n"
-          # TODO[Workaround]: Enable POSIX 2024 once GitHub uses Ubuntu 25.04 or newer, which includes dash >= v0.5.12-7
-          MOMMY_SYSTEM=1 MOMMY_POSIX2024_SKIP=1 make test
+          MOMMY_SYSTEM=1 make test
           printf "::endgroup::\n"
 
           printf "::group::Uninstall\n"
@@ -93,8 +91,7 @@ jobs:
           printf "::endgroup::\n"
 
           printf "::group::Test\n"
-          # TODO[Workaround]: Enable POSIX 2024 once GitHub uses Ubuntu 25.04 or newer, which includes dash >= v0.5.12-7
-          MOMMY_SYSTEM=1 MOMMY_POSIX2024_SKIP=1 make test
+          MOMMY_SYSTEM=1 make test
           printf "::endgroup::\n"
 
           printf "::group::Uninstall\n"
