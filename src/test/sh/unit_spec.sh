@@ -648,6 +648,14 @@ stimky<"
                 The status should be success
             End
 
+            It "replaces %%#%%"
+                set_config "MOMMY_COMPLIMENTS='>loud%%#%%talk<'"
+
+                When run "$MOMMY_EXEC" true
+                The error should equal ">loud#talk<"
+                The status should be success
+            End
+
             It "replaces %%_%% inside pronouns"
                 set_config "MOMMY_COMPLIMENTS='>%%THEY%%<';MOMMY_PRONOUNS='nor%%_%%mal tumble source land storm'"
 

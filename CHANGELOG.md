@@ -1,4 +1,10 @@
 # Changelog
+## [9.9.9-unreleased] -- 9999-12-31
+### added
+* 💵 mommy now includes bash completions~ ([#43](https://github.com/fwdekker/mommy/issues/43)) ([#170](https://github.com/fwdekker/mommy/issues/170))
+* #️⃣ mommy now supports templates starting with `#` using `%%#%%`~ ([#173](https://github.com/fwdekker/mommy/issues/173)) ([#TODO](https://github.com/fwdekker/mommy/issues/TODO))
+
+
 ## [1.8.0] -- 2025-12-03
 ### added
 * 🪈 mommy now enables [pipefail](https://stackoverflow.com/q/68465355/) for you when you use `-e`/`--eval` if you also pass the `-p`/`--pipefail` option. if your shell at `/bin/sh` does not support pipefail, you'll receive an error if you do this~ ([#160](https://github.com/fwdekker/mommy/pull/160)) ([#165](https://github.com/fwdekker/mommy/pull/165))
