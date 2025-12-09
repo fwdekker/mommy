@@ -78,7 +78,7 @@ complete --command mommy --short-option 1 \
 # Usage
 complete --command mommy \
     --keep-order \
-    --arguments "(complete --do-complete \"(get_args_with_token)\")" \
+    --arguments "(complete --do-complete \"\$(get_args_with_token)\")" \
     --condition "test -n (get_args_with_token); or not __fish_seen_argument -h --help -v --version -t --toggle -e --eval -p --pipefail -s --status"
 complete --command mommy --short-option e --long-option eval \
     --require-parameter \
