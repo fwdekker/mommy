@@ -32,7 +32,7 @@ jobs:
           printf "::endgroup::\n"
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Test script
         run: make test
 
@@ -63,7 +63,7 @@ jobs:
           NONINTERACTIVE=1 \
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       - name: Checkout homebrew-mommy
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: fwdekker/homebrew-mommy
           path: homebrew-mommy
@@ -140,7 +140,7 @@ jobs:
           printf "::endgroup::\n"
 
       - name: Checkout mommy
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: mommy
       - name: Fix mommy directory ownership
@@ -174,7 +174,7 @@ jobs:
           printf "::endgroup::\n"
 
       - name: Checkout aur-mommy
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: fwdekker/aur-mommy
           path: aur-mommy
@@ -238,7 +238,7 @@ jobs:
           printf "::endgroup::\n"
 
       - name: Checkout mommy
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           # Checkout to subdirectory is required for 'pkg/rpkg/rpkg.conf' to correctly determine '${git_props:root}'
           path: mommy
@@ -311,7 +311,7 @@ jobs:
           printf "::endgroup::\n"
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Test script
         run: make test
 
@@ -336,7 +336,7 @@ jobs:
           printf "::endgroup::\n"
 
       - name: Checkout homebrew-mommy
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: fwdekker/homebrew-mommy
           path: homebrew-mommy
@@ -376,7 +376,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Test script and package
         uses: cross-platform-actions/action@v0.30.0
         with:
@@ -441,7 +441,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Test script and package
         uses: cross-platform-actions/action@v0.30.0
         with:
@@ -495,7 +495,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install dependencies for mommy && Test script && Build package && Test package
         uses: cross-platform-actions/action@v0.30.0
         with:
@@ -574,7 +574,7 @@ jobs:
           printf "::endgroup::\n"
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Test script
         shell: msys2 {0}
         run: make test
@@ -590,7 +590,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Enable nix
         uses: DeterminateSystems/nix-installer-action@main
       - name: Enable cache
@@ -605,7 +605,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Test script and package
         uses: cross-platform-actions/action@v0.30.0
         with:
