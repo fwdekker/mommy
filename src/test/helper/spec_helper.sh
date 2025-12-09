@@ -23,7 +23,14 @@ export MOMMY_TMP_DIR
 export n="
 "
 
-strip_opt() { printf "%s\n" "$1" | sed -E "s/(^-+|[= ])//g"; }
+strip_opt() {
+    strip_opt__out="$1"
+    strip_opt__out="${strip_opt__out#-}"
+    strip_opt__out="${strip_opt__out#-}"
+    strip_opt__out="${strip_opt__out% }"
+    strip_opt__out="${strip_opt__out%=}"
+    printf "%s\n" "$strip_opt__out"
+}
 
 
 ## Hooks
@@ -31,7 +38,7 @@ spec_helper_configure() {
     before_all mommy_clean_tmp
     after_all mommy_clean_tmp
     before_each mommy_before_each
-    after_each mommy_after_each
+    after_each mommy_clean_tmp
 }
 
 mommy_clean_tmp() {
@@ -39,12 +46,5 @@ mommy_clean_tmp() {
 }
 
 mommy_before_each() {
-    mkdir -p "$MOMMY_TMP_DIR" "$MOMMY_TMP_DIR/global1/" "$MOMMY_TMP_DIR/global2/"
-}
-
-mommy_after_each() {
-    find "$MOMMY_TMP_DIR" -mindepth 1 \
-        ! -path "$MOMMY_TMP_DIR/global1" \
-        ! -path "$MOMMY_TMP_DIR/global2" \
-        -exec rm -rf {} +
+    mkdir -p "$MOMMY_TMP_DIR"
 }

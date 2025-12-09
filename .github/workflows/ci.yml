@@ -648,3 +648,51 @@ jobs:
             printf "::group::Uninstall package\n"
             pkgman uninstall -y mommy
             printf "::endgroup::\n"
+
+  test-solaris:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Test script and package
+        uses: vmactions/solaris-vm@v1
+        with:
+          usesh: true
+          prepare: |
+            set -e
+
+            echo "::group::Update package list"
+            pkgutil -U
+            echo "::endgroup::"
+
+            echo "::group::Install basic packages"
+            pkgutil -y -i git gmake
+            echo "::endgroup::"
+
+            echo "::group::Install ShellSpec"
+            # `gmake install` does not work because Solaris' `find` works differently
+            git clone --depth=1 https://github.com/shellspec/shellspec.git
+            ln -s "$PWD/shellspec/shellspec" /usr/bin/shellspec
+            echo "::endgroup::"
+
+            echo "::group::Install additional shells"
+            pkgutil -y -i fish zsh
+            echo "::endgroup::"
+
+            echo "::group::Ignore ownership issues"
+            git config --global --add safe.directory "$GITHUB_WORKSPACE"
+            echo "::endgroup::"
+          run: |
+            set -e
+
+            export MOMMY_FISH_SKIP=1  # Solaris' fish shell is completely botched
+            export MOMMY_ZSH_SKIP=1  # Solaris' `script` does not have `-c` option
+
+            echo "::group::Modify mommy for non-modern-POSIX compliance"
+            gsed -i -e "s/grep -E/egrep/g" src/main/sh/mommy
+            gsed -i -e "s/sed -i/gsed -i/g" GNUmakefile
+            echo "::endgroup::"
+
+            echo "::group::Test script"
+            gmake test
+            echo "::endgroup::"

@@ -51,13 +51,13 @@ Describe "integration of mommy with other programs:"
 
         It "outputs help information [$1]"
             When run "$MOMMY_EXEC" "$1"
-            The word 1 of output should equal "mommy(1)"
+            The output should match pattern "*the*following*options*are*just*for*invoking*mommy*"
             The status should be success
         End
 
         It "outputs help information even if not given as first argument [$1]"
             When run "$MOMMY_EXEC" -s 432 "$1"
-            The word 1 of output should equal "mommy(1)"
+            The output should match pattern "*the*following*options*are*just*for*invoking*mommy*"
             The status should be success
         End
 
@@ -122,7 +122,7 @@ Describe "integration of mommy with other programs:"
             # `script` emulates an interactive terminal during GitHub actions. Unfortunately, the interface of `script`
             # varies significantly between distributions. This function unifies the desired behaviour. It's not pretty.
 
-            printf "%s\n%s" \
+            printf "%s\n%s\n" \
                 "#!/bin/sh" \
                 "\"$MOMMY_ZSH_EXEC\" -i -u -c \"source '$MOMMY_ZSH_PREAMBLE_FILE'; compget '$1'\"" \
                 > /tmp/mommy-script

@@ -39,8 +39,8 @@ man_compress_ext := .gz
 
 ## Extracted values
 version := $(shell head -n 1 version)
-date := $(shell tail -n 1 version)
-year := $(shell tail -n 1 version | cut -d "-" -f 1)
+date := $(shell tail -1 version)
+year := $(shell tail -1 version | cut -d "-" -f 1)
 
 comment := $(shell grep -- "--description" .fpm | tr -d "\"" | cut -d " " -f 2-)
 maintainer := $(shell grep -- "--maintainer" .fpm | tr -d "\"" | cut -d " " -f 2-)
