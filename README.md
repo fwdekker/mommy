@@ -502,8 +502,8 @@ some of these settings support lists.
 mommy chooses a random element from each list each time she is called by you.
 (except for `MOMMY_FORBIDDEN_WORDS` and `MOMMY_IGNORED_STATUSES`, where mommy always considers all elements of the list.)
 in a list, elements are separated by a newline or by a `/`.
-to use a literal newline or slash, write `%%N%%` or `%%S%%`, respectively.
-elements that contain whitespace only, and elements that start with a `#` are ignored~
+elements starting with a `#`, or containing whitespace only, are ignored.
+to use a literal newline, slash, or hash, write `%%N%%`, `%%S%%`, or `%%#%%`, respectively~
 
 * for example, if you set
   ```shell
@@ -552,6 +552,7 @@ for example, if you add the compliment `%%CAREGIVER%% loves you`, and have `MOMM
 | `%%N%%`         | a newline                                        | can be used inside other variables |
 | `%%S%%`         | a forward slash (`/`)                            | can be used inside other variables |
 | `%%_%%`         | a whitespace                                     | can be used inside other variables |
+| `%%#%%`         | a hash (`#`)                                     | can be used inside other variables |
 </details>
 
 

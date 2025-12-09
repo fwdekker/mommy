@@ -301,6 +301,7 @@ split_pronouns() {
 #    * `%%N%%` with a literal newline character,
 #    * `%%S%%` with a literal forward slash character,
 #    * `%%_%%` with a literal whitespace character;
+#    * `%%#%%` with a literal hash character;
 # 2. applies `capitalize_lines` using `$7` as the choice parameter;
 # 3. removes leading and trailing newlines;
 # 4. prepends `$5` and appends `$6`; and
@@ -324,6 +325,7 @@ fill_template() {
     replace_all "$replace_all__out" "%%N%%" "$n"
     replace_all "$replace_all__out" "%%S%%" "/"
     replace_all "$replace_all__out" "%%_%%" " "
+    replace_all "$replace_all__out" "%%#%%" "#"
 
     capitalize "$prefix$replace_all__out$suffix" "$7"; fill_template__out="$capitalize__out"
     return 0
