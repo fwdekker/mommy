@@ -247,10 +247,11 @@ jobs:
           path: dist/mommy*
 
   build-solaris:
+    needs: [ pre-flight-checks ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install fpm && Build package
         uses: vmactions/solaris-vm@v1
         with:
@@ -291,7 +292,7 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: dist-solaris
-          path: dist/mommy-*.p5p mommy
+          path: dist/mommy-*.p5p
 
 
   release-mommy:

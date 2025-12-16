@@ -310,6 +310,18 @@ find your operating system and package manager for the right instructions~
 </details>
 
 <details>
+<summary>solaris</summary>
+
+* **pkg (github release)** (manual updates)
+  ```shell
+  # download latest package from github release
+  curl -s https://api.github.com/repos/fwdekker/mommy/releases/latest | grep "browser_download_url.*\.p5p" | cut -d : -f 2,3 | tr -d \" | xargs curl -sLOJ
+  # install package
+  sudo pkg install -g ./mommy-*.p5p mommy
+  ```
+</details>
+
+<details>
 <summary>windows</summary>
 
 for **git bash** or **cygwin**, see [the instructions for using mommy without a package manager](#installation--without-a-package-manager)~
