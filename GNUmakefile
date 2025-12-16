@@ -12,6 +12,7 @@ fish_prefix = $(prefix)/share/fish/vendor_completions.d/
 zsh_prefix = $(prefix)/share/zsh/site-functions/
 
 # Build dependency locations
+fpm_bin := fpm
 shellspec_bin := shellspec
 
 # Man page compression method
@@ -39,8 +40,8 @@ man_compress_ext := .gz
 
 ## Extracted values
 version := $(shell head -n 1 version)
-date := $(shell tail -1 version)
-year := $(shell tail -1 version | cut -d "-" -f 1)
+date := $(shell tail -n 1 version)
+year := $(shell tail -n 1 version | cut -d "-" -f 1)
 
 comment := $(shell grep -- "--description" .fpm | tr -d "\"" | cut -d " " -f 2-)
 maintainer := $(shell grep -- "--maintainer" .fpm | tr -d "\"" | cut -d " " -f 2-)
@@ -91,7 +92,7 @@ build:
 	@mkdir -p "$(build_dir)/completions/zsh/"
 	@cp src/main/completions/zsh/_mommy "$(build_dir)/completions/zsh/"
 
-	@# Insert version information
+	@# Insert version information. `-i".bak"` required for *BSD-likes
 	@sed -i".bak" \
 		"s/%%VERSION_NUMBER%%/$(version)/g;s/%%VERSION_DATE%%/$(date)/g" \
 		"$(build_dir)/bin/mommy" \
@@ -156,6 +157,7 @@ dist/osxpkg: fpm/osxpkg
 	@# 'installer' program requires 'pkg' extension
 	@mv "$(dist_dir)/"*".osxpkg" "$(dist_dir)/mommy-$(version)+osx.pkg"
 dist/pacman: fpm/pacman
+dist/p5p: fpm/p5p/outer
 dist/rpm: fpm/rpm
 
 # Build Haiku package manually
@@ -163,16 +165,18 @@ dist/haiku: install
 	@mkdir -p "$(build_dir)/haiku/data/licenses"
 	@cp ./LICENSE "$(build_dir)/haiku/data/licenses/Unlicense"
 
-	@echo "name         mommy"                                           > "$(build_dir)/haiku/.PackageInfo"
-	@echo "version      $(version)-1"                                   >> "$(build_dir)/haiku/.PackageInfo"
-	@echo "architecture any"                                            >> "$(build_dir)/haiku/.PackageInfo"
-	@echo "summary      \"$(comment)\""                                 >> "$(build_dir)/haiku/.PackageInfo"
-	@echo "description  \"$(comment)\""                                 >> "$(build_dir)/haiku/.PackageInfo"
-	@echo "vendor       \"$(maintainer)\""                              >> "$(build_dir)/haiku/.PackageInfo"
-	@echo "packager     \"$(maintainer)\""                              >> "$(build_dir)/haiku/.PackageInfo"
-	@echo "licenses     { \"Unlicense\" }"                              >> "$(build_dir)/haiku/.PackageInfo"
-	@echo "copyrights   { \"Copyright (C) $(year) by $(maintainer)\" }" >> "$(build_dir)/haiku/.PackageInfo"
-	@echo "provides     { mommy = $(version)-1 }"                       >> "$(build_dir)/haiku/.PackageInfo"
+	@printf "%s\n" \
+ 		"name         mommy" \
+		"version      $(version)-1" \
+		"architecture any" \
+		"summary      \"$(comment)\"" \
+		"description  \"$(comment)\"" \
+		"vendor       \"$(maintainer)\"" \
+		"packager     \"$(maintainer)\"" \
+		"licenses     { \"Unlicense\" }" \
+		"copyrights   { \"Copyright (C) $(year) by $(maintainer)\" }" \
+		"provides     { mommy = $(version)-1 }" \
+		> "$(build_dir)/haiku/.PackageInfo"
 
 	@mkdir -p "$(dist_dir)"
 	@package create -C "$(build_dir)/haiku" "$(dist_dir)/mommy-$(version).hpkg"
@@ -181,16 +185,20 @@ dist/haiku: install
 dist/netbsd: install
 	@cd "$(build_dir)/netbsd"; find . -type f | sed -e "s/^/.\//" > +CONTENTS
 
-	@echo "$(comment)" > "$(build_dir)/netbsd/+COMMENT"
+	@printf "%s\n" "$(comment)" > "$(build_dir)/netbsd/+COMMENT"
 
-	@echo "$(comment)" 				   > "$(build_dir)/netbsd/+DESC"
-	@echo "" 						  >> "$(build_dir)/netbsd/+DESC"
-	@echo "Maintainer: $(maintainer)" >> "$(build_dir)/netbsd/+DESC"
+	@printf "%s\n" \
+		"$(comment)" \
+		"" \
+		"Maintainer: $(maintainer)" \
+		> "$(build_dir)/netbsd/+DESC"
 
-	@echo "MACHINE_ARCH=$$(uname -p)"           > "$(build_dir)/netbsd/+BUILD_INFO"
-	@echo "OPSYS=$$(uname)"                    >> "$(build_dir)/netbsd/+BUILD_INFO"
-	@echo "OS_VERSION=$$(uname -r)"            >> "$(build_dir)/netbsd/+BUILD_INFO"
-	@echo "PKGTOOLS_VERSION=$$(pkg_create -V)" >> "$(build_dir)/netbsd/+BUILD_INFO"
+	@printf "%s\n" \
+		"MACHINE_ARCH=$$(uname -p)" \
+		"OPSYS=$$(uname)" \
+		"OS_VERSION=$$(uname -r)" \
+		"PKGTOOLS_VERSION=$$(pkg_create -V)" \
+		> "$(build_dir)/netbsd/+BUILD_INFO"
 
 
 	@cd "$(build_dir)/netbsd"; \
@@ -210,9 +218,9 @@ dist/netbsd: install
 dist/openbsd: install
 	@cd "$(build_dir)/openbsd"; find . -type f | sed -e "s/^/.\//" > +CONTENTS
 
-	@echo "$(comment)" > "$(build_dir)/openbsd/+COMMENT"
+	@printf "%s\n" "$(comment)" > "$(build_dir)/openbsd/+COMMENT"
 
-	@echo "$(comment)" > "$(build_dir)/openbsd/+DESC"
+	@printf "%s\n" "$(comment)" > "$(build_dir)/openbsd/+DESC"
 
 
 	@cd "$(build_dir)/openbsd"; \
@@ -234,7 +242,7 @@ dist/openbsd: install
 .PHONY: fpm/%
 fpm/%: build
 	@mkdir -p "$(dist_dir)"
-	@fpm -t "$(@:fpm/%=%)" \
+	@$(fpm_bin) -t "$(@:fpm/%=%)" \
 		-p "$(dist_dir)/mommy-$(version).$(@:fpm/%=%)" \
 		--version "$(version)" \
 		--freebsd-osversion "*" \
@@ -244,3 +252,14 @@ fpm/%: build
 		"$(build_dir)/completions/bash/mommy.bash=$(bash_prefix)/mommy.bash" \
 		"$(build_dir)/completions/fish/mommy.fish=$(fish_prefix)/mommy.fish" \
 		"$(build_dir)/completions/zsh/_mommy=$(zsh_prefix)/_mommy"
+
+# Hack fpm to edit the manifest: Directory `/usr/share` must belong to group `sys`, but all other directories must
+# belong to group `bin`. Therefore, pass the `--edit` option to fpm, set the `EDITOR` to `sed`, which replaces and
+# inserts `<transform>` lines into the manifest, which sets the permissions. Additionally, use copious escape sequences,
+# to escape both quotes and make's own dollar sign, twice.
+fpm/p5p/outer:
+	@"$(MAKE)" \
+		fpm_bin='env \
+			EDITOR='"'"'sed -i "s/<transform file dir -> set group root>/<transform file dir -> set group bin>\n<transform file dir path=usr\/share\$$$$->set group sys>/g"'"'"' \
+			$(fpm_bin) --edit' \
+		fpm/p5p

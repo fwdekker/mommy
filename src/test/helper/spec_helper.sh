@@ -23,14 +23,7 @@ export MOMMY_TMP_DIR
 export n="
 "
 
-strip_opt() {
-    strip_opt__out="$1"
-    strip_opt__out="${strip_opt__out#-}"
-    strip_opt__out="${strip_opt__out#-}"
-    strip_opt__out="${strip_opt__out% }"
-    strip_opt__out="${strip_opt__out%=}"
-    printf "%s\n" "$strip_opt__out"
-}
+strip_opt() { printf "%s\n" "$1" | sed -e "s/^-\{1,\}//g" -e "s/[= ]\{1,\}\$//g"; }
 
 
 ## Hooks

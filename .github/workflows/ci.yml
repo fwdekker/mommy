@@ -661,12 +661,8 @@ jobs:
           prepare: |
             set -e
 
-            echo "::group::Update package list"
-            pkgutil -U
-            echo "::endgroup::"
-
             echo "::group::Install basic packages"
-            pkgutil -y -i git gmake
+            pkg install --no-index git
             echo "::endgroup::"
 
             echo "::group::Install ShellSpec"
@@ -675,9 +671,19 @@ jobs:
             ln -s "$PWD/shellspec/shellspec" /usr/bin/shellspec
             echo "::endgroup::"
 
-            echo "::group::Install additional shells"
-            pkgutil -y -i fish zsh
-            echo "::endgroup::"
+            printf "::group::Install fpm\n"
+            pkg install --no-index ruby
+            gem install --no-document fpm
+            printf "::endgroup::\n"
+
+            printf "::group::Replace naughty executables\n"
+            rm /usr/bin/grep
+            cp /usr/bin/ggrep /usr/bin/grep
+            rm /usr/bin/sed
+            cp /usr/bin/gsed /usr/bin/sed
+            rm /usr/bin/tail
+            cp /usr/bin/gtail /usr/bin/tail
+            printf "::endgroup::\n"
 
             echo "::group::Ignore ownership issues"
             git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -686,13 +692,26 @@ jobs:
             set -e
 
             export MOMMY_FISH_SKIP=1  # Solaris' fish shell is completely botched
+            export MOMMY_MAN_SKIP=1  # Solaris' manual pages don't open correctly
             export MOMMY_ZSH_SKIP=1  # Solaris' `script` does not have `-c` option
-
-            echo "::group::Modify mommy for non-modern-POSIX compliance"
-            gsed -i -e "s/grep -E/egrep/g" src/main/sh/mommy
-            gsed -i -e "s/sed -i/gsed -i/g" GNUmakefile
-            echo "::endgroup::"
+            export PATH="$(printf "%s:" /usr/ruby/*/bin)$PATH"
 
             echo "::group::Test script"
             gmake test
             echo "::endgroup::"
+
+            printf "::group::Build package\n"
+            gmake dist/p5p
+            printf "::endgroup::\n"
+
+            printf "::group::Install package\n"
+            pkg install -g ./dist/mommy-*.p5p mommy
+            printf "::endgroup::\n"
+
+            printf "::group::Test package\n"
+            env MOMMY_SYSTEM=1 gmake test
+            printf "::endgroup::\n"
+
+            printf "::group::Uninstall package\n"
+            pkg uninstall mommy
+            printf "::endgroup::\n"
