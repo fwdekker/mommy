@@ -205,6 +205,33 @@ jobs:
           printf "::endgroup::\n"
 
 
+  test-busybox:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: |
+          printf "::group::Install packages\n"
+          sudo apt-get install busybox git podman
+          printf "::endgroup::\n"
+
+          printf "::group::Download ShellSpec\n"
+          git clone --depth=1 https://github.com/shellspec/shellspec.git /tmp/shellspec
+          printf "::endgroup::\n"
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Prepare BusyBox image
+        run: |
+          podman create --name busybox-mommy docker.io/library/busybox:latest
+          podman cp . busybox-mommy:/home/mommy
+          podman cp /tmp/shellspec busybox-mommy:/home/shellspec
+          podman commit busybox-mommy busybox-mommy
+      - name: Test
+        run: |
+          podman run --rm -w=/home/mommy busybox-mommy \
+            env MOMMY_EXEC="/home/mommy/src/main/sh/mommy" \
+            /home/shellspec/shellspec src/test/sh/unit_spec.sh
+
+
   test-fedora:
     runs-on: ubuntu-latest
     container: fedora:latest
