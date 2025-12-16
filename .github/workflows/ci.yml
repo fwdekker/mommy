@@ -661,15 +661,15 @@ jobs:
           prepare: |
             set -e
 
-            echo "::group::Install basic packages"
+            printf "::group::Install basic packages\n"
             pkg install --no-index git
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
-            echo "::group::Install ShellSpec"
+            printf "::group::Install ShellSpec\n"
             # `gmake install` does not work because Solaris' `find` works differently
             git clone --depth=1 https://github.com/shellspec/shellspec.git
             ln -s "$PWD/shellspec/shellspec" /usr/bin/shellspec
-            echo "::endgroup::"
+            printf "::endgroup::\n"
 
             printf "::group::Install fpm\n"
             pkg install --no-index ruby

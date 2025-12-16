@@ -246,11 +246,67 @@ jobs:
           name: dist-haiku
           path: dist/mommy*
 
+  build-solaris:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install fpm && Build package
+        uses: vmactions/solaris-vm@v1
+        with:
+          usesh: true
+          prepare: |
+            set -e
+
+            printf "::group::Install basic packages\n"
+            pkg install --no-index git
+            printf "::endgroup::\n"
+
+            printf "::group::Install fpm\n"
+            pkg install --no-index ruby
+            gem install --no-document fpm
+            printf "::endgroup::\n"
+
+            printf "::group::Replace naughty executables\n"
+            rm /usr/bin/grep
+            cp /usr/bin/ggrep /usr/bin/grep
+            rm /usr/bin/sed
+            cp /usr/bin/gsed /usr/bin/sed
+            rm /usr/bin/tail
+            cp /usr/bin/gtail /usr/bin/tail
+            printf "::endgroup::\n"
+
+            printf "::group::Ignore ownership issues\n"
+            git config --global --add safe.directory "$GITHUB_WORKSPACE"
+            printf "::endgroup::\n"
+          run: |
+            set -e
+
+            export PATH="$(printf "%s:" /usr/ruby/*/bin)$PATH"
+
+            printf "::group::Build package\n"
+            gmake dist/p5p
+            printf "::endgroup::\n"
+      - name: Upload built package
+        uses: actions/upload-artifact@v5
+        with:
+          name: dist-solaris
+          path: dist/mommy-*.p5p mommy
+
 
   release-mommy:
     if: ${{ github.event.inputs.release_mommy == 'true' }}
     # `pre-flight-checks` is required to access `MOMMY_VERSION`
-    needs: [ pre-flight-checks, build-linux, build-macos, build-freebsd, build-netbsd, build-openbsd, build-haiku ]
+    needs: [
+      pre-flight-checks,
+      build-linux,
+      build-macos,
+      build-freebsd,
+      build-netbsd,
+      build-openbsd,
+      build-haiku,
+      build-solaris,
+    ]
     runs-on: ubuntu-latest
     env:
       MOMMY_VERSION: ${{ needs.pre-flight-checks.outputs.MOMMY_VERSION }}
