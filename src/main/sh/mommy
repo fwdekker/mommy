@@ -45,7 +45,7 @@ MOMMY_ENCOURAGEMENTS="
 # trust~
 %%CAREGIVER%% believes in you
 %%CAREGIVER%% knows you'll get there
-%%CAREGIVER%% knows %%THEIR%% little %%SWEETIE_ENCOURAGEMENT%% can do better
+%%CAREGIVER%% knows %%THEIR%% little %%SWEETIE_ENCOURAGE%% can do better
 just know that %%CAREGIVER%% still loves you
 
 # consolation~
@@ -64,7 +64,7 @@ just a little further, %%CAREGIVER%% knows you can do it
 %%CAREGIVER%% knows you'll get there, don't worry about it
 
 # clean up~
-did %%CAREGIVER%%'s %%SWEETIE_ENCOURAGEMENT%% make a big mess
+did %%CAREGIVER%%'s %%SWEETIE_ENCOURAGE%% make a big mess
 "
 MOMMY_ENCOURAGEMENTS_EXTRA=""
 MOMMY_ENCOURAGEMENTS_ENABLED="1"
@@ -299,7 +299,7 @@ split_pronouns() {
 #    * `%%THEIRS%%` with the fourth word of the same random entry from `$3`,
 #    * `%%THEMSELF%%` with the fifth word of the same random entry frm `$3`,
 #    * `%%SWEETIE%%` with a random entry from `$4`,
-#    * `%%SWEETIE_ENCOURAGEMENT%%` with a random entry from `$5`,
+#    * `%%SWEETIE_ENCOURAGE%%` with a random entry from `$5`,
 #    * `%%N%%` with a literal newline character,
 #    * `%%S%%` with a literal forward slash character,
 #    * `%%_%%` with a literal whitespace character;
@@ -312,7 +312,7 @@ fill_template() {
     list_normal_choose "$2"; caregiver="$list_choose__out"
     list_normal_choose "$3"; split_pronouns "$list_choose__out"
     list_normal_choose "$4"; sweetie="$list_choose__out"
-    list_normal_choose "$5"; sweetie_encouragement="$list_choose__out"
+    list_normal_choose "$5"; sweetie_encourage="$list_choose__out"
     list_normal_choose "$6"; prefix="$list_choose__out"
     list_normal_choose "$7"; suffix="$list_choose__out"
 
@@ -324,7 +324,7 @@ fill_template() {
     replace_all "$replace_all__out" "%%THEIRS%%" "$theirs"
     replace_all "$replace_all__out" "%%THEMSELF%%" "$themself"
     replace_all "$replace_all__out" "%%SWEETIE%%" "$sweetie"
-    replace_all "$replace_all__out" "%%SWEETIE_ENCOURAGEMENT%%" "$sweetie_encouragement"
+    replace_all "$replace_all__out" "%%SWEETIE_ENCOURAGE%%" "$sweetie_encourage"
     replace_all "$replace_all__out" "%%N%%" "$n"
     replace_all "$replace_all__out" "%%S%%" "/"
     replace_all "$replace_all__out" "%%_%%" " "
