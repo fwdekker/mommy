@@ -615,6 +615,14 @@ Describe "mommy:"
                 The status should be success
             End
 
+            It "replaces %%SWEETIE_ENCOURAGE%%"
+                set_config "MOMMY_COMPLIMENTS='>%%SWEETIE_ENCOURAGE%%<';MOMMY_SWEETIE_ENCOURAGE='my love'"
+
+                When run "$MOMMY_EXEC" true
+                The error should equal ">my love<"
+                The status should be success
+            End
+
             It "replaces %%CAREGIVER%%"
                 set_config "MOMMY_COMPLIMENTS='>%%CAREGIVER%%<';MOMMY_CAREGIVER='help'"
 
