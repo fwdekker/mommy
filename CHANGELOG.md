@@ -8,7 +8,7 @@
 
 ## [1.8.1] -- 2026-08-29
 ### added
-* 🫦 mommy can now be a little more thirsty ([#183](https://github.com/fwdekker/mommy/pull/183))
+* 🫦 mommy can now call you differently when you need encouragement ([#183](https://github.com/fwdekker/mommy/pull/183))
 
 ## [1.8.0] -- 2025-12-03
 ### added
