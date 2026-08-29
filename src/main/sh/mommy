@@ -7,7 +7,6 @@ n="
 MOMMY_CAREGIVER="mommy"
 MOMMY_PRONOUNS="she her her hers herself"
 MOMMY_SWEETIE="${LOGNAME:-girl}"
-MOMMY_PARTS="milk"
 MOMMY_SWEETIE_ENCOURAGE="${LOGNAME:-girl}"
 MOMMY_PREFIX=""
 MOMMY_SUFFIX="~"
@@ -301,23 +300,21 @@ split_pronouns() {
 #    * `%%THEMSELF%%` with the fifth word of the same random entry frm `$3`,
 #    * `%%SWEETIE%%` with a random entry from `$4`,
 #    * `%%SWEETIE_ENCOURAGEMENT%%` with a random entry from `$5`,
-#    * `%%PART%%` with a random entry from `$6`,
 #    * `%%N%%` with a literal newline character,
 #    * `%%S%%` with a literal forward slash character,
 #    * `%%_%%` with a literal whitespace character;
 #    * `%%#%%` with a literal hash character;
-# 2. applies `capitalize_lines` using `$9` as the choice parameter;
+# 2. applies `capitalize_lines` using `$8` as the choice parameter;
 # 3. removes leading and trailing newlines;
-# 4. prepends `$7` and appends `$8`; and
+# 4. prepends `$6` and appends `$7`; and
 # 5. stores the output in `$fill_template__out`.
 fill_template() {
     list_normal_choose "$2"; caregiver="$list_choose__out"
     list_normal_choose "$3"; split_pronouns "$list_choose__out"
     list_normal_choose "$4"; sweetie="$list_choose__out"
     list_normal_choose "$5"; sweetie_encouragement="$list_choose__out"
-    list_normal_choose "$6"; part="$list_choose__out"
-    list_normal_choose "$7"; prefix="$list_choose__out"
-    list_normal_choose "$8"; suffix="$list_choose__out"
+    list_normal_choose "$6"; prefix="$list_choose__out"
+    list_normal_choose "$7"; suffix="$list_choose__out"
 
     replace_all__out="$1"
     replace_all "$replace_all__out" "%%CAREGIVER%%" "$caregiver"
@@ -328,13 +325,12 @@ fill_template() {
     replace_all "$replace_all__out" "%%THEMSELF%%" "$themself"
     replace_all "$replace_all__out" "%%SWEETIE%%" "$sweetie"
     replace_all "$replace_all__out" "%%SWEETIE_ENCOURAGEMENT%%" "$sweetie_encouragement"
-    replace_all "$replace_all__out" "%%PART%%" "$part"
     replace_all "$replace_all__out" "%%N%%" "$n"
     replace_all "$replace_all__out" "%%S%%" "/"
     replace_all "$replace_all__out" "%%_%%" " "
     replace_all "$replace_all__out" "%%#%%" "#"
 
-    capitalize "$prefix$replace_all__out$suffix" "$9"; fill_template__out="$capitalize__out"
+    capitalize "$prefix$replace_all__out$suffix" "$8"; fill_template__out="$capitalize__out"
     return 0
 }
 #endregion
@@ -483,7 +479,7 @@ else
     # Select and fill template
     list_normalize "$MOMMY_FORBIDDEN_WORDS"; forbidden_words="$list_normalize__out"
     list_normal_choose "$templates" "$forbidden_words"; template="$list_choose__out"
-    fill_template "$template" "$MOMMY_CAREGIVER" "$MOMMY_PRONOUNS" "$MOMMY_SWEETIE" "$MOMMY_SWEETIE_ENCOURAGE" "$MOMMY_PARTS" "$MOMMY_PREFIX" "$MOMMY_SUFFIX" \
+    fill_template "$template" "$MOMMY_CAREGIVER" "$MOMMY_PRONOUNS" "$MOMMY_SWEETIE" "$MOMMY_SWEETIE_ENCOURAGE" "$MOMMY_PREFIX" "$MOMMY_SUFFIX" \
                   "$MOMMY_CAPITALIZE"; response="$fill_template__out"
     list_filter_not "$response" "$forbidden_words"; safe_response="$list_filter_not__out"
 
