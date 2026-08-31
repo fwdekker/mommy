@@ -7,7 +7,7 @@ n="
 MOMMY_CAREGIVER="mommy"
 MOMMY_PRONOUNS="she her her hers herself"
 MOMMY_SWEETIE="${LOGNAME:-girl}"
-MOMMY_SWEETIE_ENCOURAGE="${LOGNAME:-girl}"
+MOMMY_SWEETIE_ENCOURAGE="%%SWEETIE%%"
 MOMMY_PREFIX=""
 MOMMY_SUFFIX="~"
 
@@ -457,6 +457,11 @@ if [ "x" != "x$opt_role" ]; then
     fi
 fi
 
+## Substitute relative defaults
+if [ "x%%SWEETIE%%" = "x$MOMMY_SWEETIE_ENCOURAGE" ]; then
+    MOMMY_SWEETIE_ENCOURAGE="$MOMMY_SWEETIE"
+fi
+
 ## State
 state_dir="${XDG_STATE_HOME:-"$HOME/.local/state"}/mommy/"
 
@@ -514,8 +519,8 @@ else
     # Select and fill template
     list_normalize "$MOMMY_FORBIDDEN_WORDS"; forbidden_words="$list_normalize__out"
     list_normal_choose "$templates" "$forbidden_words"; template="$list_choose__out"
-    fill_template "$template" "$MOMMY_CAREGIVER" "$MOMMY_PRONOUNS" "$MOMMY_SWEETIE" "$MOMMY_SWEETIE_ENCOURAGE" "$MOMMY_PREFIX" "$MOMMY_SUFFIX" \
-                  "$MOMMY_CAPITALIZE"; response="$fill_template__out"
+    fill_template "$template" "$MOMMY_CAREGIVER" "$MOMMY_PRONOUNS" "$MOMMY_SWEETIE" "$MOMMY_SWEETIE_ENCOURAGE" \
+                  "$MOMMY_PREFIX" "$MOMMY_SUFFIX" "$MOMMY_CAPITALIZE"; response="$fill_template__out"
     list_filter_not "$response" "$forbidden_words"; safe_response="$list_filter_not__out"
 
     # Output template

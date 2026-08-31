@@ -732,10 +732,18 @@ Describe "mommy:"
             End
 
             It "replaces %%SWEETIE_ENCOURAGE%%"
-                set_config "MOMMY_COMPLIMENTS='>%%SWEETIE_ENCOURAGE%%<';MOMMY_SWEETIE_ENCOURAGE='my love'"
+                write_conf "MOMMY_COMPLIMENTS='>%%SWEETIE_ENCOURAGE%%<';MOMMY_SWEETIE_ENCOURAGE='road pier'"
 
                 When run "$MOMMY_EXEC" true
-                The error should equal ">my love<"
+                The error should equal ">road pier<"
+                The status should be success
+            End
+
+            It "replaces %%SWEETIE_ENCOURAGE%% with MOMMY_SWEETIE if the format was not configured"
+                write_conf "MOMMY_COMPLIMENTS='>%%SWEETIE_ENCOURAGE%%<';MOMMY_SWEETIE='rest wage'"
+
+                When run "$MOMMY_EXEC" true
+                The error should equal ">rest wage<"
                 The status should be success
             End
 

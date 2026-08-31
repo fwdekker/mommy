@@ -6,13 +6,11 @@
 ### added
 * 🎭 mommy now supports roles (aka moods/profiles) so you can easily swap between several config files. to add a role `foo`, place your role config in `$HOME/.config/mommy/roles/foo.sh`, and run mommy with `-r foo` or `--role=foo`~
 * 💵 mommy now includes bash completions~ ([#43](https://github.com/fwdekker/mommy/issues/43)) ([#170](https://github.com/fwdekker/mommy/issues/170))
+* 🫂 mommy now uses `%%sweetie_encourage%%` instead of `%%sweetie%%` in encouragements, so mommy can call you differently in encouragements than in compliments. by default, `%%sweetie_encourage%%` equals `%%sweetie%%`~ ([#183](https://github.com/fwdekker/mommy/pull/183))
 * #️⃣ mommy now supports templates starting with `#` using `%%#%%`~ ([#173](https://github.com/fwdekker/mommy/issues/173)) ([#174](https://github.com/fwdekker/mommy/issues/174))
 * 🌞 mommy once again distributes a package for solaris, attached as a `.p5p` file to each github release~ ([#176](https://github.com/fwdekker/mommy/issues/176))
 * 🍱 mommy now also runs tests on busybox~ (#TODO)
 
-## [1.8.1] -- 2026-08-29
-### added
-* 🫦 mommy can now call you differently when you need encouragement ([#183](https://github.com/fwdekker/mommy/pull/183))
 
 ## [1.8.0] -- 2025-12-03
 ### added
