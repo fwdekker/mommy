@@ -347,6 +347,7 @@ fill_template() {
     list_normal_choose "$2"; caregiver="$list_choose__out"
     list_normal_choose "$3"; split_pronouns "$list_choose__out"
     list_normal_choose "$4"; sweetie="$list_choose__out"
+
     list_normal_choose "$5"; prefix="$list_choose__out"
     list_normal_choose "$6"; suffix="$list_choose__out"
 
@@ -358,7 +359,6 @@ fill_template() {
     replace_all "$replace_all__out" "%%THEIRS%%" "$theirs"
     replace_all "$replace_all__out" "%%THEMSELF%%" "$themself"
     replace_all "$replace_all__out" "%%SWEETIE%%" "$sweetie"
-    replace_all "$replace_all__out" "%%SWEETIE_ENCOURAGE%%" "$sweetie_encourage"
     replace_all "$replace_all__out" "%%N%%" "$n"
     replace_all "$replace_all__out" "%%S%%" "/"
     replace_all "$replace_all__out" "%%_%%" " "
