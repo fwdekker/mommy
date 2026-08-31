@@ -13,7 +13,7 @@ function extract_command
         end
 
         switch $arg
-            case '-c' '-e' '-s'  # Do not include long options here!
+            case '-e' '-s' '-u' '-d' '-r'  # List exactly all *short* options that take args
                 set --erase argv[1]
                 set is_option_argument 1
             case '-*'
@@ -47,30 +47,43 @@ complete --command mommy --no-files  # Disabled by default, but re-enabled for s
 
 # Help/version/toggle
 complete --command mommy --short-option h --long-option help \
+    --no-files \
     --description "Show manual" \
     --condition "__fish_is_first_arg"
 complete --command mommy --short-option v --long-option version \
+    --no-files \
     --description "Show version" \
     --condition "__fish_is_first_arg"
 complete --command mommy --short-option t --long-option toggle \
+    --no-files \
     --description "Toggle output" \
     --condition "__fish_is_first_arg"
 
 # Config
-complete --command mommy --short-option c --long-option config \
-    --require-parameter --force-files \
-    --description "Configuration file" \
-    --condition "not __fish_seen_argument -h --help -v --version -t --toggle"\
-    --condition "test -z (get_args)"
 complete --command mommy --short-option d --long-option global-config-dirs \
     --require-parameter \
+    --no-files \
     --arguments "(__fish_complete_directories)" \
     --description "Colon-separated global config file dirs" \
+    --condition "not __fish_seen_argument -h --help -v --version -t --toggle"\
+    --condition "test -z (get_args)"
+complete --command mommy --short-option u --long-option user-config-dir \
+    --require-parameter \
+    --no-files \
+    --arguments "(__fish_complete_directories)" \
+    --description "User configuration directory" \
+    --condition "not __fish_seen_argument -h --help -v --version -t --toggle"\
+    --condition "test -z (get_args)"
+complete --command mommy --short-option r --long-option role \
+    --require-parameter \
+    --no-files \
+    --description "Role selection" \
     --condition "not __fish_seen_argument -h --help -v --version -t --toggle"\
     --condition "test -z (get_args)"
 
 # Misc
 complete --command mommy --short-option 1 \
+    --no-files \
     --description "Write to stdout" \
     --condition "not __fish_seen_argument -h --help -v --version -t --toggle -1" \
     --condition "test -z (get_args)"
@@ -78,19 +91,23 @@ complete --command mommy --short-option 1 \
 # Usage
 complete --command mommy \
     --keep-order \
+    --no-files \
     --arguments "(complete --do-complete \"\$(get_args_with_token)\")" \
     --condition "test -n (get_args_with_token); or not __fish_seen_argument -h --help -v --version -t --toggle -e --eval -p --pipefail -s --status"
 complete --command mommy --short-option e --long-option eval \
     --require-parameter \
+    --no-files \
     --description "Evaluate string" \
     --condition "not __fish_seen_argument -h --help -v --version -t --toggle -e --eval -s --status" \
     --condition "test -z (get_args)"
 complete --command mommy --short-option p --long-option pipefail \
+    --no-files \
     --description "Enable pipefail" \
     --condition "not __fish_seen_argument -h --help -v --version -t --toggle -p --pipefail -s --status" \
     --condition "test -z (get_args)"
 complete --command mommy --short-option s --long-option status \
-    --require-parameter --no-files \
+    --require-parameter \
+    --no-files \
     --description "Exit code" \
     --arguments "(echo 0\tSuccess\n1\tError)" \
     --condition "not __fish_seen_argument -h --help -v --version -t --toggle -e --eval -p --pipefail -s --status" \

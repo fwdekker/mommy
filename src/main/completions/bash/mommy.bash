@@ -6,7 +6,17 @@
 
 _mommy()
 {
-	local args_avail=("-c" "--config=" "-d" "--global-config-dirs=" "-e" "--eval=" "-h" "--help" "-p" "--pipefail" "-s" "--status=" "-t" "--toggle" "-v" "--version")
+	local args_avail=( \
+	    "-h" "--help" \
+	    "-t" "--toggle" \
+	    "-v" "--version" \
+	    "-e" "--eval=" \
+	    "-p" "--pipefail" \
+	    "-s" "--status=" \
+	    "-d" "--global-config-dirs=" \
+	    "-u" "--user-config-dir=" \
+	    "-r" "--role=" \
+    )
     local cur="${COMP_WORDS[COMP_CWORD]}"
 
     if [[ "$COMP_CWORD" -eq 1 ]]; then
@@ -20,42 +30,26 @@ _mommy()
         local argument="${COMP_WORDS[ ((COMP_CWORD - 1)) ]}"
         if [[ "$COMP_CWORD" -ge 2 ]]; then
             case "$argument" in
-                "-c")
-                	args_avail=("${args_avail[@]/-c}")
-               		args_avail=("${args_avail[@]/--config=}")
-                    mapfile -t COMPREPLY < <(compgen -c -- "$cur" | grep ".*sh$") ;;
-                "--config=")
-               		args_avail=("${args_avail[@]/-c}")
-              		args_avail=("${args_avail[@]/--config=}")
-                    mapfile -t COMPREPLY < <(compgen -c -- "$cur" | grep ".*sh$") ;;
-                "-e")
-                	args_avail=("${args_avail[@]/-e}")
-                	args_avail=("${args_avail[@]/--eval=}")
-                    mapfile -t COMPREPLY < <(compgen -c -- "$cur") ;;
-                "--eval=")
-                	args_avail=("${args_avail[@]/-e}")
-                	args_avail=("${args_avail[@]/--eval=}")
-                    mapfile -t COMPREPLY < <(compgen -c -- "$cur") ;;
-                "-d")
-                	args_avail=("${args_avail[@]/-d}")
-                    args_avail=("${args_avail[@]/--global-config-dirs=}")
-                    mapfile -t COMPREPLY < <(compgen -d -- "$cur") ;;
-                "--global-config-dirs=")
-                	args_avail=("${args_avail[@]/-d}")
-                    args_avail=("${args_avail[@]/--global-config-dirs=}")
-                    mapfile -t COMPREPLY < <(compgen -d -- "$cur") ;;
-                "-s")
-               		args_avail=("${args_avail[@]/-s}")
-               		args_avail=("${args_avail[@]/--status=}")
-                    COMPREPLY=("0" "1") ;;
-                "--status=")
-              		args_avail=("${args_avail[@]/-s}")
-               		args_avail=("${args_avail[@]/--status=}")
-                    COMPREPLY=("0" "1") ;;
                 "-h" | "--help")
                     args_avail=("${args_avail[@]/-h}")
                     args_avail=("${args_avail[@]/--help}")
                     flag=1 ;;
+                "-d" | "--global-config-dirs=")
+                	args_avail=("${args_avail[@]/-d}")
+                    args_avail=("${args_avail[@]/--global-config-dirs=}")
+                    mapfile -t COMPREPLY < <(compgen -A directory -- "$cur") ;;
+                "-r" | "--role=")
+                	args_avail=("${args_avail[@]/-r}")
+                    args_avail=("${args_avail[@]/--role=}")
+                    COMPREPLY=() ;;
+                "-e" | "--eval=")
+                	args_avail=("${args_avail[@]/-e}")
+                	args_avail=("${args_avail[@]/--eval=}")
+                    mapfile -t COMPREPLY < <(compgen -A command -- "$cur") ;;
+                "-s" | "--status=")
+               		args_avail=("${args_avail[@]/-s}")
+               		args_avail=("${args_avail[@]/--status=}")
+                    COMPREPLY=("0" "1") ;;
                 "-t" | "--toggle")
                     args_avail=("${args_avail[@]/-t}")
                     args_avail=("${args_avail[@]/--toggle}")

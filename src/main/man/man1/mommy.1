@@ -60,11 +60,17 @@ config files\(ti
 
 .SS configuration
 .TP
-\fB-c\fP \fIfile\fP, \fB--config=\fP\fIfile\fP
-tells \fBmommy\fP that she should read your config from \fIfile\fP\(ti
-.TP
 \fB-d\fP \fIdirs\fP, \fB--global-config-dirs=\fP\fIdirs\fP
-sets global configuration dirs to the colon-separated list in \fIdirs\fP\(ti
+sets global configuration dirs to the colon-separated list in \fIdirs\fP.
+\fBmommy\fP will traverse this list in order and load the first config file 'mommy/config.sh' that exists.
+if not set, \fBmommy\fP will use '$XDG_CONFIG_DIRS:/etc/:/usr/local/etc/' as the default value of \fIdirs\fP\(ti
+.TP
+\fB-u\fP \fIdir\fP, \fB--user-config-dir=\fP\fIdir\fP
+if set, \fBmommy\fP will load config file '\fIdir\fP/mommy/config.sh' if it exists.
+if not set, \fBmommy\fP will use '$XDG_CONFIG_HOME' or '$HOME/.config' as the default value of \fIdir\fP\(ti
+.TP
+\fB-r\fP \fIname\fP, \fB--role=\fP\fIname\fP
+if set, \fBmommy\fP will load 'mommy/roles/\fIname\fP.sh' instead of 'mommy/config.sh' in the various config directories\(ti
 
 .SS about
 .TP

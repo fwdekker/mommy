@@ -94,11 +94,19 @@ Describe "integration of mommy with other programs:"
         It "outputs an option if the argument starts with -"
             When run fish_complete "mommy -"
             The output should include "-1"
+            The output should include "--toggle"
         End
 
-        It "outputs files if the previous option was -c"
-            When run fish_complete "mommy -c "
-            The output should include "integration_spec.sh"
+        It "outputs directories if the previous option was -d"
+            When run fish_complete "mommy -d ../"
+            The output should include "helper"
+            The output should include "resources"
+        End
+
+        It "outputs directories if the previous option was -u"
+            When run fish_complete "mommy -u ../"
+            The output should include "helper"
+            The output should include "resources"
         End
     End
 
@@ -149,14 +157,28 @@ Describe "integration of mommy with other programs:"
         }
 
 
-        It "outputs an option if the argument starts with -"
+        It "outputs options if the argument starts with -"
             When run zsh_complete "mommy -"
             The output should include "-1"
+            The output should include "--toggle"
         End
 
-        It "outputs files if the previous option was -c"
-            When run zsh_complete "mommy -c "
-            The output should include "integration_spec.sh"
+        It "outputs directories if the previous option was -d"
+            When run zsh_complete "mommy -d ../"
+            The output should include "helper"
+            The output should include "resources"
+        End
+
+        It "outputs directories if the previous option was -d with one directory already listed"
+            When run zsh_complete "mommy -d ../helper:../"
+            The output should include "helper"
+            The output should include "resources"
+        End
+
+        It "outputs directories if the previous option was -u"
+            When run zsh_complete "mommy -u ../"
+            The output should include "helper"
+            The output should include "resources"
         End
     End
 End

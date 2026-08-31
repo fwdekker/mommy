@@ -346,12 +346,12 @@ if you want to customise where and how mommy installs, you can just compile her 
 1. **prerequisites**
     * [git](https://git-scm.com/)
     * [gnu make](https://www.gnu.org/software/make/) (`gmake`)
-2. **clone repository**
+1. **clone repository**
    ```shell
    git clone https://github.com/fwdekker/mommy.git
    cd mommy
    ```
-3. **install**  
+1. **install**  
    this step builds mommy's files and copies them into your system.
    the exact paths differ per system, so find the instructions that are right for your system.
 
@@ -389,7 +389,7 @@ if you want to customise where and how mommy installs, you can just compile her 
       ```shell
       sudo make install
       ```
-4. **test** (optional)  
+1. **test** (optional)  
    if you want to make sure installation was successful, you can run tests using [shellspec](https://github.com/shellspec/shellspec).
    run the following from inside the cloned mommy repository
    ```shell
@@ -397,7 +397,7 @@ if you want to customise where and how mommy installs, you can just compile her 
    PATH="$(pwd)/shellspec/:$PATH" make system=1 test
    ```
    some tests will be skipped, depending on which other programs you have installed~
-5. **uninstall** (optional)  
+1. **uninstall** (optional)  
    if you want to uninstall after running `make install`, just run the same command as in step 3, except you replace `install` with `uninstall`.
 
    uninstall might not work completely if you installed a different version than the one you're uninstalling.
@@ -455,8 +455,9 @@ additionally, mommy knows a few extra options, which you can use to discover who
 | `-p`         | `--pipefail`                  | when using `-e` or `--eval`, this option enables [pipefail](https://stackoverflow.com/q/68465355/) in the evaluated command. works only if `/bin/sh` on your system supports pipefail~                                                      |
 | `-1`         |                               | writes output to stdout instead of stderr~                                                                                                                                                                                                  |
 | `-t`         | `--toggle`                    | toggles whether mommy should display output at all. applies to all sessions of all shells of the current user, until this option is toggled again. useful if you want to temporarily silence mommy without editing your shell config files~ |
-| `-c <file>`  | `--config=<file>`             | tells mommy that she should read your [config](#configuration) from `<file>`~                                                                                                                                                               |
 | `-d <dirs>`  | `--global-config-dirs=<dirs>` | sets [global configuration dirs](#configuration--config-file-locations) to the colon-separated list in `<dirs>`~                                                                                                                            |
+| `-u <dirs>`  | `--user-config-dir=<dir>`     | sets [user configuration dir](#configuration--config-file-locations) to the given `<dir>`~                                                                                                                                               |
+| `-r <name>`  | `--role=<name>`               | sets [role used by mommy](#configuration--roles) to the given `<name>`; like a profile or mood~                                                                                                                                                                    |
 
 
 ## 🙋 configuration<a name="configuration"></a> <small><sup>[top ▲](#toc)</sup></small>
@@ -481,13 +482,27 @@ after that, she will read the user-specific **local** config file, overriding th
 * to find the **global** config file, mommy runs the following procedure.
     1. mommy determines the list of global config dirs.
         1. if a list is specified using a [command-line option](#usage), that list is used.
-        2. otherwise, the list consists of all directories in `$XDG_CONFIG_DIRS`, plus `/etc/mommy`, plus `/usr/local/etc/mommy/`.
-    2. mommy traverses this list, and stops once she finds a directory that contains the file `config.sh`.
+        1. otherwise, the list consists of all directories in `$XDG_CONFIG_DIRS`, plus `/etc/mommy`, plus `/usr/local/etc/mommy/`.
+    1. mommy traverses this list, and stops once she finds a directory that contains the file `config.sh`.
        this file will be the global config file~
 * to find the **local** config file, mommy runs the following procedure.
     1. if a config file is specified using a [command-line option](#usage), that file is used.
-    2. if `$XDG_CONFIG_HOME` is defined, the file `$XDG_CONFIG_HOME/mommy/config.sh` is used.
-    3. otherwise, `$HOME/.config/mommy/config.sh` is used~
+    1. if `$XDG_CONFIG_HOME` is defined, the file `$XDG_CONFIG_HOME/mommy/config.sh` is used.
+    1. otherwise, `$HOME/.config/mommy/config.sh` is used~
+</details>
+
+<details>
+<summary><a name="configuration--roles"></a>🎭 roles (aka moods/profiles)</summary>
+
+to easily swap between multiple config files, use roles.
+specify a role with a [command-line option](#usage), and mommy will load your role-specific config on top of the standard config loading procedure.
+simply put your extra config file in `mommy/roles/<name>.sh`, and you can now use the role `<name>`.
+mommy searches for these config files in [the same way that she searches for the main config file](#configuration--config-file-locations).
+all in all, if you've configured a role, mommy will load the following config files:
+1. global config file
+1. user config file
+1. global role config file
+1. user role config file
 </details>
 
 <details>
@@ -646,7 +661,7 @@ some steps vary depending on [how and where you installed mommy](#installation)~
      [IO.Directory]::CreateDirectory("$HOME/.config/mommy")
      [IO.File]::WriteAllLines("$HOME/.config/mommy/config.sh", "MOMMY_COLOR=''")
      ```
-2. **test prompt**  
+1. **test prompt**  
    change powershell's prompt to include mommy's message~
    * **wsl**  
      if you want to run mommy through wsl, run
@@ -660,7 +675,7 @@ some steps vary depending on [how and where you installed mommy](#installation)~
      # run this in powershell
      function prompt { "$(& "C:\Program Files\Git\bin\sh.exe" "C:/Users/username/mommy" -1 -s $([int][bool]::Parse(!$?)))> " }
      ```
-3. **save prompt**  
+1. **save prompt**  
    now let's make this prompt persistent.
    in powershell, run `notepad $profile` to open your powershell settings, and add the `function prompt [...]` line from above~
 
@@ -669,7 +684,7 @@ some steps vary depending on [how and where you installed mommy](#installation)~
 
    > **ℹ️ note**  
    > if you get an error that you cannot run local scripts, run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine` as admin, or [sign the script](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_signing?view=powershell-7.3#methods-of-signing-scripts)~
-4. **improve prompt**  
+1. **improve prompt**  
    the instructions above show the basics of using mommy in powershell.
    you can make it way cooler using a theme engine like [oh-my-posh](https://ohmyposh.dev/).
    for example, you can use background colors or display mommy in the right prompt instead of the left~
@@ -809,24 +824,24 @@ if that annoys you, run `make build` after each change, and use `build/bin/mommy
 
 1. **requirements**  
    [shellspec](https://github.com/shellspec/shellspec)
-2. **test local code**
+1. **test local code**
    1. all tests
       ```shell
       make test
       ```
-   2. unit tests
+   1. unit tests
       ```shell
       make test/unit
       ```
-   3. integration tests
+   1. integration tests
       ```shell
       make test/integration
       ```
-3. **test installed binary**
+1. **test installed binary**
    ```shell
    make system=1 test
    ```
-4. **configuration**  
+1. **configuration**  
    except for `system=1`, test behaviour is configured with environment variables.
    check the various files in [`src/test/`](https://github.com/fwdekker/mommy/tree/main/src/test) to find 'em all~
 </details>
@@ -941,16 +956,16 @@ you should **not** update the `latest` branch manually!
 mommy recognises _all_ contributors, no matter the size of the contribution.
 if mommy should add, remove, or change anything here, [open an issue](https://github.com/fwdekker/mommy/issues/new) or [contact the author](https://fwdekker.com/about/)~
 
-* mommy thanks [aria beingessner](https://github.com/Gankra) for creating [cargo-mommy](https://github.com/Gankra/cargo-mommy), which inspired mommy to spawn herself into existence~
+* mommy thanks [aria desires](https://github.com/Gankra) for creating [cargo-mommy](https://github.com/Gankra/cargo-mommy), which inspired mommy to spawn herself into existence~
 * mommy thanks [austin burk](https://github.com/sudofox) for creating [shell-mommy](https://github.com/sudofox/shell-mommy) and contributing to the mommy-sphere; mommy did not know about shell-mommy before embarking on her journey, but loves her very much~
 * mommy thanks [natawie](https://github.com/natawie) for [suggesting publishing mommy on copr](https://github.com/fwdekker/mommy/issues/39) and [writing the zsh completions](https://github.com/fwdekker/mommy/pull/48)~
 * mommy thanks [amber sprenkels](https://github.com/dsprenkels) for [reporting a bug](https://github.com/fwdekker/mommy/issues/45), [sharing great ideas](https://github.com/fwdekker/mommy/issues/46), and [making mommy talk less like a robot](https://github.com/fwdekker/mommy/pull/47)~
 * mommy thanks [wei he](https://github.com/wei) for creating [socialify](https://github.com/wei/socialify), which mommy uses for her github social preview~
 * mommy thanks [ckie](https://github.com/ckiee) for [bringing mommy to nixpkgs](https://github.com/NixOS/nixpkgs/pull/250034), [several neat improvements](https://github.com/fwdekker/mommy/pull/61), and for [maintaining the nixpkg](https://github.com/NixOS/nixpkgs/pull/274867)~
 * mommy thanks [aemogie.](https://github.com/aemogie) for [telling her how to integrate with nushell](https://github.com/fwdekker/mommy/issues/65)~
-* mommy thanks [maximilian downey twiss](https://github.com/Zopolis4) for [bumping mommy's actions to their latest versions](https://github.com/fwdekker/mommy/pull/68)~
+* mommy thanks [max downey twiss](https://github.com/Zopolis4) for [bumping mommy's actions to their latest versions](https://github.com/fwdekker/mommy/pull/68)~
 * mommy thanks [fuel-pcbox](https://github.com/fuel-pcbox) for [her suggestion of supporting regexes for forbidden words](https://github.com/fwdekker/mommy/issues/103)~
 * mommy thanks [satyam singh niranjan](https://github.com/Satanarious) for [suggesting powershell support](https://github.com/fwdekker/mommy/issues/124)~
-* mommy thanks [biko](https://github.com/Bikoil) for [making mommy refer to people by their username by default](https://github.com/fwdekker/mommy/issues/131)~
+* mommy thanks [bikolyn](https://github.com/Bikoil) for [making mommy refer to people by their username by default](https://github.com/fwdekker/mommy/issues/131)~
 * mommy thanks [toria](https://github.com/ninetailedtori) for [documenting how to configure starship](https://github.com/fwdekker/mommy/pull/135), [maintaining the mommy-git package on the aur](https://aur.archlinux.org/packages/mommy-git), and [adding completions for bash](https://github.com/fwdekker/mommy/pull/170)~
 * mommy thanks [david scann](https://github.com/DavidScann) for [providing feedback on the toggle feature](https://github.com/fwdekker/mommy/issues/46#issuecomment-2888498320)~
