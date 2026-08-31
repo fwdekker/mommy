@@ -7,7 +7,7 @@ n="
 MOMMY_CAREGIVER="mommy"
 MOMMY_PRONOUNS="she her her hers herself"
 MOMMY_SWEETIE="${LOGNAME:-girl}"
-MOMMY_SWEETIE_ENCOURAGE="%%SWEETIE%%"
+unset MOMMY_SWEETIE_ENCOURAGE
 MOMMY_PREFIX=""
 MOMMY_SUFFIX="~"
 
@@ -45,7 +45,7 @@ MOMMY_ENCOURAGEMENTS="
 # trust~
 %%CAREGIVER%% believes in you
 %%CAREGIVER%% knows you'll get there
-%%CAREGIVER%% knows %%THEIR%% little %%SWEETIE_ENCOURAGE%% can do better
+%%CAREGIVER%% knows %%THEIR%% little %%SWEETIE%% can do better
 just know that %%CAREGIVER%% still loves you
 
 # consolation~
@@ -64,7 +64,7 @@ just a little further, %%CAREGIVER%% knows you can do it
 %%CAREGIVER%% knows you'll get there, don't worry about it
 
 # clean up~
-did %%CAREGIVER%%'s %%SWEETIE_ENCOURAGE%% make a big mess
+did %%CAREGIVER%%'s %%SWEETIE%% make a big mess
 "
 MOMMY_ENCOURAGEMENTS_EXTRA=""
 MOMMY_ENCOURAGEMENTS_ENABLED="1"
@@ -335,22 +335,20 @@ split_pronouns() {
 #    * `%%THEIRS%%` with the fourth word of the same random entry from `$3`,
 #    * `%%THEMSELF%%` with the fifth word of the same random entry frm `$3`,
 #    * `%%SWEETIE%%` with a random entry from `$4`,
-#    * `%%SWEETIE_ENCOURAGE%%` with a random entry from `$5`,
 #    * `%%N%%` with a literal newline character,
 #    * `%%S%%` with a literal forward slash character,
 #    * `%%_%%` with a literal whitespace character;
 #    * `%%#%%` with a literal hash character;
-# 2. applies `capitalize_lines` using `$8` as the choice parameter;
+# 2. applies `capitalize_lines` using `$7` as the choice parameter;
 # 3. removes leading and trailing newlines;
-# 4. prepends `$6` and appends `$7`; and
+# 4. prepends `$5` and appends `$6`; and
 # 5. stores the output in `$fill_template__out`.
 fill_template() {
     list_normal_choose "$2"; caregiver="$list_choose__out"
     list_normal_choose "$3"; split_pronouns "$list_choose__out"
     list_normal_choose "$4"; sweetie="$list_choose__out"
-    list_normal_choose "$5"; sweetie_encourage="$list_choose__out"
-    list_normal_choose "$6"; prefix="$list_choose__out"
-    list_normal_choose "$7"; suffix="$list_choose__out"
+    list_normal_choose "$5"; prefix="$list_choose__out"
+    list_normal_choose "$6"; suffix="$list_choose__out"
 
     replace_all__out="$1"
     replace_all "$replace_all__out" "%%CAREGIVER%%" "$caregiver"
@@ -366,7 +364,7 @@ fill_template() {
     replace_all "$replace_all__out" "%%_%%" " "
     replace_all "$replace_all__out" "%%#%%" "#"
 
-    capitalize "$prefix$replace_all__out$suffix" "$8"; fill_template__out="$capitalize__out"
+    capitalize "$prefix$replace_all__out$suffix" "$7"; fill_template__out="$capitalize__out"
     return 0
 }
 #endregion
@@ -457,11 +455,6 @@ if [ "x" != "x$opt_role" ]; then
     fi
 fi
 
-## Substitute relative defaults
-if [ "x%%SWEETIE%%" = "x$MOMMY_SWEETIE_ENCOURAGE" ]; then
-    MOMMY_SWEETIE_ENCOURAGE="$MOMMY_SWEETIE"
-fi
-
 ## State
 state_dir="${XDG_STATE_HOME:-"$HOME/.local/state"}/mommy/"
 
@@ -512,6 +505,7 @@ else
         templates="$MOMMY_COMPLIMENTS$n$MOMMY_COMPLIMENTS_EXTRA"
     elif [ 0 -ne "$command_exit_code" ] && [ 1 -eq "$MOMMY_ENCOURAGEMENTS_ENABLED" ]; then
         templates="$MOMMY_ENCOURAGEMENTS$n$MOMMY_ENCOURAGEMENTS_EXTRA"
+        MOMMY_SWEETIE="${MOMMY_SWEETIE_ENCOURAGE:-"$MOMMY_SWEETIE"}"
     else
         exit "$command_exit_code"
     fi
@@ -519,8 +513,8 @@ else
     # Select and fill template
     list_normalize "$MOMMY_FORBIDDEN_WORDS"; forbidden_words="$list_normalize__out"
     list_normal_choose "$templates" "$forbidden_words"; template="$list_choose__out"
-    fill_template "$template" "$MOMMY_CAREGIVER" "$MOMMY_PRONOUNS" "$MOMMY_SWEETIE" "$MOMMY_SWEETIE_ENCOURAGE" \
-                  "$MOMMY_PREFIX" "$MOMMY_SUFFIX" "$MOMMY_CAPITALIZE"; response="$fill_template__out"
+    fill_template "$template" "$MOMMY_CAREGIVER" "$MOMMY_PRONOUNS" "$MOMMY_SWEETIE" "$MOMMY_PREFIX" "$MOMMY_SUFFIX" \
+                  "$MOMMY_CAPITALIZE"; response="$fill_template__out"
     list_filter_not "$response" "$forbidden_words"; safe_response="$list_filter_not__out"
 
     # Output template
